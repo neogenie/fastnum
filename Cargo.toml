@@ -1,6 +1,6 @@
 [package]
 name = "fastnum"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 authors = ["Neo"]
 description = "Fast numbers library"
@@ -12,10 +12,10 @@ keywords = [
     "decimal",
     "arbitrary-precision",
 ]
-categories = [ "mathematics", "science", "no-std" ]
+categories = ["mathematics", "science", "no-std"]
 license = "MIT"
 autobenches = false
-exclude = ["/src/*"]
+rust-version = "1.82"
 
 [lib]
 bench = false
@@ -23,23 +23,28 @@ bench = false
 [dependencies]
 
 num-traits = { version = "0.2", default-features = false }
+const-str = { version = "0.5", default-features = false }
 
 serde = { version = ">= 1.0.0", default-features = false, optional = true }
 serde_json = { version = ">=0.8.0, <2.0", default-features = false, optional = true }
 diesel = { version = ">=2.2.4", default-features = false, optional = true }
 
-[dev-dependencies]
-criterion = { version = "0.5.1", features = [ "html_reports" ] }
-rstest = { version = "0.23.0" }
+bnum = { version = "0.12.0", default-features = false }
 
-[build-dependencies]
-autocfg = "1"
+[dev-dependencies]
+criterion = { version = "0.5.1", features = ["html_reports"] }
+rstest = { version = "0.23.0" }
 
 [features]
 default = ["std"]
 std = ["num-traits/std"]
 serde = ["dep:serde", "dep:serde_json"]
 diesel = ["dep:diesel"]
+test-util = []
+
+[[test]]
+name = "tests"
+required-features = ["test-util"]
 
 [[bench]]
 name = "benchmark"
