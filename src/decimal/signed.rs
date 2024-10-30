@@ -19,7 +19,7 @@ pub struct Decimal<UINT> {
     sign: Sign,
 }
 
-impl<UINT: Copy> Decimal<UINT> {
+impl<UINT> Decimal<UINT> {
     /// Creates and initializes a `Decimal`.
     ///
     #[inline]
@@ -65,7 +65,9 @@ impl<UINT: Copy> Decimal<UINT> {
     pub const fn sign(&self) -> Sign {
         self.sign
     }
+}
 
+impl<UINT: Copy> Decimal<UINT> {   
     #[inline]
     pub const fn negative(self) -> Self {
         Self::new(self.value, self.sign.not())

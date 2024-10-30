@@ -1,5 +1,5 @@
 use crate::decimal::unsigned::{parse, UnsignedDecimal};
-use crate::decimal::{ParseError, TryFromIntError};
+use crate::decimal::ParseError;
 use crate::{U128, U256, U512};
 
 macro_rules! from_uint {
@@ -25,12 +25,12 @@ macro_rules! try_from_int {
             where
                 UINT: From<$uint>
             {
-                type Error = TryFromIntError;
+                type Error = ParseError;
 
                 #[inline]
                 fn try_from(int: $int) -> Result<Self, Self::Error> {
                     if int.is_negative() {
-                        return Err(TryFromIntError);
+                        return Err(ParseError::Signed);
                     }
                     let bits = int as $uint;
                     Ok(Self::new(UINT::from(bits), 0))

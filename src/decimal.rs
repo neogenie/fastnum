@@ -28,17 +28,16 @@
 //! println!("Input ({}) with decimals: {} vs {})", input, dec, float);
 //! ```
 
-pub mod unsigned;
 pub mod signed;
+pub mod unsigned;
 
 pub(crate) mod math;
 
-mod rounding;
 mod error;
+mod rounding;
 
 #[macro_use]
 mod macros;
 
+pub use error::ParseError;
 pub use rounding::RoundingMode;
-pub use error::{ParseError, TryFromIntError};
-

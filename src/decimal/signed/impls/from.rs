@@ -1,55 +1,53 @@
-use crate::decimal::unsigned::{UnsignedDecimal};
 use crate::decimal::signed::{parse, Decimal, Sign};
-use crate::decimal::{ParseError, TryFromIntError};
+use crate::decimal::unsigned::UnsignedDecimal;
+use crate::decimal::ParseError;
 use crate::{U128, U256, U512};
 
 macro_rules! from_uint {
     ($($uint: tt),*) => {
         $(
-            impl<UINT: Copy> From<$uint> for Decimal<UINT>
+            impl<UINT> From<$uint> for Decimal<UINT>
             where
                 UnsignedDecimal<UINT>: From<$uint>
             {
                 #[inline]
-                fn from(int: $uint) -> Self {
-                    Self::new(UnsignedDecimal::<UINT>::from(int), Sign::NoSign)
+                fn from(n: $uint) -> Self {
+                    Self::new(UnsignedDecimal::<UINT>::from(n), Sign::NoSign)
                 }
             }
         )*
     }
 }
 
-// macro_rules! try_from_int {
-//     ($($int: tt as $uint: tt),*) => {
-//         $(
-//             impl<UINT> TryFrom<$int> for UnsignedDecimal<UINT>
-//             where
-//                 UINT: From<$uint>
-//             {
-//                 type Error = TryFromIntError;
-// 
-//                 #[inline]
-//                 fn try_from(int: $int) -> Result<Self, Self::Error> {
-//                     if int.is_negative() {
-//                         return Err(TryFromIntError);
-//                     }
-//                     let bits = int as $uint;
-//                     Ok(Self::new(UINT::from(bits), 0))
-//                 }
-//             }
-//         )*
-//     }
-// }
+macro_rules! from_int {
+    ($($int: tt as $uint: tt),*) => {
+        $(
+            impl<UINT> From<$int> for Decimal<UINT>
+            where
+                UnsignedDecimal<UINT>: From<$uint>
+            {
+                #[inline]
+                fn from(n: $int) -> Self {
+                    if n.is_negative() {
+                        Self::new(UnsignedDecimal::<UINT>::from(n.unsigned_abs()), Sign::Minus)
+                    } else { 
+                        Self::new(UnsignedDecimal::<UINT>::from(n as $uint), Sign::NoSign)
+                    }
+                }
+            }
+        )*
+    }
+}
 
 from_uint!(u8, u16, u32, u64, u128, usize);
-// try_from_int!(
-//     i8 as u8,
-//     i16 as u16,
-//     i32 as u32,
-//     isize as usize,
-//     i64 as u64,
-//     i128 as u128
-// );
+from_int!(
+    i8 as u8,
+    i16 as u16,
+    i32 as u32,
+    isize as usize,
+    i64 as u64,
+    i128 as u128
+);
 
 macro_rules! try_from_float {
     ($UINT: ident, $bits: literal, $name: ident) => {

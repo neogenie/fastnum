@@ -119,33 +119,3 @@ impl std::error::Error for ParseError {
         self.description()
     }
 }
-
-#[derive(Copy, Clone, PartialEq)]
-pub struct TryFromIntError;
-
-impl TryFromIntError {
-    pub const fn description(&self) -> &'static str {
-        "out of range integral type conversion attempted"
-    }
-}
-
-impl Display for TryFromIntError {
-    #[inline]
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", self.description())
-    }
-}
-
-impl Debug for TryFromIntError {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        Display::fmt(&self, f)
-    }
-}
-
-#[cfg(feature = "std")]
-impl std::error::Error for TryFromIntError {
-    #[inline]
-    fn description(&self) -> &str {
-        self.description()
-    }
-}

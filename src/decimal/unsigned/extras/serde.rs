@@ -6,7 +6,7 @@ use std::str::FromStr;
 use serde::{self, de, ser};
 
 use crate::decimal::unsigned::UnsignedDecimal;
-use crate::decimal::{ParseError, TryFromIntError};
+use crate::decimal::ParseError;
 
 impl<UINT> ser::Serialize for UnsignedDecimal<UINT>
 where
@@ -26,8 +26,8 @@ where
     UINT: Default,
     Self: From<u64>
         + From<u128>
-        + TryFrom<i64, Error = TryFromIntError>
-        + TryFrom<i128, Error = TryFromIntError>
+        + TryFrom<i64, Error = ParseError>
+        + TryFrom<i128, Error = ParseError>
         + TryFrom<f32, Error = ParseError>
         + TryFrom<f64, Error = ParseError>
         + FromStr<Err = ParseError>,
@@ -46,8 +46,8 @@ where
     UINT: Default,
     Self: From<u64>
         + From<u128>
-        + TryFrom<i64, Error = TryFromIntError>
-        + TryFrom<i128, Error = TryFromIntError>
+        + TryFrom<i64, Error = ParseError>
+        + TryFrom<i128, Error = ParseError>
         + TryFrom<f32, Error = ParseError>
         + TryFrom<f64, Error = ParseError>
         + FromStr<Err = ParseError>,
@@ -67,8 +67,8 @@ impl<'de, UINT> de::Visitor<'de> for Visitor<UINT>
 where
     UnsignedDecimal<UINT>: From<u64>,
     UnsignedDecimal<UINT>: From<u128>,
-    UnsignedDecimal<UINT>: TryFrom<i64, Error = TryFromIntError>,
-    UnsignedDecimal<UINT>: TryFrom<i128, Error = TryFromIntError>,
+    UnsignedDecimal<UINT>: TryFrom<i64, Error = ParseError>,
+    UnsignedDecimal<UINT>: TryFrom<i128, Error = ParseError>,
     UnsignedDecimal<UINT>: TryFrom<f32, Error = ParseError>,
     UnsignedDecimal<UINT>: TryFrom<f64, Error = ParseError>,
     UnsignedDecimal<UINT>: FromStr<Err = ParseError>,
