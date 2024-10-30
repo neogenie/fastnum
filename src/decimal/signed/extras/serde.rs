@@ -10,7 +10,7 @@ use crate::decimal::{ParseError, TryFromIntError};
 
 impl<UINT> ser::Serialize for Decimal<UINT>
 where
-    Decimal<UINT>: Display,
+    Self: Display,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -24,13 +24,13 @@ where
 impl<'de, UINT> de::Deserialize<'de> for Decimal<UINT>
 where
     UINT: Default,
-    decimal<UINT>: From<u64>,
-    decimal<UINT>: From<u128>,
-    decimal<UINT>: TryFrom<i64, Error = TryFromIntError>,
-    decimal<UINT>: TryFrom<i128, Error = TryFromIntError>,
-    decimal<UINT>: TryFrom<f32, Error = ParseError>,
-    decimal<UINT>: TryFrom<f64, Error = ParseError>,
-    decimal<UINT>: FromStr<Err = ParseError>,
+    Self: From<u64>
+        + From<u128>
+        + TryFrom<i64, Error = TryFromIntError>
+        + TryFrom<i128, Error = TryFromIntError>
+        + TryFrom<f32, Error = ParseError>
+        + TryFrom<f64, Error = ParseError>
+        + FromStr<Err = ParseError>,
 {
     fn deserialize<D>(d: D) -> Result<Self, D::Error>
     where
@@ -44,13 +44,13 @@ where
 impl<'de, UINT> de::Deserialize<'de> for Decimal<UINT>
 where
     UINT: Default,
-    Decimal<UINT>: From<u64>,
-    Decimal<UINT>: From<u128>,
-    Decimal<UINT>: TryFrom<i64, Error = TryFromIntError>,
-    Decimal<UINT>: TryFrom<i128, Error = TryFromIntError>,
-    Decimal<UINT>: TryFrom<f32, Error = ParseError>,
-    Decimal<UINT>: TryFrom<f64, Error = ParseError>,
-    Decimal<UINT>: FromStr<Err = ParseError>,
+    Self: From<u64>
+        + From<u128>
+        + TryFrom<i64, Error = TryFromIntError>
+        + TryFrom<i128, Error = TryFromIntError>
+        + TryFrom<f32, Error = ParseError>
+        + TryFrom<f64, Error = ParseError>
+        + FromStr<Err = ParseError>,
 {
     fn deserialize<D>(d: D) -> Result<Self, D::Error>
     where
