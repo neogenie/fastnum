@@ -3,3 +3,4 @@ mod fmt;
 mod cmp;
 mod from;
 mod ord;
+mod hash;
