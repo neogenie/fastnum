@@ -28,23 +28,31 @@ const-str = { version = "0.5", default-features = false }
 serde = { version = ">= 1.0.0", default-features = false, optional = true }
 serde_json = { version = ">=0.8.0, <2.0", default-features = false, optional = true }
 diesel = { version = ">=2.2.4", default-features = false, optional = true }
+utoipa = { version = ">= 4.0.0", default-features = false, optional = true }
 
 bnum = { version = "0.12.0", default-features = false }
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
 rstest = { version = "0.23.0" }
+serde_test = { version = ">= 1.0.0" }
+
+[build-dependencies]
+autocfg = "1"
 
 [features]
 default = ["std"]
 std = ["num-traits/std"]
 serde = ["dep:serde", "dep:serde_json"]
 diesel = ["dep:diesel"]
+utoipa = ["dep:utoipa"]
+string-only = []
 test-util = []
 
 [[test]]
 name = "tests"
 required-features = ["test-util"]
+build = "build_tests.rs"
 
 [[bench]]
 name = "benchmark"

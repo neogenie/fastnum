@@ -1,6 +1,6 @@
 macro_rules! err_prefix {
     () => {
-        "(bnum)"
+        "(fastnum)"
     };
 }
 
@@ -8,7 +8,7 @@ pub(crate) use err_prefix;
 
 macro_rules! err_msg {
     ($msg: expr) => {
-        concat!($crate::utils::err_prefix!(), " ", $msg)
+        concat!(err_prefix!(), " ", $msg)
     };
 }
 
