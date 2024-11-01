@@ -52,19 +52,26 @@ impl<UINT> UnsignedDecimal<UINT> {
     }
 }
 
+impl<UINT: Copy> UnsignedDecimal<UINT> {
+    #[inline]
+    pub const fn significant_digits(&self) -> UINT {
+        self.value
+    }
+}
+
 macro_rules! macro_impl {
     ($UINT: ident, $bits: literal) => {
         /// Unsigned decimal number with $bits-bit integer for significant digits.
         impl UnsignedDecimal<$UINT> {
             /// A constant `UnsignedDecimal` with value `0`, useful for static initialization.
             pub const ZERO: Self = Self::new($UINT::ZERO, 0);
-            
+
             // #[doc = doc::consts::min!(U 512)]
             pub const MIN: Self = Self::new($UINT::MIN, 0);
 
             // #[doc = doc::consts::max!(U 512)]
             pub const MAX: Self = Self::new($UINT::MAX, i64::MIN);
-            
+
             /// A constant `UnsignedDecimal` with value `1`, useful for static initialization.
             pub const ONE: Self = Self::new($UINT::ONE, 0);
 
@@ -91,7 +98,7 @@ macro_rules! macro_impl {
                 }
                 self
             }
-            
+
             /// Create string of this unsigned decimal in scientific notation
             ///
             /// ```
@@ -110,7 +117,10 @@ macro_rules! macro_impl {
 
             /// Write bigdecimal in scientific notation to writer `w`
             #[inline]
-            pub(crate) fn write_scientific_notation<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
+            pub(crate) fn write_scientific_notation<W: fmt::Write>(
+                &self,
+                w: &mut W,
+            ) -> fmt::Result {
                 if self.is_zero() {
                     return w.write_str("0e0");
                 }
@@ -118,7 +128,7 @@ macro_rules! macro_impl {
                 let scale = self.scale;
                 format::write_scientific_notation(digits, scale, w)
             }
-            
+
             /// Create string of this bigdecimal in engineering notation
             ///
             /// Engineering notation is scientific notation with the exponent
@@ -140,7 +150,10 @@ macro_rules! macro_impl {
 
             /// Write bigdecimal in engineering notation to writer `w`
             #[inline]
-            pub(crate) fn write_engineering_notation<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
+            pub(crate) fn write_engineering_notation<W: fmt::Write>(
+                &self,
+                w: &mut W,
+            ) -> fmt::Result {
                 if self.is_zero() {
                     return w.write_str("0e0");
                 }
@@ -162,11 +175,3 @@ macro_rules! macro_impl {
 macro_impl!(U128, 128);
 macro_impl!(U256, 256);
 macro_impl!(U512, 512);
-
-#[cfg(feature = "test-util")]
-impl<UINT: Copy> UnsignedDecimal<UINT> {
-    #[inline]
-    pub const fn significant_digits(&self) -> UINT {
-        self.value
-    }
-}

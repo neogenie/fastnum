@@ -77,6 +77,11 @@ impl<UINT: Copy> Decimal<UINT> {
     pub const fn abs(&self) -> UnsignedDecimal<UINT> {
         self.value
     }
+
+    #[inline]
+    pub const fn significant_digits(&self) -> UINT {
+        self.value.significant_digits()
+    }
 }
 
 macro_rules! macro_impl {
@@ -107,11 +112,3 @@ macro_rules! macro_impl {
 macro_impl!(U128, 128);
 macro_impl!(U256, 256);
 macro_impl!(U512, 512);
-
-#[cfg(feature = "test-util")]
-impl<UINT: Copy> Decimal<UINT> {
-    #[inline]
-    pub const fn significant_digits(&self) -> UINT {
-        self.value.significant_digits()
-    }
-}
