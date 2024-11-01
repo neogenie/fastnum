@@ -18,15 +18,15 @@ macro_rules! macro_impl {
         /// ```
         macro_rules! $name {
             ($lit: literal) => {{
-                const __DECIMAL: $crate::$DEC = $crate::decimal::$sign::parse::$module::parse_str(const_str::replace!(const_str::squish!(stringify!($lit)), " ", ""));
+                const __DECIMAL: $crate::$DEC = $crate::decimal::$sign::parse::$module::parse_str($crate::const_str::replace!($crate::const_str::squish!(stringify!($lit)), " ", ""));
                 __DECIMAL
             }};
             (+ $lit: literal) => {{
-                const __DECIMAL: $crate::$DEC = $crate::decimal::$sign::parse::$module::parse_str(const_str::concat!("+", const_str::replace!(const_str::squish!(stringify!($lit)), " ", "")));
+                const __DECIMAL: $crate::$DEC = $crate::decimal::$sign::parse::$module::parse_str($crate::const_str::concat!("+", $crate::const_str::replace!($crate::const_str::squish!(stringify!($lit)), " ", "")));
                 __DECIMAL
             }};
             ($lit: expr) => {{
-                const __DECIMAL: $crate::$DEC = $crate::decimal::$sign::parse::$module::parse_str(const_str::replace!(const_str::squish!(stringify!($lit)), " ", ""));
+                const __DECIMAL: $crate::$DEC = $crate::decimal::$sign::parse::$module::parse_str($crate::const_str::replace!($crate::const_str::squish!(stringify!($lit)), " ", ""));
                 __DECIMAL
             }};
         }
