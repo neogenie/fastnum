@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::{Display, Formatter};
 use std::ops::Not;
 
 /// A `Sign` represents sign associated with decimal number.
@@ -26,5 +28,17 @@ impl Not for Sign {
     #[inline]
     fn not(self) -> Self::Output {
         self.not()
+    }
+}
+
+impl Display for Sign
+{
+    #[inline]
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            Sign::Minus => "-".fmt(f),
+            Sign::NoSign => Ok(()),
+            Sign::Plus => "+".fmt(f),
+        }
     }
 }

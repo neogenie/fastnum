@@ -8,7 +8,7 @@ where
     UnsignedDecimal<UINT>: Display,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}{}", self.sign, self.value)
+        write!(f, "{}{}", self.sign, self.value)
     }
 }
 
@@ -23,7 +23,7 @@ where
         } else {
             write!(
                 f,
-                "Decimal(sign = {:?}, value = {:?})",
+                "Decimal(sign = {}, value = {:?})",
                 self.sign, self.value
             )
         }
