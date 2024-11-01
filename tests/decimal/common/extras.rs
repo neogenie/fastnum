@@ -1,2 +1,5 @@
+#[cfg(feature = "diesel")]
+pub(crate) mod diesel;
+
 #[cfg(feature = "serde")]
-mod serde;
+pub(crate) mod serde;

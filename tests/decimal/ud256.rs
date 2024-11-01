@@ -1,7 +1,6 @@
+mod cmp;
+mod extras;
+mod fmt;
+mod from;
 mod parse;
 mod scale;
-mod from;
-mod fmt;
-mod cmp;
-
-mod extras;

@@ -40,3 +40,11 @@ macro_impl!(UD512, 512, d512, unsigned, udec512);
 macro_impl!(D128, 128, d128, signed, dec128);
 macro_impl!(D256, 256, d256, signed, dec256);
 macro_impl!(D512, 512, d512, signed, dec512);
+
+macro_rules! decimal_err {
+    ($t: ty, $e: expr) => {
+        $crate::decimal::error::pretty_error_msg(stringify!($t), $e)
+    };
+}
+
+pub(crate) use decimal_err;

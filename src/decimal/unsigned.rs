@@ -110,7 +110,7 @@ macro_rules! macro_impl {
 
             /// Write bigdecimal in scientific notation to writer `w`
             #[inline]
-            pub fn write_scientific_notation<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
+            pub(crate) fn write_scientific_notation<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
                 if self.is_zero() {
                     return w.write_str("0e0");
                 }
@@ -140,7 +140,7 @@ macro_rules! macro_impl {
 
             /// Write bigdecimal in engineering notation to writer `w`
             #[inline]
-            pub fn write_engineering_notation<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
+            pub(crate) fn write_engineering_notation<W: fmt::Write>(&self, w: &mut W) -> fmt::Result {
                 if self.is_zero() {
                     return w.write_str("0e0");
                 }

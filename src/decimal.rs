@@ -32,6 +32,7 @@ pub mod signed;
 pub mod unsigned;
 
 pub(crate) mod math;
+pub(crate) mod extras;
 
 mod error;
 mod rounding;

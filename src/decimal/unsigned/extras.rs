@@ -1,5 +1,8 @@
-// #[cfg(feature = "diesel")]
-// mod diesel;
+#[cfg(feature = "diesel")]
+mod diesel;
+
+#[cfg(feature = "sqlx")]
+mod sqlx;
 
 #[cfg(feature = "serde")]
 mod serde;

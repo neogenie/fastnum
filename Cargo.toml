@@ -22,20 +22,22 @@ bench = false
 
 [dependencies]
 
+num-integer = { version = "0.1", default-features = false }
 num-traits = { version = "0.2", default-features = false }
 const-str = { version = "0.5", default-features = false }
 
 serde = { version = ">= 1.0.0", default-features = false, optional = true }
-serde_json = { version = ">=0.8.0, <2.0", default-features = false, optional = true }
-diesel = { version = ">=2.2.4", default-features = false, optional = true }
+diesel = { version = ">=2.2.4", default-features = false, features = ["numeric"], optional = true }
+sqlx = { version = ">=0.8.0", default-features = false, optional = true }
 utoipa = { version = ">= 4.0.0", default-features = false, optional = true }
 
-bnum = { version = "0.12.0", default-features = false }
+bnum = { version = "0.12.0", default-features = false, features = ["numtraits"]}
 
 [dev-dependencies]
 criterion = { version = "0.5.1", features = ["html_reports"] }
 rstest = { version = "0.23.0" }
 serde_test = { version = ">= 1.0.0" }
+serde_json = { version = ">=0.8.0, <2.0", default-features = false }
 
 [build-dependencies]
 autocfg = "1"
@@ -43,8 +45,16 @@ autocfg = "1"
 [features]
 default = ["std"]
 std = ["num-traits/std"]
-serde = ["dep:serde", "dep:serde_json"]
+serde = ["dep:serde"]
+
 diesel = ["dep:diesel"]
+diesel_postgres = ["diesel", "diesel/postgres_backend"]
+diesel_mysql = ["diesel", "diesel/mysql_backend"]
+
+sqlx = ["dep:sqlx"]
+sqlx_postgres = ["sqlx", "sqlx/postgres"]
+sqlx_mysql = ["sqlx", "sqlx/mysql"]
+
 utoipa = ["dep:utoipa"]
 string-only = []
 test-util = []
@@ -52,7 +62,6 @@ test-util = []
 [[test]]
 name = "tests"
 required-features = ["test-util"]
-build = "build_tests.rs"
 
 [[bench]]
 name = "benchmark"

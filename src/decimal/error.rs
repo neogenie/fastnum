@@ -119,3 +119,22 @@ impl std::error::Error for ParseError {
         self.description()
     }
 }
+
+pub(crate) fn pretty_error_msg(ty: &str, e: ParseError) -> String {
+    use ParseError::*;
+    let msg = match e {
+        Empty => "cannot be constructed from an empty string",
+        InvalidLiteral => "string contains invalid characters",
+        PosOverflow => "overflow",
+        NegOverflow => "negative overflow",
+        Zero => "must not be zero",
+        Signed => "does not support negative values",
+        Infinite => "does not support infinity values",
+        NaN => "does not support NaN values",
+        InvalidRadix => "radix MUST be 10",
+        ExponentOverflow => "exponent overflow",
+        Unknown => "decimal unknown error",
+    };
+    
+    format!("{} {ty} {}", err_prefix!(), msg)
+}
