@@ -1,6 +1,8 @@
 #![doc = include_str!("../README.md")]
 // #![deny(unsafe_code, missing_docs, clippy::all, clippy::cargo)]
 
+pub extern crate const_str;
+
 extern crate core;
 
 pub mod decimal;
