@@ -4,6 +4,21 @@ All user-visible changes to this library will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/), as described
 for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md)
 
+## [0.2.0] – unreleased
+
+- Bump Rust version to `1.83`
+  - [Stabilize &mut, *mut, &Cell, and *const Cell in const.](https://github.com/rust-lang/rust/pull/129195)
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Documentation
+
+- Minor fixes.
+
 ## [0.1.12] – 2025-02-06
 
 ### Fixed
