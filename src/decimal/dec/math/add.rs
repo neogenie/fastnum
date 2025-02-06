@@ -1,3 +1,5 @@
+use core::cmp::Ordering;
+
 use crate::decimal::{
     dec::{
         math::{sub::sub_abs, utils::magnitude_inc},
@@ -46,12 +48,16 @@ pub(crate) const fn add_abs<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
         return extend_scale_to(rhs, lhs.scale).compound(&lhs);
     }
 
-    if lhs.scale == rhs.scale {
-        add_aligned(lhs, rhs)
-    } else if lhs.scale < rhs.scale {
-        add_rescale(lhs, rhs)
-    } else {
-        add_rescale(rhs, lhs)
+    match lhs.scale_cmp(&rhs) {
+        Ordering::Less => {
+            add_rescale(lhs, rhs)
+        }
+        Ordering::Equal => {
+            add_aligned(lhs, rhs)
+        }
+        Ordering::Greater => {
+            add_rescale(rhs, lhs)
+        }
     }
 }
 

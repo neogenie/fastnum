@@ -59,7 +59,7 @@ pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
             D::ONE,
             powi_integral(
                 d.digits,
-                (d.scale as i32).overflowing_neg().0,
+                d.exponent(),
                 d.cb.set_flags(flags),
                 n.overflowing_neg().0 as u32,
             ),
@@ -67,7 +67,7 @@ pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
     } else {
         powi_integral(
             d.digits,
-            (d.scale as i32).overflowing_neg().0,
+            d.exponent(),
             d.cb.set_flags(flags),
             n as u32,
         )

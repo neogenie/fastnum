@@ -1,10 +1,9 @@
-use std::cmp::Ordering;
+use core::cmp::Ordering;
 
 use crate::{
     decimal::{dec::scale::reduce, Decimal},
     int::UInt,
 };
-use crate::int::math::ilog10;
 
 type D<const N: usize> = Decimal<N>;
 
@@ -74,8 +73,8 @@ const fn cmp_magnitude<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
         return a.digits.cmp(&b.digits);
     }
 
-    let a_exp = ilog10(a.digits) as i32 - a.scale as i32;
-    let b_exp = ilog10(b.digits) as i32 - b.scale as i32;
+    let a_exp = a.power();
+    let b_exp = b.power();
 
     if a_exp == b_exp {
         if a.scale > b.scale {

@@ -1,3 +1,5 @@
+use core::cmp::Ordering;
+
 use crate::decimal::{
     dec::{scale::rescale, ExtraPrecision},
     Decimal, Signal,
@@ -19,23 +21,20 @@ pub(crate) const fn rem<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
         return lhs;
     }
 
-    if lhs.scale >= rhs.scale {
-        rhs = rescale(rhs, lhs.scale);
-
-        D::new(
-            lhs.digits.rem(rhs.digits),
-            lhs.scale,
-            lhs.cb.combine(rhs.cb.abs()),
-            ExtraPrecision::new(),
-        )
-    } else {
-        lhs = rescale(lhs, rhs.scale);
-
-        D::new(
-            lhs.digits.rem(rhs.digits),
-            lhs.scale,
-            lhs.cb.combine(rhs.cb.abs()),
-            ExtraPrecision::new(),
-        )
+    match lhs.scale_cmp(&rhs) {
+        Ordering::Equal => {}
+        Ordering::Less => {
+            lhs = rescale(lhs, rhs.scale);
+        }
+        Ordering::Greater => {
+            rhs = rescale(rhs, lhs.scale);
+        }
     }
+
+    D::new(
+        lhs.digits.rem(rhs.digits),
+        lhs.scale,
+        lhs.cb.combine(rhs.cb.abs()),
+        ExtraPrecision::new(),
+    )
 }

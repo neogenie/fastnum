@@ -30,7 +30,7 @@ use crate::{
         },
         doc, Context, DecimalError, Flags, ParseError, RoundingMode, Sign, Signal, UnsignedDecimal,
     },
-    int::UInt,
+    int::{math::ilog10, UInt},
 };
 
 /// # Decimal
@@ -2195,9 +2195,25 @@ impl<const N: usize> Decimal<N> {
         }
     }
 
+    #[inline(always)]
+    pub(crate) const fn scale_cmp(&self, other: &Self) -> Ordering {
+        if self.scale == other.scale {
+            Ordering::Equal
+        } else if self.scale > other.scale {
+            Ordering::Greater
+        } else {
+            Ordering::Less
+        }
+    }
+    
     #[inline]
-    pub(crate) fn type_name() -> String {
-        format!("D{}", N * 64)
+    pub(crate) const fn exponent(&self) -> i32 {
+        (self.scale as i32).overflowing_neg().0
+    }
+
+    #[inline]
+    pub(crate) const fn power(&self) -> i32 {
+        ilog10(self.digits) as i32 - self.scale as i32
     }
 
     #[inline(always)]
@@ -2311,6 +2327,11 @@ impl<const N: usize> Decimal<N> {
     #[inline]
     pub(crate) const fn eq_with_extra_precision(&self, other: &Self) -> bool {
         cmp::eq(self, other) && self.extra_precision.eq(other.extra_precision)
+    }
+
+    #[inline]
+    pub(crate) fn type_name() -> String {
+        format!("D{}", N * 64)
     }
 
     /// Write unsigned decimal in scientific notation to writer `w`.

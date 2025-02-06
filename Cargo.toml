@@ -18,7 +18,7 @@ keywords = [
 categories = ["mathematics", "science", "no-std"]
 license = "MIT OR Apache-2.0"
 autobenches = false
-rust-version = "1.82"
+rust-version = "1.83"
 
 [lib]
 bench = false

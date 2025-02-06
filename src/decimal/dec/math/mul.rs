@@ -2,10 +2,7 @@ use crate::{
     decimal::{
         dec::{
             construct::construct,
-            math::{
-                add::add,
-                utils::{correct, overflow},
-            },
+            math::{add::add, utils::correct},
             scale::extend_scale_to,
             ExtraPrecision,
         },
@@ -44,11 +41,7 @@ pub(crate) const fn mul<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
         return extend_scale_to(rhs.with_cb(cb), lhs.scale.saturating_add(rhs.scale));
     }
 
-    let (mut exp, mut overflow_exp) = (lhs.scale as i32 + rhs.scale as i32).overflowing_neg();
-
-    if overflow_exp {
-        return overflow(cb);
-    }
+    let mut exp = lhs.exponent() + rhs.exponent();
 
     let correction = mul_correction(&lhs, &rhs);
 
@@ -66,11 +59,7 @@ pub(crate) const fn mul<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
     let mut rem;
 
     while !high.is_zero() {
-        (exp, overflow_exp) = exp.overflowing_add(1);
-
-        if overflow_exp {
-            return overflow(cb);
-        }
+        exp += 1;
 
         out = [0; N];
         rem = 0;
