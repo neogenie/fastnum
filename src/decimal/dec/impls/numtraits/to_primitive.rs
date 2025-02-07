@@ -1,6 +1,6 @@
 use num_traits::ToPrimitive;
 
-use crate::decimal::{Decimal, dec::convert};
+use crate::decimal::{dec::convert, Decimal};
 
 macro_rules! to_int_impl {
     ($to_int: ident, $int: ty) => {

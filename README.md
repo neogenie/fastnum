@@ -89,7 +89,8 @@ indirect addressing, which improves cache-friendliness and reduces the CPU load.
 - **`const` evaluation**: nearly all methods defined on `fastnum` integers and decimals are `const`, which allows
   complex compile-time calculations and checks.
 - **Full range of advanced mathematical functions**: exponential, roots, power, logarithmic, and trigonometric functions
-  for working with exact precision decimals.
+  for working with exact precision decimals. 
+  And yes, they're all `const` too.
 
 ## Installation
 
@@ -152,6 +153,9 @@ The `diesel` feature enables serialization and deserialization of `fastnum` deci
 
 The `sqlx` feature enables serialization and deserialization of `fastnum` decimals for [
 `sqlx`](https://docs.rs/sqlx/latest/sqlx/) crate.
+
+The `tokio-postgres` feature enables serialization and deserialization of `fastnum` decimals for [
+`tokio-postgres`](https://docs.rs/tokio-postgres/latest/tokio_postgres/) crate.
 
 ### Autodocs crates support
 

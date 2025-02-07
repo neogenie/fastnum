@@ -5,12 +5,12 @@ use core::{
     ops::{Mul, Not},
 };
 
-/// A `Sign` represents `sign` associated with decimal number.
+/// A `Sign` represents `sign` associated with a decimal number.
 #[derive(Copy, Clone, Debug)]
 pub enum Sign {
     /// Positive: plus "+" or no sign.
     Plus,
-    
+
     /// Negative: minus "-" sign.
     Minus,
 }
@@ -42,7 +42,6 @@ impl Sign {
     ///
     /// assert_eq!(Sign::Plus.not(), Sign::Minus);
     /// assert_eq!(Sign::Minus.not(), Sign::Plus);
-    ///
     /// ```
     #[inline]
     pub const fn not(self) -> Self {
@@ -61,7 +60,7 @@ impl Sign {
             (_, _) => Sign::Minus,
         }
     }
-    
+
     /// Sign "division".
     #[inline]
     pub const fn div(self, rhs: Self) -> Self {

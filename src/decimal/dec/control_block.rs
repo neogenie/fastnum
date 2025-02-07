@@ -1,5 +1,7 @@
-use crate::decimal::{dec::Flags, Context, RoundingMode, Sign, Signal};
-use crate::utils::assert_eq_size;
+use crate::{
+    decimal::{dec::Flags, Context, RoundingMode, Sign, Signal},
+    utils::assert_eq_size,
+};
 
 /// Control block (CB)
 #[derive(Copy, Clone, Hash, PartialEq, Eq)]

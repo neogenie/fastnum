@@ -148,8 +148,8 @@ macro_rules! test_impl {
             assert_eq!(x.with_rounding_mode(HalfUp).round(digits), y);
             assert_eq!(x.with_rounding_mode(Down).round(digits), z);
         }
-        
-        
+
+
         #[rstest(::trace)]
         //---------------------------------------
         #[case($dec!(0.1), Up, $dec!(1))]
@@ -244,7 +244,7 @@ macro_rules! test_impl {
             assert_eq!(x.with_rounding_mode(HalfUp).round(digits), y);
             assert_eq!(x.with_rounding_mode(Down).round(digits), z);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(-0.1), Up, $dec!(-1))]
         #[case($dec!(-0.1), Floor, $dec!(-1))]
@@ -299,5 +299,3 @@ macro_rules! test_impl {
 }
 
 pub(crate) use test_impl;
-
-

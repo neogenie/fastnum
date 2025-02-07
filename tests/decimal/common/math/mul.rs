@@ -51,7 +51,7 @@ macro_rules! test_impl {
             assert_eq!(prod, expected);
             assert_eq!(prod.fractional_digits_count(), expected.fractional_digits_count());
             assert!(prod.is_op_ok());
-            
+
             let mut a = a;
 
             a *= b;
@@ -82,7 +82,7 @@ macro_rules! test_impl {
             assert_eq!(prod, expected);
             assert_eq!(prod.fractional_digits_count(), expected.fractional_digits_count());
             assert!(prod.is_op_ok());
-            
+
             let mut a = a;
 
             a *= b;
@@ -94,7 +94,7 @@ macro_rules! test_impl {
 
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(340282366920938463463374607431768211455), $dec!(1.0), $dec!(340282366920938463463374607431768211455), signals![!ROUND])]
         #[case($dec!(995052931372975485719.533153137), $dec!(4.523087321), $dec!(4500711297616988541501.8369669931160760), signals![!ROUND, !INEXACT])]
@@ -109,12 +109,12 @@ macro_rules! test_impl {
             #[case] signals: Signal
         ) {
             let d = a * b;
-            
+
             assert_eq!(d, expected);
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert_eq!(d.op_signals(), signals);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(1e100), $dec!(1e32765))]
         #[should_panic(expected = "(fastnum) overflow was occurred while performing arithmetic operation")]
@@ -176,11 +176,11 @@ macro_rules! test_impl {
         #[case($D::MAX, $dec!(1.1e-32766))]
         fn test_mul_inexact(#[case] a: $D, #[case] b: $D) {
             let res = a * b;
-            
+
             assert!(res.is_op_inexact());
             assert!(res.is_op_rounded());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, $dec!(1))]
         #[case($dec!(1), $D::NAN)]
@@ -257,7 +257,7 @@ macro_rules! test_impl {
             assert!(res.is_op_inexact());
             assert!(res.is_op_rounded());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, $dec!(-1))]
         #[case($dec!(-1), $D::NAN)]

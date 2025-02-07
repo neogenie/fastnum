@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{$dec, $D};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, THIS);
         }
@@ -18,14 +18,14 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{$dec, $D};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
     };
     (COMMON:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(1.3407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095), "1.3407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095")]
         fn test_serialize_deserialize_str_512(#[case] dec: $D, #[case] expected: &'static str) {
@@ -39,14 +39,14 @@ macro_rules! test_impl {
     (SIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
     };
     (COMMON:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(115.792089237316195423570985008687907853269984665640564039457584007913129639935), "115.792089237316195423570985008687907853269984665640564039457584007913129639935")]
         fn test_serialize_deserialize_str_256(#[case] dec: $D, #[case] expected: &'static str) {
@@ -66,7 +66,7 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
     };
@@ -85,7 +85,7 @@ macro_rules! test_impl {
             let expected = serde_test::Token::Str(expected);
             serde_test::assert_tokens(&dec, &[expected]);
         }
-        
+
         #[rstest(::trace)]
         #[case("1")]
         #[case("2")]
@@ -134,25 +134,25 @@ macro_rules! test_impl {
                 }
             }
         }
-        
-        super::test_impl!(FROM INT:: $dec, $D, U8, U16, U32, U64); 
+
+        super::test_impl!(FROM INT:: $dec, $D, U8, U16, U32, U64);
         super::test_impl!(TRY FROM FLOAT:: $dec, $D, F32, F64);
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(UNSIGNED:: 128, $dec, $D);
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident) => {
-        super::test_impl!(TRY FROM INT:: $dec, $D, I8, I16, I32, I64); 
+        super::test_impl!(TRY FROM INT:: $dec, $D, I8, I16, I32, I64);
     };
     (SIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
     (SIGNED:: 128, $dec: ident, $D: ident) => {
-        super::test_impl!(FROM INT:: $dec, $D, I8, I16, I32, I64); 
+        super::test_impl!(FROM INT:: $dec, $D, I8, I16, I32, I64);
     };
     (FROM INT:: $dec: ident, $D: ident, $($tt: ident),*) => {
-        $( 
-            paste::paste! { 
+        $(
+            paste::paste! {
                 #[rstest(::trace)]
                 #[case(0)]
                 #[case(1)]
@@ -161,7 +161,7 @@ macro_rules! test_impl {
                 fn [< test_deserialize_from_ $tt:lower >](#[case] int: [<$tt:lower>]) {
                     use fastnum::decimal::extras::serde::DeserializeMode;
                     let tokens = [serde_test::Token::$tt(int)];
-        
+
                     match DeserializeMode::default() {
                         DeserializeMode::Strict => {
                             let err = format!("invalid type: integer `{}`, expected formatted decimal string in strict mode", int);
@@ -177,8 +177,8 @@ macro_rules! test_impl {
         )*
     };
     (TRY FROM INT:: $dec: ident, $D: ident, $($tt: ident),*) => {
-        $( 
-            paste::paste! { 
+        $(
+            paste::paste! {
                 #[rstest::rstest(::trace)]
                 #[case(0)]
                 #[case(1)]
@@ -187,7 +187,7 @@ macro_rules! test_impl {
                 fn [< test_deserialize_from_ $tt:lower >](#[case] int: [<$tt:lower>]) {
                     use fastnum::decimal::extras::serde::DeserializeMode;
                     let tokens = [serde_test::Token::$tt(int)];
-        
+
                     match DeserializeMode::default() {
                         DeserializeMode::Strict => {
                             let err = format!("invalid type: integer `{}`, expected formatted decimal string in strict mode", int);
@@ -203,8 +203,8 @@ macro_rules! test_impl {
         )*
     };
     (TRY FROM FLOAT:: $dec: ident, $D: ident, $($tt: ident),*) => {
-        $( 
-            paste::paste! { 
+        $(
+            paste::paste! {
                 #[rstest(::trace)]
                 #[case(0.)]
                 #[case(1.)]
@@ -214,9 +214,9 @@ macro_rules! test_impl {
                 fn [< test_deserialize_from_ $tt:lower >](#[case] n: [<$tt:lower>]) {
                     use fastnum::decimal::extras::serde::DeserializeMode;
                     use crate::decimal::common::extras::serde::WithDecimalPoint;
-    
+
                     let tokens = [serde_test::Token::$tt(n)];
-    
+
                     match DeserializeMode::default() {
                         DeserializeMode::Strict => {
                             let err = format!("invalid type: floating point `{}`, expected formatted decimal string in strict mode", WithDecimalPoint(n as f64));
@@ -228,12 +228,12 @@ macro_rules! test_impl {
                         }
                     }
                 }
-    
+
                 // #[rstest(::trace)]
                 // fn [< $name _ $ttype:lower _ nan >]() {
                 //     use fastnum::decimal::extras::serde::DeserializeMode;
                 //     let tokens = [ serde_test::Token::$ttype([<$ttype:lower>]::NAN) ];
-                // 
+                //
                 //     match DeserializeMode::default() {
                 //         DeserializeMode::Strict => {
                 //             let err = "invalid type: floating point `NaN`, expected formatted decimal string in strict mode";
@@ -251,8 +251,10 @@ macro_rules! test_impl {
 
 pub(crate) use test_impl;
 
-use core::fmt;
-use core::fmt::{Display, Write};
+use core::{
+    fmt,
+    fmt::{Display, Write},
+};
 
 pub(crate) struct WithDecimalPoint(pub f64);
 

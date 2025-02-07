@@ -254,7 +254,7 @@ macro_rules! from_float {
             assert_eq!(d.op_signals(), signals![]);
         }
     };
-    
+
     (FROM INF $f: ident, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         fn test_from_inf() {
@@ -272,7 +272,7 @@ macro_rules! from_float {
             assert!(d.is_negative());
         }
     };
-    
+
     (FROM NAN $f: ident, $bits: literal, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case($f::NAN)]
@@ -282,7 +282,7 @@ macro_rules! from_float {
             assert!(d.is_nan());
         }
     };
-    
+
     (FROM U $f: ident, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case(-0.)]
@@ -295,7 +295,7 @@ macro_rules! from_float {
             let _ = $D::try_from(n).unwrap();
         }
     };
-    
+
     (FROM S $f: ident, $bits: literal, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case(-0., $dec!(-0))]

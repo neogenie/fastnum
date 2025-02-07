@@ -1,0 +1,12 @@
+[package]
+name = "fastnum_sqlx_postgres"
+version = "0.0.1"
+authors = ["Neo"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+fastnum = { path = "../../", features = ["sqlx_postgres"] }
+sqlx = { version = "0.8", features = [ "runtime-tokio" ] }
+tokio = { version = "1.43.0", features = ["full"] }
+tokio-macros = "2.5.0"

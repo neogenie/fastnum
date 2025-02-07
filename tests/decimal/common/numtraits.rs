@@ -11,7 +11,7 @@ macro_rules! test_impl {
                 use rstest::*;
                 use fastnum::{$dec, $D};
                 use num_traits::{FromPrimitive, ToPrimitive};
-                
+
                 super::test_impl!(UNSIGNED:: $bits, $dec, $D);
             }
         }
@@ -22,7 +22,7 @@ macro_rules! test_impl {
                 use rstest::*;
                 use fastnum::{$dec, $D};
                 use num_traits::{FromPrimitive, ToPrimitive};
-                
+
                 super::test_impl!(SIGNED:: $bits, $dec, $D);
             }
         }
@@ -42,14 +42,14 @@ macro_rules! test_impl {
     (UNSIGNED:: 128, $dec: ident, $D: ident) => {
         super::test_impl!(UNSIGNED TO_UINT $dec, $D, u8, u16, u32, u64, u128, usize);
         super::test_impl!(UNSIGNED TO_INT $dec, $D, i8, i16, i32, i64, i128, isize);
-        
+
         super::test_impl!(UNSIGNED FROM_UINT $dec, $D, u8, u16, u32, u64, u128, usize);
         super::test_impl!(UNSIGNED FROM_INT $dec, $D, i8, i16, i32, i64, i128, isize);
     };
     (SIGNED:: 128, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED TO_UINT $dec, $D, u8, u16, u32, u64, u128, usize);
         super::test_impl!(SIGNED TO_INT $dec, $D, i8, i16, i32, i64, i128, isize);
-        
+
         super::test_impl!(SIGNED FROM_UINT $dec, $D, u8, u16, u32, u64, u128, usize);
         super::test_impl!(SIGNED FROM_INT $dec, $D, i8, i16, i32, i64, i128, isize);
     };
@@ -105,7 +105,7 @@ macro_rules! test_impl {
                 fn [< test_to_ $Pt _signed>](#[case] d: $D, #[case] expected: $Pt) {
                     assert_eq!(d.[< to_ $Pt>](), Some(expected));
                 }
-                
+
                 #[rstest(::trace)]
                 #[case($dec!(-0))]
                 #[case($dec!(-1))]
@@ -139,7 +139,7 @@ macro_rules! test_impl {
                 fn [< test_to_ $Pt _signed>](#[case] d: $D, #[case] expected: $Pt) {
                     assert_eq!(d.[< to_ $Pt>](), Some(expected));
                 }
-                
+
                 #[rstest(::trace)]
                 #[case($D::from($Pt::MIN).neg())]
                 #[case($D::from($Pt::MAX) + $dec!(1))]
@@ -152,7 +152,7 @@ macro_rules! test_impl {
             }
         )*
     };
-    
+
     (UNSIGNED FROM_UINT $dec: ident, $D: ident, $($Pt: ty),*) => {
         $(
             paste::paste! {
@@ -182,7 +182,7 @@ macro_rules! test_impl {
                 fn [< test_from_ $Pt >](#[case] n: $Pt, #[case] expected: $D) {
                     assert_eq!($D::[< from_ $Pt>](n), Some(expected));
                 }
-                
+
                 #[rstest(::trace)]
                 #[case($Pt::MIN)]
                 fn [< test_from_ $Pt _negative>](#[case] n: $Pt) {

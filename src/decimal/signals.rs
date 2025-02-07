@@ -29,7 +29,7 @@ impl Signal {
 
     /// Raised when a result would be undefined or impossible.
     pub const OP_INVALID: Self = Self(0b0000_0100);
-    
+
     /// Raised when the exponent of a result is too large to be represented.
     pub const OP_OVERFLOW: Self = Self(0b0001_0000);
 

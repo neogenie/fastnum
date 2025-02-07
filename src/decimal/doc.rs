@@ -24,13 +24,13 @@ macro_rules! decimal_operation_panics {
     ($op: literal) => {
         concat!(
             "\n\n# Panics:\n\n",
-            "### debug mode\n\n", 
+            "### debug mode\n\n",
             "This method will panic if ",
             $op,
             " performs with some [Exceptional condition](crate#signaling-flags-and-trap-enablers) and corresponding [Signal] in the [Context]
             is trapped by trap-enabler.
             \n\n",
-            "### release mode\n\n", 
+            "### release mode\n\n",
             "In release mode panic will not occur and result will be [`NaN`](crate#nan).\n\n"
         )
     };
@@ -41,8 +41,8 @@ pub(crate) use decimal_operation_panics;
 macro_rules! decimal_inexact {
     ($op: literal) => {
         concat!(
-            "\n\n# Precision\n\n", 
-            "Since the result of ", 
+            "\n\n# Precision\n\n",
+            "Since the result of ",
             $op,
             " is irrational number, it can usually only be computed to some finite precision ",
             "from a series of increasingly accurate approximations.\n\n",

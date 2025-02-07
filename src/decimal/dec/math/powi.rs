@@ -65,12 +65,7 @@ pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
             ),
         )
     } else {
-        powi_integral(
-            d.digits,
-            d.exponent(),
-            d.cb.set_flags(flags),
-            n as u32,
-        )
+        powi_integral(d.digits, d.exponent(), d.cb.set_flags(flags), n as u32)
     }
 }
 
@@ -82,7 +77,7 @@ const fn powi_integral<const N: usize>(
     n: u32,
 ) -> D<N> {
     // TODO: special case 2^n
-    
+
     let (mut out, mut overflow) = digits.overflowing_pow(n);
     let mut extra_precision = ExtraPrecision::new();
 

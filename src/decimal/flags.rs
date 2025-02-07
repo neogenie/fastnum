@@ -1,6 +1,6 @@
 use core::fmt::{Debug, Display, Formatter};
-use crate::decimal::Sign;
-use crate::utils::assert_eq_size;
+
+use crate::{decimal::Sign, utils::assert_eq_size};
 
 /// Flags.
 #[derive(Copy, Clone, Hash, PartialEq, Eq)]

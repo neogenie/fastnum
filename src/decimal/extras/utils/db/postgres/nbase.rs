@@ -1,13 +1,15 @@
 use core::cmp::Ordering;
 
 use crate::{
-    decimal::{dec::ControlBlock, Decimal, ParseError},
+    decimal::{
+        dec::{ControlBlock, ExtraPrecision},
+        Decimal, ParseError,
+    },
     int::{
         math::{div_rem, to_i16},
         UInt,
     },
 };
-use crate::decimal::dec::ExtraPrecision;
 
 type D<const N: usize> = Decimal<N>;
 

@@ -5,16 +5,16 @@ macro_rules! macro_impl {
         ///
         ///
         /// # Examples:
-        /// 
+        ///
         /// ```
         #[doc = concat!("use fastnum::{", stringify!($name), ", ", stringify!($INT), "};")]
         ///
         #[doc = concat!("const N: ", stringify!($INT), " = ", stringify!($name), "!(100);")]
         #[doc = concat!("let x = ", stringify!($name), "!(1);")]
         #[doc = concat!("assert!(", stringify!($name), "!(0).is_zero());")]
-        /// println!("{x}"); 
+        /// println!("{x}");
         /// ```
-        /// 
+        ///
         macro_rules! $name {
             ($lit:expr) => {{
                 const __INT: $crate::$INT = $crate::int::parse::$sign::parse_str(stringify!($lit));

@@ -46,16 +46,16 @@ const fn nth_root_newton<const N: usize>(d: D<N>, n: u32) -> D<N> {
     let one_div_n = D::ONE.div(from_u32(n));
     let mut x_n;
     let mut i;
-    
+
     while result.is_ok() {
         x_n = result;
         i = n - 2;
-        
+
         while i > 0 {
             x_n = mul(x_n, result);
             i -= 1;
         }
-        
+
         result_next = mul(one_div_n, add(mul(n_minus_one, result), div(d, x_n)));
 
         if result.eq_with_extra_precision(&result_next) {

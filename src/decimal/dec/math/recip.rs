@@ -1,14 +1,13 @@
 use crate::decimal::{
     dec::{
         convert::to_f64,
-        math::{mul::mul, sub::sub},
+        math::{add::add, mul::mul, sub::sub},
         parse::from_f64,
         scale,
         scale::extend_scale_to,
     },
     Decimal, Signal,
 };
-use crate::decimal::dec::math::add::add;
 
 type D<const N: usize> = Decimal<N>;
 

@@ -6,7 +6,6 @@ use bigdecimal::BigDecimal;
 use fastnum::{dec128, D128};
 
 pub fn vector(c: &mut Criterion) {
-
     let mut group = c.benchmark_group("Allocate");
 
     for size in [100, 500, 1000, 10000, 100000, 1000000] {

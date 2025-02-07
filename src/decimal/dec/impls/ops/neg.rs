@@ -10,4 +10,3 @@ impl<const N: usize> Neg for Decimal<N> {
         self.neg()
     }
 }
-

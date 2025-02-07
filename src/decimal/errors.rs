@@ -1,5 +1,5 @@
-pub(crate) mod parse;
 pub(crate) mod decimal;
+pub(crate) mod parse;
 
-pub use parse::ParseError;
 pub use decimal::DecimalError;
+pub use parse::ParseError;

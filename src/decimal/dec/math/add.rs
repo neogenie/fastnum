@@ -49,15 +49,9 @@ pub(crate) const fn add_abs<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
     }
 
     match lhs.scale_cmp(&rhs) {
-        Ordering::Less => {
-            add_rescale(lhs, rhs)
-        }
-        Ordering::Equal => {
-            add_aligned(lhs, rhs)
-        }
-        Ordering::Greater => {
-            add_rescale(rhs, lhs)
-        }
+        Ordering::Less => add_rescale(lhs, rhs),
+        Ordering::Equal => add_aligned(lhs, rhs),
+        Ordering::Greater => add_rescale(rhs, lhs),
     }
 }
 

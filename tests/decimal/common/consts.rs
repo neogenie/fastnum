@@ -19,7 +19,7 @@ macro_rules! test_impl {
         fn test_math_consts(#[case] d: $D, #[case] expected: $D) {
             assert_eq!(d, expected);
         }
-        
+
         #[rstest(::trace)]
         #[case($D::EPSILON, $dec!(0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001))]
         fn test_base_consts(#[case] d: $D, #[case] expected: $D) {
@@ -32,21 +32,21 @@ macro_rules! test_impl {
         fn test_math_consts(#[case] d: $D, #[case] expected: $D) {
             assert_eq!(d, expected);
         }
-        
+
         #[rstest(::trace)]
         #[case($D::EPSILON, $dec!(0.00000000000000000000000000000000000000000000000000000000000000000000000000001))]
         fn test_base_consts(#[case] d: $D, #[case] expected: $D) {
             assert_eq!(d, expected);
         }
     };
-    
+
     (@ 128, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case($D::PI, $dec!(3.1415926535897932384626433832795028842))]
         fn test_math_consts(#[case] d: $D, #[case] expected: $D) {
             assert_eq!(d, expected);
         }
-        
+
         #[rstest(::trace)]
         #[case($D::EPSILON, $dec!(0.00000000000000000000000000000000000001))]
         fn test_base_consts(#[case] d: $D, #[case] expected: $D) {

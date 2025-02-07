@@ -1,3 +1,5 @@
+use core::ops::DerefMut;
+
 use sqlx::{
     decode::Decode,
     encode::{Encode, IsNull},
@@ -9,7 +11,7 @@ use sqlx::{
 use crate::decimal::{
     errors::parse::pretty_error_msg,
     extras::{
-        sqlx::pg::{decode, encode, NUMERIC, NUMERIC_ARRAY},
+        sqlx::pg::{NUMERIC, NUMERIC_ARRAY},
         utils::db::postgres::NBase,
     },
     Decimal, ParseError, UnsignedDecimal,
@@ -36,7 +38,7 @@ impl<const N: usize> Encode<'_, Postgres> for UD<N> {
             .0
             .try_into()
             .map_err(|e| pretty_error_msg(UD::<N>::type_name().as_str(), e))?;
-        encode(nbase, buf)?;
+        nbase.encode(buf.deref_mut())?;
 
         Ok(IsNull::No)
     }
@@ -46,7 +48,7 @@ impl<const N: usize> Decode<'_, Postgres> for UD<N> {
     fn decode(value: PgValueRef<'_>) -> Result<Self, BoxDynError> {
         match value.format() {
             PgValueFormat::Binary => {
-                let dec: D<N> = decode(value.as_bytes()?)?
+                let dec: D<N> = NBase::decode(value.as_bytes()?)?
                     .try_into()
                     .map_err(|e| pretty_error_msg(UD::<N>::type_name().as_str(), e))?;
 

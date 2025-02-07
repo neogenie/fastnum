@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::*;
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, THIS);
         }
@@ -18,7 +18,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::*;
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
@@ -32,8 +32,8 @@ macro_rules! test_impl {
     (SIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
     };
@@ -52,10 +52,10 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(3), $dec!(0.333333333333333333333333333333333333333))]
         fn test_recip_128(#[case] d: $D, #[case] expected: $D) {
@@ -64,7 +64,7 @@ macro_rules! test_impl {
             assert_eq!(res, expected);
             assert_eq!(res.op_signals(), signals![!CP, !INEXACT, !ROUND]);
         }
-        
+
     };
     (COMMON:: 128, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
@@ -98,7 +98,7 @@ macro_rules! test_impl {
         super::test_impl!(UNSIGNED:: 128, $dec, $D);
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident) => {
-        
+
     };
     (SIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);

@@ -1,5 +1,7 @@
-use std::env;
-use std::path::{Path, PathBuf};
+use std::{
+    env,
+    path::{Path, PathBuf},
+};
 
 const DEFAULT_ROUNDING_MODE: &str = "HalfUp";
 const FMT_EXPONENTIAL_LOWER_THRESHOLD: &str = "5";

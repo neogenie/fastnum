@@ -54,7 +54,7 @@ macro_rules! from_uint_impl {
         pub const fn $from_uint<const N: usize>(uint: $uint) -> U<N> {
             const UINT_BITS: usize = $uint::BITS as usize;
             debug_assert!(UINT_BITS <= N * (BITS as usize));
-            
+
             let mut digits = [0; N];
             let mut i = 0;
             while i << BIT_SHIFT < UINT_BITS {

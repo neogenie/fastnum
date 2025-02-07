@@ -78,7 +78,7 @@ macro_rules! test_impl {
     };
     (COMMON:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(472697816888807260.1604), $dec!(472697816888807260.16040000000000000000001))]
         #[case($dec!(1), $dec!(1.0000000000000000000000000000000000000000000000000001))]
@@ -111,7 +111,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(-1.0000000000000000000000000000000000000000000000000001), $dec!(-1))]
         fn test_cmp_signed_256(#[case] a: $D, #[case] b: $D) {

@@ -55,7 +55,7 @@ macro_rules! test_impl {
 
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($D::INFINITY, concat!(stringify!($D), r#"(digits=[340282366920938463463374607431768211455], exp=[32768], flags=[INF], signals=[], ctx=[R=HalfUp, S=!DBZ, !INV, !OFW], extra=[0.0000])"#))]
         fn test_fmt_debug_128(#[case] d: $D, #[case] expected: &str) {
@@ -82,7 +82,7 @@ macro_rules! test_impl {
             let formated = format!("{d}");
             assert_eq!(formated.as_str(), expected);
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, concat!(stringify!($D), r#"(digits=[0], exp=[0], flags=[NAN], signals=[], ctx=[R=HalfUp, S=!DBZ, !INV, !OFW], extra=[0.0000])"#))]
         #[case($dec!(0), concat!(stringify!($D), r#"(digits=[0], exp=[0], flags=[], signals=[], ctx=[R=HalfUp, S=!DBZ, !INV, !OFW], extra=[0.0000])"#))]
@@ -100,7 +100,7 @@ macro_rules! test_impl {
             let formated = format!("{d:?}");
             assert_eq!(formated.as_str(), expected);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(0), concat!(stringify!($D), r#"(0e0)"#))]
         #[case($dec!(1), concat!(stringify!($D), r#"(1e0)"#))]
@@ -453,7 +453,7 @@ macro_rules! test_impl {
         fn test_fmt_options_exp_upper(#[case] d: $D, #[case] expected: &str) {
             assert_eq!(format!("{:E}", d), expected);
         }
-        
+
         // TODO: subnormals & other
 
         #[rstest(::trace)]
@@ -475,7 +475,7 @@ macro_rules! test_impl {
             let eng_round_trip = $D::from_str(&eng, Context::default()).unwrap();
             assert_eq!(eng_round_trip, d);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(4159248078.2835), "4.1592480782835e9")]
         #[case($dec!(0.00001234), "1.234e-5")]
@@ -518,7 +518,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($D::NEG_INFINITY, concat!(stringify!($D), r#"(digits=[340282366920938463463374607431768211455], exp=[32768], flags=[S, INF], signals=[], ctx=[R=HalfUp, S=!DBZ, !INV, !OFW], extra=[0.0000])"#))]
         fn test_fmt_debug_signed_128(#[case] d: $D, #[case] expected: &str) {

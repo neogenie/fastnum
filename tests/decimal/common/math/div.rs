@@ -145,12 +145,12 @@ macro_rules! test_impl {
             #[case] signals: Signal
         ) {
             let d = a / b;
-            
+
             assert_eq!(d, expected);
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert_eq!(d.op_signals(), signals);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(1),                   $dec!(3),                  $dec!(0.333333333333333333333333333333333333334), signals![!ROUND, !INEXACT])]
         #[case($dec!(1),                   $dec!(9),                  $dec!(0.111111111111111111111111111111111111112), signals![!ROUND, !INEXACT])]
@@ -166,7 +166,7 @@ macro_rules! test_impl {
         ) {
             let ctx = Context::default().with_rounding_mode(Up);
             let d = a.with_ctx(ctx) / b.with_ctx(ctx);
-            
+
             assert_eq!(d, expected);
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert_eq!(d.op_signals(), signals);

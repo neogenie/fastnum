@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $uint, $D, $U, THIS);
             super::test_impl!(UNSIGNED:: $bits, $uint, $D, $U, THIS);
         }
@@ -18,15 +18,15 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $uint, $D, $U, THIS);
             super::test_impl!(SIGNED:: $bits, $uint, $D, $U, THIS);
         }
     };
-    
+
     (COMMON:: 512, $uint: ident, $D: ident, $U: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $uint, $D, $U);
-        
+
         #[rstest(::trace)]
         #[case("115792089237316195423570985008687907853269984665640564039457584007913129639935", $uint!(115792089237316195423570985008687907853269984665640564039457584007913129639935), 0)]
         #[case("1157920892373161954235709850086.87907853269984665640564039457584007913129639935", $uint!(115792089237316195423570985008687907853269984665640564039457584007913129639935), -47)]
@@ -38,7 +38,7 @@ macro_rules! test_impl {
             assert_eq!(dec.fractional_digits_count(), -exp);
             assert!(dec.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case("13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084096")]
         #[case("13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084095.1")]
@@ -53,10 +53,10 @@ macro_rules! test_impl {
     (SIGNED:: 512, $uint: ident, $D: ident, $U: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $uint, $D, $U);
     };
-    
+
     (COMMON:: 256, $uint: ident, $D: ident, $U: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $uint, $D, $U);
-        
+
         #[rstest(::trace)]
         #[case("115792089237316195423570985008687907853269984665640564039457584007913129639936")]
         #[case("11579208923731619542357098500868790785326998466564056403945758400791312963993.6")]
@@ -70,7 +70,7 @@ macro_rules! test_impl {
     };
     (COMMON:: 256, $uint: ident, $D: ident, $U: ident) => {
         super::test_impl!(COMMON:: 128, $uint, $D, $U);
-        
+
         #[rstest(::trace)]
         #[case("340282366920938463463374607431768211455", $uint!(340282366920938463463374607431768211455), 0)]
         #[case("34028236692093846346337460743176821145.5", $uint!(340282366920938463463374607431768211455), -1)]
@@ -97,10 +97,10 @@ macro_rules! test_impl {
     (SIGNED:: 256, $uint: ident, $D: ident, $U: ident) => {
         super::test_impl!(SIGNED:: 128, $uint, $D, $U);
     };
-    
+
     (COMMON:: 128, $uint: ident, $D: ident, $U: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $uint, $D, $U);
-        
+
         #[rstest(::trace)]
         #[case("340282366920938463463374607431768211456")]
         #[case("340282366920938463463374607431768211455.5")]
@@ -168,7 +168,7 @@ macro_rules! test_impl {
             assert_eq!(dec.fractional_digits_count(), -exp);
             assert!(dec.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case::nan("nan")]
         #[case::nan("NAN")]
@@ -177,7 +177,7 @@ macro_rules! test_impl {
             let dec = $D::from_str(s, Context::default()).unwrap();
             assert!(dec.is_nan());
         }
-        
+
         #[rstest(::trace)]
         #[case::nan("Inf")]
         #[case::nan("+Inf")]
@@ -247,7 +247,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 128, $uint: ident, $D: ident, $U: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $uint, $D, $U);
-        
+
         #[rstest(::trace)]
         #[case("-340282366920938463463374607431768211456")]
         #[case("-340282366920938463463374607431768211455.5")]
@@ -283,7 +283,7 @@ macro_rules! test_impl {
             assert_eq!(dec.fractional_digits_count(), -exp);
             assert!(dec.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case::nan("-Infinity")]
         #[case::nan("-Inf")]

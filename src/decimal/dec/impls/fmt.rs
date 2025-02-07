@@ -68,7 +68,7 @@ impl<const N: usize> Debug for Decimal<N> {
                 self.exponent(),
                 self.flags(),
                 self.signals(),
-                self.context(), 
+                self.context(),
                 self.extra_precision
             )
         }

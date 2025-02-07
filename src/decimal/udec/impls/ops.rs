@@ -1,6 +1,6 @@
-mod mul;
-mod div;
 mod add;
-mod sub;
+mod div;
+mod mul;
 mod neg;
 mod rem;
+mod sub;

@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, THIS);
         }
@@ -18,7 +18,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
@@ -32,8 +32,8 @@ macro_rules! test_impl {
     (SIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
     };
@@ -52,7 +52,7 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
     };
@@ -64,17 +64,17 @@ macro_rules! test_impl {
         #[case($dec!(4), $dec!(2), signals![!CP, !ROUND, !INEXACT])]
         fn test_sqrt(#[case] d: $D, #[case] expected: $D, #[case] signals: Signal) {
             let res = d.sqrt();
-            
+
             assert_eq!(res, expected);
             assert_eq!(res.op_signals(), signals);
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN)]
         fn test_sqrt_nan(#[case] d: $D) {
             let ctx = Context::default().without_traps();
             let res = d.with_ctx(ctx).ln();
-            
+
             assert!(res.is_nan());
             assert!(res.is_op_invalid());
         }
@@ -93,7 +93,7 @@ macro_rules! test_impl {
         fn test_sqrt_neg(#[case] d: $D) {
             let ctx = Context::default().without_traps();
             let res = d.with_ctx(ctx).sqrt();
-            
+
             assert!(res.is_nan());
             assert!(res.is_op_invalid());
         }

@@ -1,2 +1,2 @@
-#[cfg(any(feature = "diesel_postgres", feature = "sqlx_postgres"))]
+#[cfg(feature = "extra-postgres")]
 pub(crate) mod postgres;

@@ -73,7 +73,7 @@ macro_rules! test_impl {
 
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(340282366920938463463374607431768211455), $dec!(0.5), $dec!(34028236692093846346337460743176821146e1))]
         #[case($dec!(340282366920938463463374607431768211455), $dec!(0.1), $dec!(340282366920938463463374607431768211455))]
@@ -84,22 +84,22 @@ macro_rules! test_impl {
         #[case($dec!(23.6666666666666666666666666666666666667), $dec!(10.6666666666666666666666666666666666668), $dec!(34.333333333333333333333333333333333334))]
         fn test_add_inexact(#[case] a: $D, #[case] b: $D, #[case] expected: $D) {
             let res = a + b;
-        
+
             assert_eq!(res, expected);
             assert_eq!(res.fractional_digits_count(), expected.fractional_digits_count());
-        
+
             assert!(res.is_op_inexact());
             assert!(res.is_op_rounded());
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(184467440737e3380), $dec!(0), $dec!(184467440737000000000000000000000000000e3353))]
         fn test_add_clamped(#[case] a: $D, #[case] b: $D, #[case] expected: $D) {
             let res = a + b;
-        
+
             assert_eq!(res, expected);
             assert_eq!(res.fractional_digits_count(), expected.fractional_digits_count());
-        
+
             assert!(!res.is_op_inexact());
             assert!(res.is_op_clamped());
         }
@@ -152,7 +152,7 @@ macro_rules! test_impl {
         #[case($dec!(7E+12), $dec!(1.11), $dec!(7000000000001.11))]
         #[case($dec!(1.11), $dec!(7E+12), $dec!(7000000000001.11))]
         //---------------
-        
+
         #[case($dec!(0.00), $dec!(0.01), $dec!(0.01))]
         #[case($dec!(0.01), $dec!(0.01), $dec!(0.02))]
         #[case($dec!(0.12), $dec!(0.01), $dec!(0.13))]
@@ -160,7 +160,7 @@ macro_rules! test_impl {
         #[case($dec!(0.99), $dec!(0.01), $dec!(1.00))]
         #[case($dec!(1.00), $dec!(0.01), $dec!(1.01))]
         #[case($dec!(1.01), $dec!(0.01), $dec!(1.02))]
-        
+
         //---------------
         #[case($D::INFINITY, $D::INFINITY, $D::INFINITY)]
         #[case($dec!(1), $D::INFINITY, $D::INFINITY)]
@@ -172,7 +172,7 @@ macro_rules! test_impl {
             assert_eq!(res, expected);
             assert_eq!(res.fractional_digits_count(), expected.fractional_digits_count());
             assert!(res.is_op_ok());
-            
+
             let mut a = a;
 
             a += b;
@@ -180,7 +180,7 @@ macro_rules! test_impl {
             assert_eq!(a.fractional_digits_count(), expected.fractional_digits_count());
             assert!(a.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, $dec!(1))]
         #[case($dec!(1), $D::NAN)]
@@ -235,7 +235,7 @@ macro_rules! test_impl {
         #[case($dec!(1.00), $dec!(-0.01), $dec!(0.99))]
         #[case($dec!(1.01), $dec!(-0.01), $dec!(1.00))]
         //--------------------
-        
+
         #[case($D::NEG_INFINITY, $D::NEG_INFINITY, $D::NEG_INFINITY)]
         #[case($dec!(-1), $D::INFINITY, $D::INFINITY)]
         #[case($dec!(-1000), $D::INFINITY, $D::INFINITY)]
@@ -257,7 +257,7 @@ macro_rules! test_impl {
             assert_eq!(a.fractional_digits_count(), expected.fractional_digits_count());
             assert!(a.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, $dec!(-1))]
         #[case($dec!(-1), $D::NAN)]

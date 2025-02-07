@@ -98,7 +98,7 @@ macro_rules! to_float_impl {
 
                 coefficient = coefficient.div(UInt::FIVE.pow(-d_exp as u32));
             };
-            
+
             if exp_shift && !coefficient.bit(0) {
                 coefficient = coefficient.shr(1);
                 exp_shift = false;
@@ -139,9 +139,9 @@ macro_rules! to_float_impl {
             if exp_shift {
                 b_exp -= 1;
             }
-            
+
             let mut exp = b_exp + (MANTISSA_DIGITS - 1) as i32;
-            
+
             if exp > MAX_EXP - 1 {
                 return $f::INFINITY;
             }

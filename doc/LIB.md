@@ -70,6 +70,7 @@ get rid of one indirect addressing, which improves cache-friendliness and reduce
   complex compile-time calculations and checks.
 - **Full range of advanced mathematical functions**: exponential, roots, power, logarithmic, and trigonometric functions
   for working with exact precision decimals.
+  And yes, they're all `const` too.
 
 ## Installation
 
@@ -151,8 +152,8 @@ const E: UD256 = udec256!(1.5).div(udec256!(0));
 ### Abstract model
 
 Numbers represent the values which can be manipulated by, or be the results of.
-Numbers may be finite numbers (numbers whose value can be represented exactly),
-or they may be special values (infinities and other values which aren't finite numbers).
+Numbers may be [finite numbers](#finite-numbers) (numbers whose value can be represented exactly),
+or they may be [special values](#special-values) (infinities and other values which aren't finite numbers).
 
 #### Finite numbers
 
@@ -468,15 +469,15 @@ assert!(res.is_op_inexact());
 This occurs and signals invalid-operation if:
 
 - an operand to an operation is [`NaN`].
-- an attempt is made to add [`+Infinity`] to [`-Infinity`] during an addition or subtraction operation.
+- an attempt is made to add [`+Infinity`] to [`-Infinity`] during an [addition] or [subtraction] operation.
 - an attempt is made to multiply `0` by [`±Infinity`].
 - an attempt is made to divide either [`+Infinity`] or [`-Infinity`] by either [`+Infinity`] or [`-Infinity`].
-- the divisor for a remainder operation is zero.
-- the dividend for a remainder operation is [`±Infinity`].
-- either operand of the `quantize` operation is infinite.
-- the operand of the `ln` or the `log10` operation is less than zero.
-- the operand of the `square-root` operation has a negative sign and a non-zero coefficient.
-- both operands of the power operation are zero, or if the first operand is less than zero and the second
+- the divisor for a [remainder] operation is zero.
+- the dividend for a [remainder] operation is [`±Infinity`].
+- either operand of the [quantize] operation is infinite.
+- the operand of any [logarithm function] is less than zero.
+- the operand of the [square-root] operation has a negative sign and a non-zero coefficient.
+- both operands of the [power] operation are zero, or if the first operand is less than zero and the second
   operand doesn't have an integral value or is infinite.
 
 ```
@@ -587,8 +588,8 @@ assert!(res.is_op_subnormal());
 
 ## Precision
 
-Precision is an integral number of decimal digits. It is limited by maximum decimal digits that N-bit unsigned
-coefficient can hold.
+Precision is an integral number of decimal digits. 
+It is limited by the maximum decimal digits that N-bit unsigned coefficient can hold.
 
 ## Arithmetic
 
@@ -797,7 +798,8 @@ assert_eq!(dec256!(-1.3).unsigned_abs(), udec256!(1.3));
 
 #### Addition and subtraction
 
-[Addition and subtraction]: #addition-and-subtraction
+[addition]: #addition-and-subtraction
+[subtraction]: #addition-and-subtraction
 
 [`add(self, other)`](crate::decimal::Decimal::add) | [`sub(self, other)`](crate::decimal::Decimal::sub)
 
@@ -834,7 +836,7 @@ assert_eq!(dec256!(1.3) - dec256!(2.07), dec256!(-0.77));
 
 #### Division
 
-[Division]: #division
+[division]: #division
 
 [`div(dividend, divisor)`](crate::decimal::Decimal::div)
 
@@ -896,7 +898,7 @@ exponent will be set appropriately.
 
 #### Multiplication
 
-[Multiplication]: #multiplication
+[multiplication]: #multiplication
 
 [`mul(self, other)`](crate::decimal::Decimal::mul)
 
@@ -924,12 +926,12 @@ assert_eq!(dec128!(654321) * dec128!(654321), dec128!(4.28135971041E+11));
 
 #### Fused multiply-add
 
-[Fused multiply-add]: #fused-multiply-add
+[fused multiply-add]: #fused-multiply-add
 
 [`mul_add(self, a, b)`](crate::decimal::Decimal::mul_add)
 
 Operation takes three operands.
-The first two are multiplied together, using [Multiplication],
+The first two are multiplied together, using [multiplication],
 with sufficient precision and exponent range that the result is exact and unrounded.
 No flags are set by the multiplication unless one of the first two operands is a signaling `NaN`, or one is a zero and
 the other is an [`Infinity`].
@@ -948,7 +950,7 @@ assert_eq!(dec128!(1.0).mul_add(dec128!(2), dec128!(0.5)), dec128!(2.5));
 
 #### Power
 
-[Power]: #power
+[power]: #power
 
 [`powi(self, n)`](crate::decimal::Decimal::powi) | [`pow(self, n)`](crate::decimal::Decimal::pow)
 
@@ -969,10 +971,10 @@ The following rules apply:
 - If the second operand is a _zero_, the result will be `1` and exact.
 - In cases not covered above, the result will be inexact unless the second operator has an integral value and the result
   is finite and can be expressed exactly within precision digits.
-  In this latter case, if the result is unrounded then its exponent will be that which would result if
+  In this latter case, if the result is unrounded, then its exponent will be that which would result if
   the operation were calculated by repeated multiplication (if the second operand is negative then the reciprocal of the
   first operand is used, with the absolute value of the second operand determining the multiplications).
-- Inexact finite results should be correctly rounded, but may be up to 1 ulp (unit in last place) in error.
+- Inexact finite results should be correctly rounded but may be up to 1 ulp (unit in last place) in error.
 - The sign of the result will be `-` only if the second operand has an integral value and is odd (and is not _infinite_)
   and also the sign of the first operand is `-`.
   In all other cases, the sign of the result will be `0`.
@@ -1012,7 +1014,7 @@ assert_eq!(D256::NEG_INFINITY.powi(2), D256::INFINITY);
 
 #### Square root
 
-[Square root]: #square-root
+[square-root]: #square-root
 
 [`sqrt(self)`](crate::decimal::Decimal::sqrt)
 
@@ -1049,7 +1051,7 @@ Square-root can also be calculated by using the power operation (with a second o
 
 #### N-th roots
 
-[N-th roots]: #n-th-roots
+[n-th roots]: #n-th-roots
 
 [`nth_root(self, n)`](crate::decimal::Decimal::nth_root)
 
@@ -1076,7 +1078,7 @@ N-th root can also be calculated by using the power operation (with a second ope
 
 #### Exponential function
 
-[Exponential function]: #exponential-function
+[exponential function]: #exponential-function
 
 [`exp(self)`](crate::decimal::Decimal::exp)
 
@@ -1110,7 +1112,7 @@ The standard Taylor series expansion method is used for calculation _e<sup>x</su
 
 #### Binary exponential function
 
-[Binary exponential function]: #binary-exponential-function
+[binary exponential function]: #binary-exponential-function
 
 [`exp2(self)`](crate::decimal::Decimal::exp2)
 
@@ -1141,7 +1143,7 @@ The standard Taylor series expansion method is used for calculation _2<sup>x</su
 
 #### Logarithm function
 
-[Logarithm function]: #logarithm-function
+[logarithm function]: #logarithm-function
 
 |                              Base                              |                      Method                       |                                                 Associated constants                                                 |
 |:--------------------------------------------------------------:|:-------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------:|
@@ -1174,7 +1176,7 @@ assert_eq!(dec256!(512).log2(), dec256!(9));
 
 #### Trigonometric functions
 
-[Trigonometric functions]: #trigonometric-functions
+[trigonometric functions]: #trigonometric-functions
 
 ##### Base trigonometric functions
 
@@ -1720,13 +1722,13 @@ If digits exceed this threshold, they're printed without a decimal-point, suffix
 
 [Serialization]: #serialization
 
-If you are passing decimal numbers between systems, be sure to use a serialization format
-which explicitly supports decimal numbers and does not require transformations to
+If you're passing decimal numbers between systems, be sure to use a serialization format
+which explicitly supports decimal numbers and doesn't require transformations to
 floating-point binary numbers, or there will be information loss.
 
 Text formats like JSON should work ok as long as the receiver will also parse
 numbers as decimals so complete precision is kept accurate.
-Typically, JSON-parsing implementations do not do this by default, and need special
+Typically, JSON-parsing implementations don't do this by default, and need special
 configuration.
 
 Binary formats like `msgpack` may expect/require representing numbers as 64-bit [IEEE-754]
@@ -1814,6 +1816,7 @@ let my_struct: MyStruct = serde_json::from_str(&json_src).unwrap();
 | `sqlx`            |         | Enables serialization and deserialization of `fastnum` decimals for [`sqlx`](https://docs.rs/sqlx/latest/sqlx/) crate.                                                                              |
 | `sqlx_postgres`   |         | Enables serialization and deserialization of `fastnum` decimals for [`sqlx`](https://docs.rs/sqlx/latest/sqlx/) PostgreSQL backend.                                                                 |
 | `sqlx_mysql`      |         | Enables serialization and deserialization of `fastnum` decimals for [`sqlx`](https://docs.rs/sqlx/latest/sqlx/) MySQL backend.                                                                      |
+| `tokio-postgres`  |         | Enables serialization and deserialization of `fastnum` decimals for [`tokio-postgres`](https://docs.rs/tokio-postgres/latest/tokio_postgres/) crate.                                                |
 | `utoipa`          |         | Enables support of `fastnum` decimals for autogenerated OpenAPI documentation via the [`utoipa`](https://docs.rs/utoipa/latest/utoipa/) crate.                                                      |
 | `dev`             |         | This feature opens up some otherwise private API, that can be useful to implement a third party integrations. Do not use this feature for any other use-cases.                                      |
 

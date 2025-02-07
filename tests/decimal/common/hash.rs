@@ -7,10 +7,10 @@ macro_rules! test_impl {
     };
     (UNSIGNED: $dec: ident, $D: ident) => {
         mod $dec {
+            use fastnum::{$D, $dec};
             use rstest::*;
-            use fastnum::{$dec, $D};
             use std::hash::{DefaultHasher, Hash, Hasher};
-            
+
             pub(crate) fn hash<T>(obj: &T) -> u64
             where
                 T: Hash,
@@ -19,17 +19,17 @@ macro_rules! test_impl {
                 obj.hash(&mut hasher);
                 hasher.finish()
             }
-            
+
             super::test_impl!(COMMON, $dec, $D);
             super::test_impl!(UNSIGNED, $dec, $D);
         }
     };
     (SIGNED: $dec: ident, $D: ident) => {
         mod $dec {
+            use fastnum::{$D, $dec};
             use rstest::*;
-            use fastnum::{$dec, $D};
             use std::hash::{DefaultHasher, Hash, Hasher};
-            
+
             pub(crate) fn hash<T>(obj: &T) -> u64
             where
                 T: Hash,
@@ -38,7 +38,7 @@ macro_rules! test_impl {
                 obj.hash(&mut hasher);
                 hasher.finish()
             }
-            
+
             super::test_impl!(COMMON, $dec, $D);
             super::test_impl!(SIGNED, $dec, $D);
         }
@@ -94,4 +94,3 @@ macro_rules! test_impl {
 }
 
 pub(crate) use test_impl;
-

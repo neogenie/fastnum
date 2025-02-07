@@ -1,7 +1,4 @@
-include!(concat!(
-    env!("OUT_DIR"),
-    "/serde_deserialize_mode.rs"
-));
+include!(concat!(env!("OUT_DIR"), "/serde_deserialize_mode.rs"));
 
 /// Determines how to deserialize decimal numbers
 ///

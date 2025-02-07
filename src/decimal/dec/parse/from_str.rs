@@ -2,12 +2,15 @@ use core::str::from_utf8_unchecked;
 
 use crate::{
     decimal::{
-        dec::{construct::construct_with_clength, ControlBlock},
+        dec::{construct::construct_with_clength, ControlBlock, ExtraPrecision},
         Context, Decimal, DecimalError, ParseError, Sign,
     },
-    int::{intrinsics::{POWER, Digit}, math::overflowing_mul10, UInt},
+    int::{
+        intrinsics::{Digit, POWER},
+        math::overflowing_mul10,
+        UInt,
+    },
 };
-use crate::decimal::dec::ExtraPrecision;
 
 /// Creates and initializes a Decimal from string.
 #[inline]

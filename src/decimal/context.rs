@@ -32,7 +32,7 @@ impl Context {
     pub const fn default() -> Self {
         Self::DEFAULT
     }
-    
+
     /// Apply the given [RoundingMode] to the `Context`.
     #[must_use]
     #[inline]
@@ -48,7 +48,7 @@ impl Context {
         self.signal_traps = SignalsTraps::empty();
         self
     }
-    
+
     /// Method applies specified [SignalsTraps] to the given context.
     /// # Examples
     ///

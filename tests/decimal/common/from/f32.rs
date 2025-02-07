@@ -10,7 +10,7 @@ macro_rules! test_impl {
             use rstest::*;
             #[allow(unused_imports)]
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, THIS);
         }
@@ -20,7 +20,7 @@ macro_rules! test_impl {
             use rstest::*;
             #[allow(unused_imports)]
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
@@ -65,7 +65,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case(-1.0e-40, $dec!(-0.9999946101114759581525919052273499496042205269619191850412790687494327124262838424328947439789772033691406250e-40), signals![])]
         #[case(-1.0e-39, $dec!(-1.00000021530533325742087560014568310926874564800968669110436609702256827159061458587530069053173065185546875000e-39), signals![])]
@@ -79,8 +79,8 @@ macro_rules! test_impl {
             assert_eq!(d.op_signals(), signals);
         }
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
 
@@ -127,7 +127,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case(-1.0e-40, $dec!(-0.99999461011147595815259190522734994960422052696191918504127906874943271242628e-40), signals![!INEXACT, !ROUND])]
         #[case(-1.0e-39, $dec!(-1.00000021530533325742087560014568310926874564800968669110436609702256827159062e-39), signals![!INEXACT, !ROUND])]
@@ -144,7 +144,7 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
 

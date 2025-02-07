@@ -4,9 +4,9 @@ macro_rules! test_impl {
     };
     ($dec: ident, $udec: ident, $D: ident, $UD: ident) => {
         mod $dec {
+            use fastnum::{decimal::*, *};
             use rstest::*;
-            use fastnum::{*, decimal::*};
-            
+
             #[rstest(::trace)]
             #[case($dec!(0), $dec!(0), $udec!(0))]
             #[case($dec!(0.00), $dec!(0.00), $udec!(0.00))]
@@ -32,15 +32,11 @@ macro_rules! test_impl {
             #[case($dec!(-56267E-0), $dec!(56267), $udec!(56267))]
             #[case($D::INFINITY, $D::INFINITY, $UD::INFINITY)]
             #[case($D::NEG_INFINITY, $D::INFINITY, $UD::INFINITY)]
-            fn test_abs(
-                #[case] d: $D,
-                #[case] abs: $D,
-                #[case] uabs: $UD
-            ) {
+            fn test_abs(#[case] d: $D, #[case] abs: $D, #[case] uabs: $UD) {
                 assert_eq!(d.abs(), abs);
                 assert_eq!(d.unsigned_abs(), uabs);
             }
-            
+
             #[rstest(::trace)]
             fn test_abs_nan() {
                 let ctx = Context::default().without_traps();

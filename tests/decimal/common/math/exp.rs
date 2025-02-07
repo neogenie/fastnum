@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, THIS);
         }
@@ -18,7 +18,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
@@ -31,7 +31,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
-        
+
         // #[rstest(::trace)]
         // #[case($dec!(1),   $D::E)]
         // #[case($dec!(1.5), $dec!(4.481689070338064822602055460119275819005749868369667056772650082785936674466713772981053831382453391388616350651830195768962746477220408606961759644973694))]
@@ -50,8 +50,8 @@ macro_rules! test_impl {
         //     assert!(res.is_op_rounded());
         // }
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
     };
@@ -66,7 +66,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(1),   $D::E)]
         #[case($dec!(1.5), $dec!(4.4816890703380648226020554601192758190057498683696670567726500827859366744667))]
@@ -88,10 +88,10 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(1),   $D::E)]
         #[case($dec!(1.5), $dec!(4.4816890703380648226020554601192758190))]
@@ -111,7 +111,7 @@ macro_rules! test_impl {
         }
     };
     (COMMON:: 128, $dec: ident, $D: ident) => {
-        
+
         #[rstest(::trace)]
         #[case($dec!(0), $D::ONE)]
         #[case($D::INFINITY, $D::INFINITY)]
@@ -120,7 +120,7 @@ macro_rules! test_impl {
             assert_eq!(res, expected);
             assert_eq!(res.op_signals(), signals![]);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(1), $D::E)]
         fn test_exp(#[case] d: $D, #[case] expected: $D) {
@@ -129,7 +129,7 @@ macro_rules! test_impl {
             assert!(res.is_op_inexact());
             assert!(res.is_op_rounded());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN)]
         fn test_exp_nan(#[case] d: $D) {
@@ -143,11 +143,11 @@ macro_rules! test_impl {
         super::test_impl!(UNSIGNED:: 128, $dec, $D);
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident) => {
-        
+
     };
     (SIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(-1),   $dec!(0.36787944117144232159552377016146086744))]
         // #[case($dec!(-1.5), $dec!(4.4816890703380648226020554601192758187))]

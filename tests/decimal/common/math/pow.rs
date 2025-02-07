@@ -1,19 +1,19 @@
 macro_rules! test_impl {
     (D, $bits: literal) => {
-        paste::paste! { 
-            test_impl!(SIGNED: $bits, [< dec $bits >], [<D $bits>]); 
+        paste::paste! {
+            test_impl!(SIGNED: $bits, [< dec $bits >], [<D $bits>]);
         }
     };
     (UD, $bits: literal) => {
-        paste::paste! { 
-            test_impl!(UNSIGNED: $bits, [< udec $bits >], [<UD $bits>], [< dec $bits >], [<D $bits>]); 
+        paste::paste! {
+            test_impl!(UNSIGNED: $bits, [< udec $bits >], [<UD $bits>], [< dec $bits >], [<D $bits>]);
         }
     };
     (UNSIGNED: $bits: tt, $dec: ident, $D: ident, $sdec: ident, $SD: ident) => {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, $sdec, $SD, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, $sdec, $SD, THIS);
         }
@@ -22,7 +22,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
@@ -36,11 +36,11 @@ macro_rules! test_impl {
     (SIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, $sdec: ident, $SD: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D, $sdec, $SD);
-        
+
         #[rstest(::trace)]
         #[case($dec!(10), 20, $dec!(1e20), signals![])]
         #[case($dec!(10), 77, $dec!(1E+77), signals![])]
@@ -71,13 +71,13 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, $sdec: ident, $SD: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D, $sdec, $SD);
-        
+
         #[rstest(::trace)]
         #[case($dec!(3), -1, $dec!(0.333333333333333333333333333333333333333), signals![!ROUND, !INEXACT])]
-        #[case($dec!(2), -64, $dec!(5.4210108624275221700372640043497085571E-20), signals![!ROUND, !INEXACT])] 
+        #[case($dec!(2), -64, $dec!(5.4210108624275221700372640043497085571E-20), signals![!ROUND, !INEXACT])]
         #[case($dec!(10), 20, $dec!(1e20), signals![])]
         #[case($dec!(10), 22, $dec!(1E+22), signals![])]
         #[case($dec!(10), 77, $dec!(1E+77), signals![!ROUND])]
@@ -92,7 +92,7 @@ macro_rules! test_impl {
         }
     };
     (COMMON:: 128, $dec: ident, $D: ident, $sdec: ident, $SD: ident) => {
-        
+
         #[rstest(::trace)]
         #[case($dec!(0), 1, $dec!(0))]
         #[case($dec!(0), 2, $dec!(0))]
@@ -157,7 +157,7 @@ macro_rules! test_impl {
         #[case($dec!(0.3), 1, $dec!(0.3))]
         #[case($dec!(0.3), 2, $dec!(0.09))]
         #[case($dec!(0.3), 2, $dec!(0.09))]
-        #[case($dec!(6.0), 1, $dec!(6.0))] 
+        #[case($dec!(6.0), 1, $dec!(6.0))]
         #[case($dec!(6.0), 2, $dec!(36.00))]
         // --------------------------------------
         #[case($dec!(0.1), 0, $dec!(1))]
@@ -180,8 +180,8 @@ macro_rules! test_impl {
         #[case($dec!(2), -2, $dec!(0.25))]
         #[case($dec!(2), -4, $dec!(0.0625))]
         #[case($dec!(2), -8, $dec!(0.00390625))]
-        #[case($dec!(2), -16, $dec!(0.0000152587890625))] 
-        #[case($dec!(2), -32, $dec!(2.3283064365386962890625e-10))] 
+        #[case($dec!(2), -16, $dec!(0.0000152587890625))]
+        #[case($dec!(2), -32, $dec!(2.3283064365386962890625e-10))]
         // --------------------------------------
         #[case($dec!(10), -8, $dec!(0.00000001))]
         #[case($dec!(10), -7, $dec!(0.0000001))]
@@ -221,7 +221,7 @@ macro_rules! test_impl {
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert!(d.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(0), $sdec!(1), $dec!(0))]
         #[case($dec!(0), $sdec!(2), $dec!(0))]
@@ -286,7 +286,7 @@ macro_rules! test_impl {
         #[case($dec!(0.3), $sdec!(1), $dec!(0.3))]
         #[case($dec!(0.3), $sdec!(2), $dec!(0.09))]
         #[case($dec!(0.3), $sdec!(2), $dec!(0.09))]
-        #[case($dec!(6.0), $sdec!(1), $dec!(6.0))] 
+        #[case($dec!(6.0), $sdec!(1), $dec!(6.0))]
         #[case($dec!(6.0), $sdec!(2), $dec!(36.00))]
         // --------------------------------------
         #[case($dec!(0.1), $sdec!(0), $dec!(1))]
@@ -309,8 +309,8 @@ macro_rules! test_impl {
         #[case($dec!(2), $sdec!(-2), $dec!(0.25))]
         #[case($dec!(2), $sdec!(-4), $dec!(0.0625))]
         #[case($dec!(2), $sdec!(-8), $dec!(0.00390625))]
-        #[case($dec!(2), $sdec!(-16), $dec!(0.0000152587890625))] 
-        #[case($dec!(2), $sdec!(-32), $dec!(2.3283064365386962890625e-10))] 
+        #[case($dec!(2), $sdec!(-16), $dec!(0.0000152587890625))]
+        #[case($dec!(2), $sdec!(-32), $dec!(2.3283064365386962890625e-10))]
         // --------------------------------------
         #[case($dec!(10), $sdec!(-8), $dec!(0.00000001))]
         #[case($dec!(10), $sdec!(-7), $dec!(0.0000001))]
@@ -347,7 +347,7 @@ macro_rules! test_impl {
             let d = d.pow(n);
             assert_eq!(d, expected);
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, -9)]
         #[case($D::NAN, 0)]
@@ -359,7 +359,7 @@ macro_rules! test_impl {
             assert!(d.is_nan());
             assert!(d.is_op_invalid());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, $sdec!(9.99))]
         #[case($D::NAN, $sdec!(0.1))]
@@ -376,14 +376,14 @@ macro_rules! test_impl {
         super::test_impl!(UNSIGNED:: 128, $dec, $D, $sdec, $SD);
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident, $sdec: ident, $SD: ident) => {
-        
+
     };
     (SIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
-        #[case($dec!(-10), 77, $dec!(-1E+77), signals![!ROUND])] 
-        #[case($dec!(-10), 99, $dec!(-1E+99), signals![!ROUND])] 
+        #[case($dec!(-10), 77, $dec!(-1E+77), signals![!ROUND])]
+        #[case($dec!(-10), 99, $dec!(-1E+99), signals![!ROUND])]
         #[case($dec!(-10), 22, $dec!(1E+22), signals![])]
         fn test_powi_128_signed(#[case] d: $D, #[case] n: i32, #[case] expected: $D, #[case] signals: Signal) {
             let d = d.powi(n);
@@ -393,7 +393,7 @@ macro_rules! test_impl {
         }
     };
     (SIGNED:: 128, $dec: ident, $D: ident) => {
-        
+
         #[rstest(::trace)]
         #[case($dec!(-3), 2, $dec!(9))]
         #[case($dec!(-2), 3, $dec!(-8))]
@@ -429,7 +429,7 @@ macro_rules! test_impl {
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert!(d.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(-0), 0)]
         fn test_powi_nan_signed(#[case] d: $D, #[case] n: i32) {

@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, $uint, $U, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, $uint, $U, THIS);
         }
@@ -18,7 +18,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{*, decimal::*};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, $uint, $U, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, $uint, $U, THIS);
         }
@@ -32,7 +32,7 @@ macro_rules! test_impl {
     (SIGNED:: 512, $dec: ident, $D: ident, $uint: ident, $U: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D, $uint, $U);
     };
-    
+
     (COMMON:: 256, $dec: ident, $D: ident, $uint: ident, $U: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D, $uint, $U);
     };
@@ -51,16 +51,16 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident, $uint: ident, $U: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D, $uint, $U);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, $uint: ident, $U: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D, $uint, $U);
-        
+
         #[rstest(::trace)]
         #[case($dec!(0.34028), $dec!(1e-32765))]
         fn test_quantize_nan_128(#[case] d: $D, #[case] other: $D) {
             let ctx = Context::default().without_traps();
             let d = d.with_ctx(ctx).quantize(other);
-            
+
             assert!(d.is_nan());
             assert_eq!(d.op_signals(), signals![!INV]);
         }
@@ -76,12 +76,12 @@ macro_rules! test_impl {
         #[case($dec!(2.17), -1, $dec!(0E+1), signals![!ROUND, !INEXACT])]
         fn test_rescale(#[case] d: $D, #[case] new_scale: i16, #[case] expected: $D, #[case] signals: Signal) {
             let d = d.rescale(new_scale);
-            
+
             assert_eq!(d, expected);
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert_eq!(d.op_signals(), signals);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(0), $dec!(1e0), $dec!(0), Signal::empty())]
         #[case($dec!(1), $dec!(1e0), $dec!(1), Signal::empty())]
@@ -134,12 +134,12 @@ macro_rules! test_impl {
         // ------------------------------------------------
         fn test_quantize(#[case] d: $D, #[case] other: $D, #[case] expected: $D, #[case] signals: Signal) {
             let d = d.quantize(other);
-            
+
             assert_eq!(d, expected);
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert_eq!(d.op_signals(), signals);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(2), $D::INFINITY)]
         #[case($D::INFINITY, $dec!(2))]
@@ -149,7 +149,7 @@ macro_rules! test_impl {
         fn test_quantize_nan(#[case] d: $D, #[case] other: $D) {
             let ctx = Context::default().without_traps();
             let d = d.with_ctx(ctx).quantize(other);
-            
+
             assert!(d.is_nan());
             assert_eq!(d.op_signals(), signals![!INV]);
         }
@@ -158,17 +158,17 @@ macro_rules! test_impl {
         super::test_impl!(UNSIGNED:: 128, $dec, $D, $uint, $U);
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident, $uint: ident, $U: ident) => {
-        
+
     };
     (SIGNED:: 128, $dec: ident, $D: ident, $uint: ident, $U: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D, $uint, $U);
-        
+
         #[rstest(::trace)]
         #[case($dec!(-0.34028), $dec!(1e-32765))]
         fn test_quantize_nan_signed_128(#[case] d: $D, #[case] other: $D) {
             let ctx = Context::default().without_traps();
             let d = d.with_ctx(ctx).quantize(other);
-            
+
             assert!(d.is_nan());
             assert_eq!(d.op_signals(), signals![!INV]);
         }
@@ -203,12 +203,12 @@ macro_rules! test_impl {
         // ------------------------------------------------
         fn test_quantize_signed(#[case] d: $D, #[case] other: $D, #[case] expected: $D, #[case] signals: Signal) {
             let d = d.quantize(other);
-            
+
             assert_eq!(d, expected);
             assert_eq!(d.fractional_digits_count(), expected.fractional_digits_count());
             assert_eq!(d.op_signals(), signals);
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(-2), $D::NEG_INFINITY)]
         #[case($D::NEG_INFINITY, $dec!(-2))]
@@ -217,7 +217,7 @@ macro_rules! test_impl {
         fn test_quantize_nan_signed(#[case] d: $D, #[case] other: $D) {
             let ctx = Context::default().without_traps();
             let d = d.with_ctx(ctx).quantize(other);
-            
+
             assert!(d.is_nan());
             assert_eq!(d.op_signals(), signals![!INV]);
         }

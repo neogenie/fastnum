@@ -10,7 +10,7 @@ macro_rules! test_impl {
             use rstest::*;
             use fastnum::*;
             use num_traits::float::FloatCore;
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, THIS);
         }
@@ -20,14 +20,14 @@ macro_rules! test_impl {
             use rstest::*;
             use fastnum::*;
             use num_traits::float::FloatCore;
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
     };
     (COMMON:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case(0.1,                                 $dec!(0.1000000000000000055511151231257827021181583404541015625))]
         #[case(0.01,                                $dec!(0.01000000000000000020816681711721685132943093776702880859375))]
@@ -193,11 +193,11 @@ macro_rules! test_impl {
             assert_eq!(f.integer_decode(), expected.integer_decode());
         }
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case(0.1,                                 $dec!(0.1000000000000000055511151231257827021181583404541015625))]
         #[case(0.01,                                $dec!(0.01000000000000000020816681711721685132943093776702880859375))]
@@ -366,7 +366,7 @@ macro_rules! test_impl {
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
 

@@ -252,7 +252,7 @@ macro_rules! to_float {
             assert_eq!(f.integer_decode(), expected.integer_decode());
         }
     };
-    
+
     (TO INF $f: ident, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case($D::MAX)]
@@ -272,7 +272,7 @@ macro_rules! to_float {
             assert!(f.is_sign_negative());
         }
     };
-    
+
     (TO NAN $f: ident, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case($D::NAN)]
@@ -281,7 +281,7 @@ macro_rules! to_float {
             assert!(f.is_nan());
         }
     };
-    
+
     (TO S $f: ident, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case(-0., $dec!(-0))]

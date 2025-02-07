@@ -7,7 +7,7 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 ## [0.2.0] – unreleased
 
 - Bump Rust version to `1.83`
-  - [Stabilize &mut, *mut, &Cell, and *const Cell in const.](https://github.com/rust-lang/rust/pull/129195)
+    - [Stabilize &mut, *mut, &Cell, and *const Cell in const.](https://github.com/rust-lang/rust/pull/129195)
 
 ### Added
 
@@ -18,6 +18,21 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 ### Documentation
 
 - Minor fixes.
+
+
+## [0.1.13] – 2025-02-07
+
+### Added
+
+- Add `tokio-postgres` feature which enables serialization and deserialization of `fastnum` decimals for [
+  `tokio-postgres`](https://docs.rs/tokio-postgres/latest/tokio_postgres/)
+  crate [#8](https://github.com/neogenie/fastnum/issues/8).
+- Add `tokio-postgres` and `sqlx_postgres` examples.
+
+### Documentation
+
+- Minor fixes.
+
 
 ## [0.1.12] – 2025-02-06
 

@@ -1,8 +1,7 @@
 use crate::{
-    decimal::{dec::ExtraPrecision, Decimal, RoundingMode::*},
+    decimal::{dec::ExtraPrecision, Decimal, RoundingMode::*, Signal},
     int::UInt,
 };
-use crate::decimal::Signal;
 
 type D<const N: usize> = Decimal<N>;
 
@@ -11,7 +10,8 @@ pub(crate) const fn round<const N: usize>(mut d: D<N>) -> D<N> {
     if d.extra_precision.has_digits() {
         let digit = d.extra_precision.round_reminder();
         d.extra_precision = ExtraPrecision::new();
-        d.cb = d.cb.raise_signal(Signal::OP_INEXACT.combine(Signal::OP_ROUNDED));
+        d.cb =
+            d.cb.raise_signal(Signal::OP_INEXACT.combine(Signal::OP_ROUNDED));
 
         if match d.cb.context().rounding_mode() {
             Up => true,

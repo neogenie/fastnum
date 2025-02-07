@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{$dec, $D};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(UNSIGNED:: $bits, $dec, $D, THIS);
         }
@@ -18,7 +18,7 @@ macro_rules! test_impl {
         mod $dec {
             use rstest::*;
             use fastnum::{$dec, $D};
-            
+
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
             super::test_impl!(SIGNED:: $bits, $dec, $D, THIS);
         }
@@ -32,14 +32,14 @@ macro_rules! test_impl {
     (SIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
     };
-    
-    
+
+
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
     };
     (COMMON:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(340282366920938463463374607431768211455), $dec!(0.1), $dec!(340282366920938463463374607431768211454.9))]
         #[case($dec!(340282366920938463463374607431768211455), $dec!(0.5), $dec!(340282366920938463463374607431768211454.5))]
@@ -71,7 +71,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(-340282366920938463463374607431768211455), $dec!(-0.1), $dec!(-340282366920938463463374607431768211454.9))]
         #[case($dec!(-340282366920938463463374607431768211455), $dec!(-0.5), $dec!(-340282366920938463463374607431768211454.5))]
@@ -92,10 +92,10 @@ macro_rules! test_impl {
             assert!(a.is_op_ok());
         }
     };
-    
+
     (COMMON:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($D::from(u128::MAX), $dec!(0.1), $D::from(u128::MAX))]
         #[case($D::from(u128::MAX), $dec!(0.5), $D::from(u128::MAX))]
@@ -108,18 +108,18 @@ macro_rules! test_impl {
             let res = a - b;
             assert_eq!(res, expected);
             assert_eq!(res.fractional_digits_count(), expected.fractional_digits_count());
-            
+
             assert!(res.is_op_inexact());
             assert!(res.is_op_rounded());
         }
-        
+
         #[rstest(::trace)]
         #[case($dec!(184467440737e3380), $dec!(0), $dec!(184467440737000000000000000000000000000e3353))]
         fn test_sub_128_clamped(#[case] a: $D, #[case] b: $D, #[case] expected: $D) {
             let res = a - b;
             assert_eq!(res, expected);
             assert_eq!(res.fractional_digits_count(), expected.fractional_digits_count());
-            
+
             assert!(!res.is_op_inexact());
             assert!(res.is_op_clamped());
         }
@@ -153,7 +153,7 @@ macro_rules! test_impl {
         #[case($dec!(1.3), $dec!(0.3), $dec!(1.0))]
         #[case($dec!(1.25), $dec!(1.25), $dec!(0.00))]
         // ------------
-        
+
         #[case($dec!(10.23456789), $dec!(10.23456789), $dec!(0E-8))]
         #[case($dec!(10.23456790), $dec!(10.23456789), $dec!(1E-8))]
         #[case($dec!(10.23456791), $dec!(10.23456789), $dec!(2E-8))]
@@ -187,7 +187,7 @@ macro_rules! test_impl {
             assert_eq!(a.fractional_digits_count(), expected.fractional_digits_count());
             assert!(a.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, $dec!(1))]
         #[case($dec!(1), $D::NAN)]
@@ -214,7 +214,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($D::from(i128::MAX), $dec!(0.1), $D::from(i128::MAX))]
         #[case($D::from(i128::MAX), $dec!(0.5), $D::from(i128::MAX))]
@@ -239,10 +239,10 @@ macro_rules! test_impl {
         #[case($dec!(1.1), $dec!(340282366920938463463374607431768211455), $dec!(-340282366920938463463374607431768211454))]
         fn test_sub_128_inexact_signed(#[case] a: $D, #[case] b: $D, #[case] expected: $D) {
             let res = a - b;
-            
+
             assert_eq!(res, expected);
             assert_eq!(res.fractional_digits_count(), expected.fractional_digits_count());
-            
+
             assert!(res.is_op_inexact());
             assert!(res.is_op_rounded());
         }
@@ -336,7 +336,7 @@ macro_rules! test_impl {
             assert_eq!(a.fractional_digits_count(), expected.fractional_digits_count());
             assert!(a.is_op_ok());
         }
-        
+
         #[rstest(::trace)]
         #[case($D::NAN, $dec!(-1))]
         #[case($dec!(-1), $D::NAN)]

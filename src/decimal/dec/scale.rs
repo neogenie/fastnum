@@ -3,6 +3,7 @@ use crate::{
         dec::{
             construct::construct,
             intrinsics::{clength, Intrinsics},
+            math::add::add,
             ControlBlock, ExtraPrecision,
         },
         Context, Decimal, Signal,
@@ -12,7 +13,6 @@ use crate::{
         UInt,
     },
 };
-use crate::decimal::dec::math::add::add;
 
 type D<const N: usize> = Decimal<N>;
 
@@ -112,14 +112,14 @@ const fn rescale_up<const N: usize>(mut d: D<N>, new_scale: i16) -> D<N> {
     if max_gap < 1 {
         return d.raise_signal(Signal::OP_CLAMPED);
     }
-    
+
     let mut correction;
 
     if mpower < max_gap {
         d.digits = strict_mul10(d.digits, mpower);
         d.scale += mpower as i16;
 
-        (d.extra_precision, correction)= d.extra_precision.overflowing_scale(mpower as i16);
+        (d.extra_precision, correction) = d.extra_precision.overflowing_scale(mpower as i16);
         correction.scale += d.scale;
         return add(d, correction);
     }
@@ -128,7 +128,7 @@ const fn rescale_up<const N: usize>(mut d: D<N>, new_scale: i16) -> D<N> {
         d.digits = strict_mul10(d.digits, max_gap - 1);
         d.scale += (max_gap - 1) as i16;
 
-        (d.extra_precision, correction)= d.extra_precision.overflowing_scale((max_gap - 1) as i16);
+        (d.extra_precision, correction) = d.extra_precision.overflowing_scale((max_gap - 1) as i16);
         correction.scale += d.scale;
         d = add(d, correction);
     }
@@ -140,7 +140,7 @@ const fn rescale_up<const N: usize>(mut d: D<N>, new_scale: i16) -> D<N> {
             d.digits = d.digits.strict_mul(UInt::<N>::TEN);
             d.scale += 1;
 
-            (d.extra_precision, correction)= d.extra_precision.overflowing_scale(1);
+            (d.extra_precision, correction) = d.extra_precision.overflowing_scale(1);
             correction.scale += d.scale;
             d = add(d, correction);
         }

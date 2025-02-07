@@ -107,7 +107,7 @@ pub const fn div_rem_digit<const N: usize>(value: UInt<N>, rhs: Digit) -> (UInt<
 
     let mut rem: Digit = 0;
     let mut i = N;
-    
+
     let digits = value.digits();
 
     while i > 0 {

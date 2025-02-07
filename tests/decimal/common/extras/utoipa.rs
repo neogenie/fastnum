@@ -38,7 +38,7 @@ macro_rules! test_impl {
                     })
                 );
             }
-            
+
             #[rstest(::trace)]
             fn test_utoipa_api_doc() {
 
@@ -63,14 +63,14 @@ macro_rules! test_impl {
                         name: "Lightning".to_string(),
                     }
                 }
-                
+
                 #[derive(OpenApi)]
                 #[openapi(paths(get_pet_by_id))]
                 struct ApiDoc;
-                
+
                 let mut json = serde_json::to_value(ApiDoc::openapi()).unwrap();
                 json.as_object_mut().unwrap().remove("info");
-                
+
                 let expected = json!({
                       "openapi": "3.1.0",
                       "paths": {
@@ -135,15 +135,15 @@ macro_rules! test_impl {
                           name: {
                             "type": "string",
                             "title": name,
-                            "format": "number", 
-                            "description": concat!("Fixed-size ", $sign, " ", stringify!($bits), "-bits decimal number"), 
-                            "examples": $examples, 
+                            "format": "number",
+                            "description": concat!("Fixed-size ", $sign, " ", stringify!($bits), "-bits decimal number"),
+                            "examples": $examples,
                           }
                         }
                       }
                     }
                 );
-                
+
                 assert_eq!(json, expected);
             }
         }

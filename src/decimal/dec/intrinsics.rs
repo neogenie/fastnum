@@ -15,10 +15,10 @@ impl<const N: usize> Intrinsics<N> {
 
     /// Max length of the _coefficient_ in decimal digits.
     pub(crate) const MAX_CLENGTH: u32 = clength(UInt::<N>::MAX);
-    
+
     /// _E<sub>max</sub> = E<sub>limit</sub> + (C<sub>length</sub> – 1)_
     pub(crate) const E_MAX: i32 = E_LIMIT + (Self::MAX_CLENGTH as i32 - 1);
-    
+
     pub(crate) const SERIES_MAX_ITERATIONS: u32 = Self::MAX_CLENGTH * 5;
 }
 

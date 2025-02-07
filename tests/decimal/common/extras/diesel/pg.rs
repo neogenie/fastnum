@@ -100,7 +100,7 @@ macro_rules! test_impl {
         fn test_nan() {
             let dec = $D::try_from(PgNumeric::NaN).unwrap();
             assert!(dec.is_nan());
-            
+
             let num = PgNumeric::try_from(dec).unwrap();
             assert_eq!(num, PgNumeric::NaN);
         }

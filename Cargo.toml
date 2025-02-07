@@ -18,6 +18,7 @@ keywords = [
 categories = ["mathematics", "science", "no-std"]
 license = "MIT OR Apache-2.0"
 autobenches = false
+exclude = ["examples/*", "benchmark/*"]
 rust-version = "1.83"
 
 [lib]
@@ -34,7 +35,9 @@ serde = { version = ">= 1.0.0", default-features = false, optional = true }
 diesel = { version = ">=2.2.4", default-features = false, features = ["numeric"], optional = true }
 sqlx = { version = ">=0.8.0", default-features = false, optional = true }
 bytes = { version = "1.1.0", default-features = false, optional = true }
+byteorder = { version = "1.5.0", default-features = false, optional = true }
 utoipa = { version = ">= 5.0.0", default-features = false, optional = true }
+tokio-postgres = { version = "0.7.13", default-features = false, optional = true }
 
 [dev-dependencies]
 rstest = { version = "0.23.0" }
@@ -57,19 +60,23 @@ zeroize = ["dep:zeroize"]
 serde = ["dep:serde", "bnum/serde"]
 
 diesel = ["dep:diesel"]
-diesel_postgres = ["diesel", "diesel/postgres_backend"]
+diesel_postgres = ["diesel", "diesel/postgres_backend", "extra-postgres"]
 diesel_mysql = ["diesel", "diesel/mysql_backend"]
 
 sqlx = ["dep:sqlx"]
-sqlx_postgres = ["sqlx", "sqlx/postgres", "bytes"]
+sqlx_postgres = ["sqlx", "sqlx/postgres", "extra-postgres-encode"]
 sqlx_mysql = ["sqlx", "sqlx/mysql"]
 
 utoipa = ["dep:utoipa", "utoipa/macros"]
+
+tokio-postgres = ["dep:tokio-postgres", "extra-postgres-encode"]
 
 dev = []
 
 # For internal use only
 test-util = ["num-traits"]
+extra-postgres = []
+extra-postgres-encode = ["extra-postgres", "bytes", "byteorder"]
 
 [profile.release]
 lto = true # enable link-time optimisation for faster runtime, but slower compile time

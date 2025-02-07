@@ -52,7 +52,7 @@ const fn sqrt_heron<const N: usize>(d: D<N>) -> D<N> {
         }
 
         result = result_next;
-        i += 1; 
+        i += 1;
     }
 
     result

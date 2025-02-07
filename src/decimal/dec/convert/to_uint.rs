@@ -1,9 +1,6 @@
 use core::num::IntErrorKind;
 
-use crate::{
-    decimal::Decimal,
-    int::convert,
-};
+use crate::{decimal::Decimal, int::convert};
 
 type D<const N: usize> = Decimal<N>;
 
@@ -14,8 +11,8 @@ macro_rules! to_uint_impl {
             if d.flags().is_special() || d.is_negative() {
                 return Err(IntErrorKind::PosOverflow);
             }
-            
-           convert::$to_uint(d.rescale(0).digits)
+
+            convert::$to_uint(d.rescale(0).digits)
         }
     };
 }

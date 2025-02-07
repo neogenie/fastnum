@@ -3,4 +3,3 @@ mod mysql;
 
 #[cfg(feature = "diesel_postgres")]
 mod pg;
-

@@ -19,6 +19,6 @@ macro_rules! assert_eq_size {
     };
 }
 
+pub(crate) use assert_eq_size;
 pub(crate) use err_msg;
 pub(crate) use err_prefix;
-pub(crate) use assert_eq_size;

@@ -2197,6 +2197,7 @@ impl<const N: usize> Decimal<N> {
 
     #[inline(always)]
     pub(crate) const fn scale_cmp(&self, other: &Self) -> Ordering {
+        // TODO: 3-way comparison
         if self.scale == other.scale {
             Ordering::Equal
         } else if self.scale > other.scale {
@@ -2205,7 +2206,7 @@ impl<const N: usize> Decimal<N> {
             Ordering::Less
         }
     }
-    
+
     #[inline]
     pub(crate) const fn exponent(&self) -> i32 {
         (self.scale as i32).overflowing_neg().0
