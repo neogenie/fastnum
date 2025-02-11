@@ -1,5 +1,5 @@
 use bytes::{BufMut, BytesMut};
-use core::{error::Error};
+use core::error::Error;
 use tokio_postgres::types::{accepts, to_sql_checked, FromSql, IsNull, ToSql, Type};
 
 use crate::decimal::{

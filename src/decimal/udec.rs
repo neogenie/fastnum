@@ -419,10 +419,10 @@ impl<const N: usize> UnsignedDecimal<N> {
     /// # Examples
     ///
     /// ```
-    /// use fastnum::{D256, dec256};
+    /// use fastnum::{UD256, udec256};
     ///
-    /// let nan = D256::NAN;
-    /// let d = dec256!(7.0);
+    /// let nan = UD256::NAN;
+    /// let d = udec256!(7.0);
     ///
     /// assert!(nan.is_nan());
     /// assert!(!d.is_nan());
@@ -909,7 +909,7 @@ impl<const N: usize> UnsignedDecimal<N> {
     /// ```
     /// use fastnum::*;
     ///
-    /// assert_eq!(dec256!(2).recip(), dec256!(0.5));
+    /// assert_eq!(udec256!(2).recip(), udec256!(0.5));
     /// ```
     #[must_use = doc::must_use_op!()]
     #[track_caller]

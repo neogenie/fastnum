@@ -20,6 +20,17 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 - Minor fixes.
 
 
+## [0.1.14] – unreleased
+
+### Fixed
+
+- Incorrect ceiling rounding: [#9](https://github.com/neogenie/fastnum/issues/9).
+
+### Documentation
+
+- Minor fixes.
+
+
 ## [0.1.13] – 2025-02-07
 
 ### Added

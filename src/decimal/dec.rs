@@ -555,10 +555,10 @@ impl<const N: usize> Decimal<N> {
     /// ```
     /// use fastnum::*;
     ///
-    /// let a = udec256!(1);
+    /// let a = dec256!(1);
     /// assert!(a.is_one());
     ///
-    /// let b = udec256!(10e-1);
+    /// let b = dec256!(10e-1);
     /// assert!(!b.is_one());
     /// ```
     #[must_use]
