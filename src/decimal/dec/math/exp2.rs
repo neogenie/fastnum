@@ -1,9 +1,9 @@
 use crate::decimal::{
     dec::{
         convert::to_i32,
-        math::{exp::exp, mul::mul, powi::powi},
+        math::{consts::Consts, exp::exp, mul::mul, powi::powi},
     },
-    Decimal, Signal,
+    Decimal,
 };
 
 type D<const N: usize> = Decimal<N>;
@@ -11,7 +11,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn exp2<const N: usize>(n: D<N>) -> D<N> {
     if n.is_nan() {
-        return n.raise_signal(Signal::OP_INVALID);
+        return n.raise_op_invalid();
     }
 
     if n.is_zero() {
@@ -24,5 +24,5 @@ pub(crate) const fn exp2<const N: usize>(n: D<N>) -> D<N> {
         }
     }
 
-    exp(mul(n, D::LN_2))
+    exp(mul(n, Consts::LN_2))
 }

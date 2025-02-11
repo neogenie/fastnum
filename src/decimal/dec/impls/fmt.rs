@@ -10,7 +10,7 @@ impl<const N: usize> Display for Decimal<N> {
         } else if self.is_infinite() {
             return write!(f, "{}Inf", self.sign());
         }
-        format::format(self.digits.to_str_radix(10), self.scale, self.sign(), f)
+        format::format(self.digits.to_str_radix(10), self.cb.scale(), self.sign(), f)
     }
 }
 
@@ -19,7 +19,7 @@ impl<const N: usize> LowerExp for Decimal<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         format::format_exponential(
             self.digits.to_str_radix(10),
-            self.scale,
+            self.cb.scale(),
             self.sign(),
             f,
             "e",
@@ -32,7 +32,7 @@ impl<const N: usize> UpperExp for Decimal<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         format::format_exponential(
             self.digits.to_str_radix(10),
-            self.scale,
+            self.cb.scale(),
             self.sign(),
             f,
             "E",
@@ -55,9 +55,9 @@ impl<const N: usize> Debug for Decimal<N> {
                 "{}({}{}{}e{})",
                 Self::type_name(),
                 alert,
-                self.sign(),
+                self.cb.sign(),
                 self.digits,
-                self.exponent(),
+                self.cb.exponent(),
             )
         } else {
             write!(
@@ -65,11 +65,11 @@ impl<const N: usize> Debug for Decimal<N> {
                 "{}(digits=[{:?}], exp=[{}], flags=[{}], signals=[{}], ctx=[{}], extra=[{}])",
                 Self::type_name(),
                 self.digits,
-                self.exponent(),
-                self.flags(),
-                self.signals(),
-                self.context(),
-                self.extra_precision
+                self.cb.exponent(),
+                self.cb.flags(),
+                self.cb.signals(),
+                self.cb.context(),
+                self.cb.extra_precision()
             )
         }
     }

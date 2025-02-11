@@ -4,13 +4,13 @@ use crate::decimal::{
         math::{exp::exp, ln::ln, mul::mul, powi::powi},
         ControlBlock,
     },
-    Decimal, Flags, Signal,
+    Decimal
 };
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
-pub(crate) const fn pow<const N: usize>(d: D<N>, n: D<N>) -> D<N> {
+pub(crate) const fn pow<const N: usize>(mut d: D<N>, n: D<N>) -> D<N> {
     if n.is_integral() {
         if let Ok(n) = to_i32(n) {
             return powi(d, n);
@@ -18,7 +18,7 @@ pub(crate) const fn pow<const N: usize>(d: D<N>, n: D<N>) -> D<N> {
     }
 
     if d.is_nan() {
-        return d.raise_signal(Signal::OP_INVALID);
+        return d.raise_op_invalid();
     }
 
     let flags = if d.is_negative() && n.is_even() {
@@ -27,7 +27,7 @@ pub(crate) const fn pow<const N: usize>(d: D<N>, n: D<N>) -> D<N> {
         Flags::default()
     };
 
-    if d.is_infinite() {
+    if d.cb.is_infinity() {
         return if n.is_zero() {
             D::ONE
         } else if n.is_negative() {

@@ -6,33 +6,31 @@ use crate::decimal::{
         scale,
         scale::extend_scale_to,
     },
-    Decimal, Signal,
+    Decimal,
 };
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
-pub(crate) const fn recip<const N: usize>(d: D<N>) -> D<N> {
+pub(crate) const fn recip<const N: usize>(mut d: D<N>) -> D<N> {
     if d.is_nan() {
-        return d.raise_signal(Signal::OP_INVALID);
+        return d.raise_op_invalid();
     }
 
-    let cb = d.cb;
-
     if d.is_zero() {
-        return D::INFINITY.with_cb(cb.raise_signal(Signal::div_by_zero()));
+        return D::INFINITY.compound(&d).raise_op_div_by_zero();
     }
 
     if d.is_infinite() {
-        return D::ZERO.with_cb(cb);
+        return D::ZERO.compound(&d);
     }
 
-    let scale = d.scale;
+    let scale = d.cb.get_scale();
 
     let approx_f64 = to_f64(d);
     let approx_result = 1.0 / approx_f64;
 
-    let mut result = from_f64(approx_result).with_cb(cb);
+    let mut result = from_f64(approx_result).compound(&d);
 
     let mut result_next;
 
@@ -45,10 +43,9 @@ pub(crate) const fn recip<const N: usize>(d: D<N>) -> D<N> {
 
         result = result_next;
     }
-
-    extend_scale_to(scale::reduce(result), scale).raise_signal(
-        Signal::OP_INEXACT
-            .combine(Signal::OP_ROUNDED)
-            .combine(Signal::OP_CLAMPED),
-    )
+    
+    extend_scale_to(scale::reduce(result), scale)
+        .raise_op_inexact()
+        .raise_op_clamped()
+        .raise_op_rounded()
 }

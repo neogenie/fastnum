@@ -1,40 +1,35 @@
 use core::cmp::Ordering;
 
-use crate::decimal::{
-    dec::{scale::rescale, ExtraPrecision},
-    Decimal, Signal,
-};
+use crate::decimal::{dec::scale::rescale, Decimal};
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
 pub(crate) const fn rem<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
     if lhs.is_nan() {
-        return lhs.compound_and_raise(&rhs, Signal::OP_INVALID);
+        return lhs.compound(&rhs).raise_op_invalid();
     }
 
     if rhs.is_nan() {
-        return rhs.compound_and_raise(&lhs, Signal::OP_INVALID);
+        return rhs.compound(&lhs).raise_op_invalid();
     }
 
     if lhs.abs().lt(&rhs.abs()) {
         return lhs;
     }
 
-    match lhs.scale_cmp(&rhs) {
+    match lhs.cb.scale_cmp(&rhs.cb) {
         Ordering::Equal => {}
         Ordering::Less => {
-            lhs = rescale(lhs, rhs.scale);
+            rescale(&mut lhs, rhs.cb.get_scale());
         }
         Ordering::Greater => {
-            rhs = rescale(rhs, lhs.scale);
+            rescale(&mut rhs, lhs.cb.get_scale());
         }
     }
 
-    D::new(
-        lhs.digits.rem(rhs.digits),
-        lhs.scale,
-        lhs.cb.combine(rhs.cb.abs()),
-        ExtraPrecision::new(),
-    )
+    rhs.cb.abs();
+    lhs.cb.compound(&rhs.cb);
+
+    D::new(lhs.digits.rem(rhs.digits), lhs.cb)
 }

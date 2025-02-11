@@ -5,7 +5,7 @@ use crate::{
             math::{div::div, utils::overflow_exp},
             ControlBlock, ExtraPrecision,
         },
-        Decimal, Flags, Signal,
+        Decimal,
     },
     int::{math::div_rem_digit, UInt},
 };
@@ -15,7 +15,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
     if d.is_nan() {
-        return d.raise_signal(Signal::OP_INVALID);
+        return d.raise_op_invalid();
     }
 
     let flags = if d.is_negative() && (n % 2 != 0) {

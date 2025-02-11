@@ -3,10 +3,10 @@ use core::cmp::Ordering;
 use crate::decimal::{
     dec::{
         intrinsics::Intrinsics,
-        math::{add::add, div::div, mul::mul, sqrt::sqrt, sub::sub},
+        math::{add::add, consts::Consts, div::div, mul::mul, sqrt::sqrt, sub::sub},
         parse::from_u32,
     },
-    Decimal, Signal,
+    Decimal,
 };
 
 type D<const N: usize> = Decimal<N>;
@@ -14,13 +14,11 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn ln<const N: usize>(x: D<N>) -> D<N> {
     if x.is_nan() {
-        return x.raise_signal(Signal::OP_INVALID);
+        return x.raise_op_invalid();
     }
 
     if x.is_zero() {
-        return D::NEG_INFINITY
-            .raise_signal(Signal::OP_INVALID)
-            .with_ctx(x.context());
+        return D::NEG_INFINITY.raise_op_invalid().with_ctx(x.context());
     }
 
     if x.is_negative() {
@@ -47,7 +45,7 @@ pub(crate) const fn ln_1p<const N: usize>(x: D<N>) -> D<N> {
 const fn argument_reduction<const N: usize>(x: D<N>) -> D<N> {
     match x.cmp(&D::TWO) {
         Ordering::Less => taylor_series(x),
-        Ordering::Equal => D::LN_2,
+        Ordering::Equal => Consts::LN_2,
         Ordering::Greater => mul(D::TWO, argument_reduction(sqrt(x))),
     }
 }

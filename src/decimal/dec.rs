@@ -16,6 +16,8 @@ mod scale;
 mod transmute;
 
 pub(crate) mod math;
+pub(crate) mod utils;
+
 pub(crate) use control_block::ControlBlock;
 pub(crate) use extra_precision::ExtraPrecision;
 
@@ -27,8 +29,9 @@ use crate::{
             consts::consts_impl,
             intrinsics::{clength, Intrinsics},
             math::consts::Consts,
+            round::round,
         },
-        doc, Context, DecimalError, Flags, ParseError, RoundingMode, Sign, Signal, UnsignedDecimal,
+        doc, Context, DecimalError, ParseError, RoundingMode, Sign, UnsignedDecimal,
     },
     int::{math::ilog10, UInt},
 };
@@ -43,16 +46,14 @@ pub struct Decimal<const N: usize> {
     /// digits.
     digits: UInt<N>,
 
-    /// Scaling factor (or _exponent_) which determines the position of the
-    /// decimal point and indicates the power of ten by which the coefficient is
-    /// multiplied.
-    scale: i16,
-
+    // /// Scaling factor (or _exponent_) which determines the position of the
+    // /// decimal point and indicates the power of ten by which the coefficient is
+    // /// multiplied.
+    // scale: i16,
     /// Control block
     cb: ControlBlock,
-
-    #[doc(hidden)]
-    extra_precision: ExtraPrecision,
+    // #[doc(hidden)]
+    // extra_precision: ExtraPrecision,
 }
 
 consts_impl!();
@@ -71,13 +72,9 @@ impl<const N: usize> Decimal<N> {
     #[must_use]
     #[inline]
     pub const fn from_parts(digits: UInt<N>, exp: i32, sign: Sign, ctx: Context) -> Self {
-        let mut cb = ControlBlock::default().set_context(ctx);
-
-        if matches!(sign, Sign::Minus) {
-            cb = cb.neg();
-        }
-
-        construct::construct(digits, exp, cb, ExtraPrecision::new()).check()
+        let mut d = construct::construct(digits, exp, sign);
+        d.cb.set_context(ctx);
+        d.check()
     }
 
     /// Creates and initializes decimal from string.
@@ -180,7 +177,7 @@ impl<const N: usize> Decimal<N> {
     #[must_use]
     #[inline]
     pub const fn fractional_digits_count(&self) -> i16 {
-        self.scale
+        self.cb.get_scale()
     }
 
     /// Return the sign of the `Decimal` as [Sign].
@@ -197,7 +194,7 @@ impl<const N: usize> Decimal<N> {
     #[must_use]
     #[inline]
     pub const fn sign(&self) -> Sign {
-        self.cb.sign()
+        self.cb.get_sign()
     }
 
     /// Returns `true` if the given decimal number is the result of division by
@@ -285,12 +282,12 @@ impl<const N: usize> Decimal<N> {
         self.cb.is_op_ok()
     }
 
-    /// Return the [`signaling block`](Signal) of given decimal.
-    #[must_use]
-    #[inline]
-    pub const fn op_signals(&self) -> Signal {
-        self.signals()
-    }
+    // /// Return the [`signaling block`](Signal) of given decimal.
+    // #[must_use]
+    // #[inline]
+    // pub const fn op_signals(&self) -> Signal {
+    //     self.signals()
+    // }
 
     /// Return the decimal category of the number.
     /// If only one property is going to be tested, it is generally faster to
@@ -567,7 +564,10 @@ impl<const N: usize> Decimal<N> {
     #[must_use]
     #[inline]
     pub const fn is_one(&self) -> bool {
-        self.digits.is_one() && self.scale == 0 && !self.cb.is_negative() && !self.cb.is_special()
+        self.digits.is_one()
+            && self.cb.get_scale() == 0
+            && !self.cb.is_negative()
+            && !self.cb.is_special()
     }
 
     /// Return `true` if this value is positive, including [`+0.0`],
@@ -637,7 +637,7 @@ impl<const N: usize> Decimal<N> {
     #[track_caller]
     #[inline]
     pub const fn with_ctx(mut self, ctx: Context) -> Self {
-        self.cb = self.cb.set_context(ctx);
+        self.cb.set_context(ctx);
         self.check()
     }
 
@@ -645,7 +645,7 @@ impl<const N: usize> Decimal<N> {
     #[must_use = doc::must_use_op!()]
     #[inline]
     pub const fn with_rounding_mode(mut self, rm: RoundingMode) -> Self {
-        self.cb = self.cb.set_rounding_mode(rm);
+        self.cb.set_rounding_mode(rm);
         self
     }
 
@@ -663,7 +663,7 @@ impl<const N: usize> Decimal<N> {
     #[must_use]
     #[inline]
     pub const fn neg(mut self) -> Self {
-        self.cb = self.cb.neg();
+        self.cb.neg();
         self
     }
 
@@ -1605,10 +1605,9 @@ impl<const N: usize> Decimal<N> {
     #[must_use = doc::must_use_op!()]
     #[track_caller]
     #[inline]
-    pub const fn rescale(self, new_scale: i16) -> Self {
-        scale::rescale(self, new_scale)
-            .round_extra_precision()
-            .check()
+    pub const fn rescale(mut self, new_scale: i16) -> Self {
+        scale::rescale(&mut self, new_scale);
+        self.round_extra_precision().check()
     }
 
     /// Returns a value equal to `self` (rounded), having the exponent of
@@ -2180,92 +2179,167 @@ impl<const N: usize> Decimal<N> {
 
 #[doc(hidden)]
 impl<const N: usize> Decimal<N> {
-    #[inline(always)]
-    pub(crate) const fn new(
-        digits: UInt<N>,
-        scale: i16,
-        cb: ControlBlock,
-        extra_precision: ExtraPrecision,
-    ) -> Self {
-        Self {
-            digits,
-            scale,
-            cb,
-            extra_precision,
-        }
-    }
+    pub(crate) const SIGNALING_NAN: Self = Self::new(UInt::ZERO, ControlBlock::SIGNALING_NAN);
 
     #[inline(always)]
-    pub(crate) const fn scale_cmp(&self, other: &Self) -> Ordering {
-        // TODO: 3-way comparison
-        if self.scale == other.scale {
-            Ordering::Equal
-        } else if self.scale > other.scale {
-            Ordering::Greater
-        } else {
-            Ordering::Less
-        }
+    pub(crate) const fn new(digits: UInt<N>, cb: ControlBlock) -> Self {
+        Self { digits, cb }
     }
 
     #[inline]
-    pub(crate) const fn exponent(&self) -> i32 {
-        (self.scale as i32).overflowing_neg().0
+    pub(crate) const fn decimal_power(&self) -> i32 {
+        ilog10(self.digits) as i32 - self.cb.get_scale() as i32
     }
-
-    #[inline]
-    pub(crate) const fn power(&self) -> i32 {
-        ilog10(self.digits) as i32 - self.scale as i32
-    }
-
-    #[inline(always)]
-    pub(crate) const fn flags(&self) -> Flags {
-        self.cb.flags()
-    }
-
-    #[inline(always)]
-    pub(crate) const fn signals(&self) -> Signal {
-        self.cb.signals()
-    }
-
+    // #[inline(always)]
+    // pub(crate) const fn flags(&self) -> Flags {
+    //     self.cb.flags()
+    // }
+    //
+    // #[inline(always)]
+    // pub(crate) const fn signals(&self) -> Signal {
+    //     self.cb.signals()
+    // }
+    //
     #[inline(always)]
     pub(crate) const fn context(&self) -> Context {
-        self.cb.context()
+        self.cb.get_context()
     }
 
-    #[inline(always)]
-    pub(crate) const fn raise_signal(mut self, signal: Signal) -> Self {
-        self.cb = self.cb.raise_signal(signal);
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_signal(mut self, signal: Signal) -> Self {
-        self.cb = self.cb.quiet_signal(signal);
-        self
-    }
-
+    // #[inline(always)]
+    // pub(crate) const fn raise_signal(mut self, signal: Signal) -> Self {
+    //     self.cb = self.cb.raise_signal(signal);
+    //     self
+    // }
+    //
+    // #[inline(always)]
+    // pub(crate) const fn quiet_signal(mut self, signal: Signal) -> Self {
+    //     self.cb = self.cb.quiet_signal(signal);
+    //     self
+    // }
+    //
     #[inline(always)]
     pub(crate) const fn compound(mut self, other: &Self) -> Self {
-        self.cb = self.cb.compound(other.cb);
+        self.cb.compound(&other.cb);
         self
     }
 
     #[inline(always)]
-    pub(crate) const fn compound_and_raise(mut self, other: &Self, signal: Signal) -> Self {
-        self.cb = self.cb.compound_and_raise(other.cb, signal);
+    pub(crate) const fn raise_op_div_by_zero(mut self) -> Self {
+        self.cb.raise_op_div_by_zero();
         self
     }
 
     #[inline(always)]
-    pub(crate) const fn with_cb(mut self, cb: ControlBlock) -> Self {
-        self.cb = self.cb.combine_and_set_ctx(cb);
+    pub(crate) const fn raise_op_overflow(mut self) -> Self {
+        self.cb.raise_op_overflow();
         self
     }
 
+    #[inline(always)]
+    pub(crate) const fn raise_op_underflow(mut self) -> Self {
+        self.cb.raise_op_underflow();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn raise_op_invalid(mut self) -> Self {
+        self.cb.raise_op_invalid();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn raise_op_subnormal(mut self) -> Self {
+        self.cb.raise_op_subnormal();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn raise_op_inexact(mut self) -> Self {
+        self.cb.raise_op_inexact();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn raise_op_rounded(mut self) -> Self {
+        self.cb.raise_op_rounded();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn raise_op_clamped(mut self) -> Self {
+        self.cb.raise_op_clamped();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_div_by_zero(mut self) -> Self {
+        self.cb.quiet_op_div_by_zero();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_overflow(mut self) -> Self {
+        self.cb.quiet_op_overflow();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_underflow(mut self) -> Self {
+        self.cb.quiet_op_underflow();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_invalid(mut self) -> Self {
+        self.cb.quiet_op_invalid();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_subnormal(mut self) -> Self {
+        self.cb.quiet_op_subnormal();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_inexact(mut self) -> Self {
+        self.cb.quiet_op_inexact();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_rounded(mut self) -> Self {
+        self.cb.quiet_op_rounded();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn quiet_op_clamped(mut self) -> Self {
+        self.cb.quiet_op_clamped();
+        self
+    }
+
+    // #[inline(always)]
+    // pub(crate) const fn compound_and_raise(mut self, other: &Self, signal:
+    // Signal) -> Self {     self.cb = self.cb.compound_and_raise(other.cb,
+    // signal);     self
+    // }
+
+    // #[inline(always)]
+    // pub(crate) const fn with_cb(mut self, cb: ControlBlock) -> Self {
+    //     self.cb = self.cb.combine_and_set_ctx(cb);
+    //     self
+    // }
+    //
     #[inline(always)]
     pub(crate) const fn signaling_nan(mut self) -> Self {
-        let cb = self.cb.signaling_nan();
-        self = Self::NAN.with_cb(cb);
+        self.cb.signaling_nan();
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn set_sign(mut self, sign: Sign) -> Self {
+        self.cb.set_sign(sign);
         self
     }
 
@@ -2282,52 +2356,53 @@ impl<const N: usize> Decimal<N> {
         self
     }
 
-    #[inline]
-    pub(crate) const fn ok_or_err(self) -> Result<Self, DecimalError> {
-        let trapped = self.cb.trap_signals();
+    // #[inline]
+    // pub(crate) const fn ok_or_err(self) -> Result<Self, DecimalError> {
+    //     let trapped = self.cb.trap_signals();
+    //
+    //     if trapped.is_empty() {
+    //         Ok(self)
+    //     } else {
+    //         Err(DecimalError::from_signals(trapped))
+    //     }
+    // }
 
-        if trapped.is_empty() {
-            Ok(self)
-        } else {
-            Err(DecimalError::from_signals(trapped))
-        }
-    }
-
-    #[inline]
-    pub(crate) const fn extra_precision(&self) -> ExtraPrecision {
-        self.extra_precision
-    }
-
+    // #[inline]
+    // pub(crate) const fn extra_precision(&self) -> ExtraPrecision {
+    //     self.extra_precision
+    // }
+    //
     #[inline(always)]
-    pub(crate) const fn round_extra_precision(self) -> Self {
-        round::round(self)
+    pub(crate) const fn round_extra_precision(mut self) -> Self {
+        round(&mut self);
+        self
     }
 
-    #[inline]
-    pub(crate) const fn extra_digits(&self) -> Self {
-        let mut extra_digits = self.extra_precision.as_decimal();
-        if !extra_digits.is_zero() {
-            let overflow;
-            (extra_digits.scale, overflow) = extra_digits.scale.overflowing_add(self.scale);
-            if overflow {
-                extra_digits = Self::ZERO;
-            }
-        } else {
-            extra_digits.scale = 0;
-        }
-
-        extra_digits
-    }
-
+    // #[inline]
+    // pub(crate) const fn extra_digits(&self) -> Self {
+    //     let mut extra_digits = self.extra_precision.as_decimal();
+    //     if !extra_digits.is_zero() {
+    //         let overflow;
+    //         (extra_digits.scale, overflow) =
+    // extra_digits.scale.overflowing_add(self.scale);         if overflow {
+    //             extra_digits = Self::ZERO;
+    //         }
+    //     } else {
+    //         extra_digits.scale = 0;
+    //     }
+    //
+    //     extra_digits
+    // }
+    //
     #[inline]
     pub(crate) const fn without_extra_digits(mut self) -> Self {
-        self.extra_precision = ExtraPrecision::new();
+        self.cb.reset_extra_digits();
         self
     }
 
     #[inline]
     pub(crate) const fn eq_with_extra_precision(&self, other: &Self) -> bool {
-        cmp::eq(self, other) && self.extra_precision.eq(other.extra_precision)
+        cmp::eq(self, other) && self.cb.eq_extra_precision(&other.cb)
     }
 
     #[inline]
@@ -2354,7 +2429,7 @@ impl<const N: usize> Decimal<N> {
         }
 
         let digits = self.digits.to_str_radix(10);
-        let scale = self.scale;
+        let scale = self.cb.get_scale();
         format::write_scientific_notation(digits, scale, w)
     }
 
@@ -2377,7 +2452,7 @@ impl<const N: usize> Decimal<N> {
         }
 
         let digits = self.digits.to_str_radix(10);
-        let scale = self.scale;
+        let scale = self.cb.get_scale();
         format::write_engineering_notation(digits, scale, w)
     }
 }

@@ -44,15 +44,15 @@ impl ExtraPrecision {
         Self(digit as u16 * 1000 + self.0 / 10)
     }
 
-    #[inline(always)]
-    pub(crate) const fn as_decimal<const N: usize>(self) -> D<N> {
-        D::new(
-            UInt::from_digit(self.0 as u64),
-            4,
-            ControlBlock::default(),
-            ExtraPrecision::new(),
-        )
-    }
+    // #[inline(always)]
+    // pub(crate) const fn as_decimal<const N: usize>(self) -> D<N> {
+    //     D::new(
+    //         UInt::from_digit(self.0 as u64),
+    //         4,
+    //         ControlBlock::default(),
+    //         ExtraPrecision::new(),
+    //     )
+    // }
 
     #[inline]
     pub(crate) const fn eq(self, other: Self) -> bool {

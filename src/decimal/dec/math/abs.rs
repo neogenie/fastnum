@@ -7,7 +7,7 @@ pub(crate) const fn abs<const N: usize>(mut d: D<N>) -> D<N> {
     if d.is_nan() {
         d.signaling_nan()
     } else {
-        d.cb = d.cb.abs();
+        d.cb.abs();
         d
     }
 }

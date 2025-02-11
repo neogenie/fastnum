@@ -1,6 +1,6 @@
 use crate::decimal::{
     dec::math::{add::add, div::div, ln::ln, mul::mul, sub::sub},
-    Decimal, Signal,
+    Decimal,
 };
 
 type D<const N: usize> = Decimal<N>;
@@ -8,7 +8,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn atanh<const N: usize>(x: D<N>) -> D<N> {
     if x.is_nan() {
-        return x.raise_signal(Signal::OP_INVALID);
+        return x.raise_op_invalid();
     }
 
     if x.is_zero() {

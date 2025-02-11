@@ -1,8 +1,8 @@
 use core::cmp::Ordering;
 
 use crate::decimal::{
-    dec::math::{add::add, asin::asin, div::div, mul::mul, sqrt::sqrt},
-    Decimal, Signal,
+    dec::math::{add::add, asin::asin, consts::Consts, div::div, mul::mul, sqrt::sqrt},
+    Decimal,
 };
 
 type D<const N: usize> = Decimal<N>;
@@ -10,7 +10,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn atan<const N: usize>(x: D<N>) -> D<N> {
     if x.is_nan() {
-        return x.raise_signal(Signal::OP_INVALID);
+        return x.raise_op_invalid();
     }
 
     if x.is_zero() {
@@ -25,14 +25,14 @@ pub(crate) const fn atan<const N: usize>(x: D<N>) -> D<N> {
         Ordering::Less => {
             return x.signaling_nan();
         }
-        Ordering::Equal => return D::FRAC_PI_4.neg(),
+        Ordering::Equal => return Consts::FRAC_PI_4.neg(),
         Ordering::Greater => {}
     }
 
     match x.cmp(&D::ONE) {
         Ordering::Less => {}
         Ordering::Equal => {
-            return D::FRAC_PI_4;
+            return Consts::FRAC_PI_4;
         }
         Ordering::Greater => {
             return x.signaling_nan();

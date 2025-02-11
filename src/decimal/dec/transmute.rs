@@ -16,7 +16,7 @@ pub(crate) const fn transmute<const N: usize, const M: usize>(mut d: D<N>) -> D<
         // FIXME
         if UInt::<N>::BITS - d.digits.leading_zeros() > UInt::<M>::BITS {
             while UInt::<N>::BITS - d.digits.leading_zeros() > UInt::<M>::BITS {
-                d = d.rescale(d.scale - 1);
+                d = d.rescale(d.cb.get_scale() - 1);
             }
         }
 
@@ -26,5 +26,5 @@ pub(crate) const fn transmute<const N: usize, const M: usize>(mut d: D<N>) -> D<
         }
     }
 
-    D::new(UInt::from_digits(digits), d.scale, d.cb, d.extra_precision)
+    D::new(UInt::from_digits(digits), d.cb)
 }

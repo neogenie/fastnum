@@ -55,7 +55,7 @@ macro_rules! to_float_impl {
 
             let bits = d.digits.bits() as i32;
 
-            let d_exp = d.exponent();
+            let d_exp = d.cb.get_exponent();
 
             let b_exp_native = if d_exp >= 0 {
                 let exp_correction = mul_log_2_10(d_exp);

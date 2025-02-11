@@ -1,19 +1,16 @@
 use crate::{
-    decimal::{dec::ExtraPrecision, Decimal, RoundingMode::*, Signal},
+    decimal::{Decimal, RoundingMode::*},
     int::UInt,
 };
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
-pub(crate) const fn round<const N: usize>(mut d: D<N>) -> D<N> {
-    if d.extra_precision.has_digits() {
-        let digit = d.extra_precision.round_reminder();
-        d.extra_precision = ExtraPrecision::new();
-        d.cb =
-            d.cb.raise_signal(Signal::OP_INEXACT.combine(Signal::OP_ROUNDED));
+pub(crate) const fn round<const N: usize>(d: &mut D<N>) {
+    let digit = d.cb.take_round_reminder();
 
-        if match d.cb.context().rounding_mode() {
+    if digit != 0 {
+        if match d.cb.get_context().rounding_mode() {
             Up => true,
             Down => false,
             Ceiling => !d.cb.is_negative(),
@@ -34,12 +31,10 @@ pub(crate) const fn round<const N: usize>(mut d: D<N>) -> D<N> {
         } {
             if d.digits.eq(&UInt::MAX) {
                 d.digits = d.digits.strict_div(UInt::TEN);
-                d.scale -= 1;
+                d.cb.dec_scale(1);
             }
 
             d.digits = d.digits.strict_add(UInt::ONE);
         }
     }
-
-    d
 }

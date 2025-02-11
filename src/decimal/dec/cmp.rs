@@ -33,7 +33,7 @@ pub(crate) const fn eq<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> bool {
     let lhs = reduce(*lhs);
     let rhs = reduce(*rhs);
 
-    (lhs.scale == rhs.scale) && (lhs.digits.eq(&rhs.digits))
+    (lhs.cb.get_scale() == rhs.cb.get_scale()) && (lhs.digits.eq(&rhs.digits))
 }
 
 #[inline]
@@ -69,16 +69,17 @@ const fn cmp_magnitude<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
     let a = reduce(*lhs);
     let b = reduce(*rhs);
 
-    if a.scale == b.scale {
+    if a.cb.get_scale() == b.cb.get_scale() {
         return a.digits.cmp(&b.digits);
     }
 
-    let a_exp = a.power();
-    let b_exp = b.power();
+    let a_exp = a.decimal_power();
+    let b_exp = b.decimal_power();
 
     if a_exp == b_exp {
-        if a.scale > b.scale {
-            let (mul, false) = UInt::TEN.overflowing_pow((a.scale - b.scale) as u32) else {
+        if a.cb.get_scale() > b.cb.get_scale() {
+            let (mul, false) = UInt::TEN.overflowing_pow((a.cb.get_scale() - b.cb.get_scale()) as u32)
+            else {
                 return Ordering::Less;
             };
 
@@ -88,7 +89,8 @@ const fn cmp_magnitude<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
 
             a.digits.cmp(&value)
         } else {
-            let (mul, false) = UInt::TEN.overflowing_pow((b.scale - a.scale) as u32) else {
+            let (mul, false) = UInt::TEN.overflowing_pow((b.cb.get_scale() - a.cb.get_scale()) as u32)
+            else {
                 return Ordering::Less;
             };
 

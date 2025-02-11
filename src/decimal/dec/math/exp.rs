@@ -4,15 +4,16 @@ use crate::decimal::{
         math::{add::add, div::div, mul::mul, sub::sub},
         parse::from_u32,
     },
-    Decimal, Signal,
+    Decimal,
 };
+use crate::decimal::dec::math::consts::Consts;
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
 pub(crate) const fn exp<const N: usize>(x: D<N>) -> D<N> {
     if x.is_nan() {
-        return x.raise_signal(Signal::OP_INVALID);
+        return x.raise_op_invalid();
     }
 
     if x.is_zero() {
@@ -40,7 +41,7 @@ const fn exp_abs<const N: usize>(x: D<N>) -> D<N> {
     }
 
     if x.is_one() {
-        return D::E.with_ctx(x.context());
+        return Consts::E.with_ctx(x.context());
     }
 
     argument_reduction(x)

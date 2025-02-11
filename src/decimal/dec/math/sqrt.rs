@@ -6,7 +6,7 @@ use crate::decimal::{
         parse::from_f64,
     },
     utils::types,
-    Decimal, Signal,
+    Decimal,
 };
 
 type D<const N: usize> = Decimal<N>;
@@ -14,7 +14,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn sqrt<const N: usize>(d: D<N>) -> D<N> {
     if d.is_nan() {
-        return d.raise_signal(Signal::OP_INVALID);
+        return d.raise_op_invalid();
     }
 
     if d.is_zero() || d.is_one() {
@@ -34,12 +34,10 @@ pub(crate) const fn sqrt<const N: usize>(d: D<N>) -> D<N> {
 
 #[inline]
 const fn sqrt_heron<const N: usize>(d: D<N>) -> D<N> {
-    let cb = d.cb;
-
     let approx_f64 = to_f64(d);
     let guess = types::f64::sqrt(approx_f64);
 
-    let mut result = from_f64(guess).with_cb(cb);
+    let mut result = from_f64(guess).compound(&d);
 
     let mut result_next;
     let mut i = 0;

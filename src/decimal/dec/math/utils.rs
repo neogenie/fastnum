@@ -5,7 +5,7 @@ use crate::{
             scale::reduce,
             ControlBlock, ExtraPrecision,
         },
-        Decimal, Signal,
+        Decimal,
     },
     int::UInt,
 };
@@ -35,59 +35,11 @@ pub(crate) const fn overflow_exp<const N: usize>(exp: i32, cb: ControlBlock) -> 
     }
 }
 
-#[inline]
-pub(crate) const fn magnitude_inc<const N: usize>(d: D<N>) -> D<N> {
-    if d.is_negative() {
-        sub(
-            d,
-            D::new(
-                UInt::ONE,
-                d.scale,
-                ControlBlock::default(),
-                ExtraPrecision::new(),
-            ),
-        )
-    } else {
-        add(
-            d,
-            D::new(
-                UInt::ONE,
-                d.scale,
-                ControlBlock::default(),
-                ExtraPrecision::new(),
-            ),
-        )
-    }
-}
 
-#[inline]
-pub(crate) const fn magnitude_dec<const N: usize>(d: D<N>) -> D<N> {
-    if d.is_negative() {
-        add(
-            d,
-            D::new(
-                UInt::ONE,
-                d.scale,
-                ControlBlock::default(),
-                ExtraPrecision::new(),
-            ),
-        )
-    } else {
-        sub(
-            d,
-            D::new(
-                UInt::ONE,
-                d.scale,
-                ControlBlock::default(),
-                ExtraPrecision::new(),
-            ),
-        )
-    }
-}
 
 #[inline(always)]
 pub(crate) const fn is_even<const N: usize>(d: &D<N>) -> bool {
-    if d.scale < 0 {
+    if d.cb.get_scale() < 0 {
         true
     } else {
         d.digits.digits()[0] & 1 == 0
@@ -96,7 +48,7 @@ pub(crate) const fn is_even<const N: usize>(d: &D<N>) -> bool {
 
 #[inline(always)]
 pub(crate) const fn is_odd<const N: usize>(d: &D<N>) -> bool {
-    if d.scale < 0 {
+    if d.cb.get_scale() < 0 {
         false
     } else {
         d.digits.digits()[0] & 1 == 1
@@ -105,7 +57,7 @@ pub(crate) const fn is_odd<const N: usize>(d: &D<N>) -> bool {
 
 #[inline(always)]
 pub(crate) const fn is_integral<const N: usize>(d: &D<N>) -> bool {
-    reduce(*d).scale <= 0
+    reduce(*d).cb.get_scale() <= 0
 }
 
 #[inline(always)]

@@ -8,7 +8,7 @@ macro_rules! to_int_impl {
     ($to_int: ident, $int: ty, $to_uint: ident) => {
         #[inline]
         pub const fn $to_int<const N: usize>(d: D<N>) -> Result<$int, IntErrorKind> {
-            if d.flags().is_special() {
+            if d.cb.is_special() {
                 return Err(IntErrorKind::PosOverflow);
             }
 

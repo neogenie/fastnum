@@ -3,9 +3,10 @@ use crate::{
         dec::{
             intrinsics::{clength, Intrinsics, E_LIMIT, E_MIN},
             math::utils::{overflow, underflow},
+            scale::extend_scale_to,
             ControlBlock, ExtraPrecision,
         },
-        Decimal, Signal,
+        Decimal, Sign,
     },
     int::UInt,
 };
@@ -13,23 +14,21 @@ use crate::{
 type D<const N: usize> = Decimal<N>;
 
 #[inline(always)]
-pub(crate) const fn construct<const N: usize>(
-    digits: UInt<N>,
-    exp: i32,
-    cb: ControlBlock,
-    extra_precision: ExtraPrecision,
-) -> D<N> {
-    construct_with_clength(digits, exp, cb, extra_precision, clength(digits))
+pub(crate) const fn construct<const N: usize>(digits: UInt<N>, exp: i32, sign: Sign) -> D<N> {
+    construct_with_clength(digits, exp, sign, clength(digits))
 }
 
 #[inline]
 pub(crate) const fn construct_with_clength<const N: usize>(
     mut digits: UInt<N>,
     mut exp: i32,
-    mut cb: ControlBlock,
-    extra_precision: ExtraPrecision,
+    sign: Sign,
     clength: u32,
 ) -> D<N> {
+    if digits.is_zero() {
+        return construct_zero(exp, sign);
+    }
+
     // Overflow exp > Emax
     if exp > Intrinsics::<N>::E_MAX {
         return overflow(cb);
@@ -45,7 +44,7 @@ pub(crate) const fn construct_with_clength<const N: usize>(
             cb = cb.raise_signal(Signal::OP_SUBNORMAL);
         }
 
-        return D::new(digits, -exp as i16, cb, extra_precision);
+        return D::new(digits, -exp as i16, cb);
     }
 
     cb = cb
@@ -62,4 +61,21 @@ pub(crate) const fn construct_with_clength<const N: usize>(
     }
 
     D::new(digits, -exp as i16, cb, extra_precision)
+}
+
+#[inline]
+const fn construct_zero<const N: usize>(exp: i32, sign: Sign) -> D<N> {
+    let cb = if exp > i16::MAX as i32 + 1 {
+        let mut cb = ControlBlock::new(i16::MIN, sign);
+        cb.raise_op_clamped();
+        cb
+    } else if exp <= i16::MIN as i32 {
+        let mut cb = ControlBlock::new(i16::MAX, sign);
+        cb.raise_op_clamped();
+        cb
+    } else {
+        ControlBlock::new(-exp as i16, sign)
+    };
+
+    D::new(UInt::ZERO, cb)
 }

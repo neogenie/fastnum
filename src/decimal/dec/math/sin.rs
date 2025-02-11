@@ -3,10 +3,10 @@ use core::cmp::Ordering;
 use crate::decimal::{
     dec::{
         intrinsics::Intrinsics,
-        math::{add::add, div::div, mul::mul, rem::rem, sub::sub},
+        math::{add::add, consts::Consts, div::div, mul::mul, rem::rem, sub::sub},
         parse::from_u32,
     },
-    Decimal, Signal,
+    Decimal,
 };
 
 type D<const N: usize> = Decimal<N>;
@@ -14,7 +14,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn sin<const N: usize>(d: D<N>) -> D<N> {
     if d.is_nan() {
-        return d.raise_signal(Signal::OP_INVALID);
+        return d.raise_op_invalid();
     }
 
     if d.is_zero() {
@@ -39,16 +39,16 @@ const fn sin_abs<const N: usize>(d: D<N>) -> D<N> {
     // We notice that sin(x) is cyclic with a period of 2π so we can quickly
     // reduce any argument > 2π so it falls between zero and 2π by simply taking
     // x modulo 2π.
-    let x = rem(d, D::TAU);
-    debug_assert!(x.lt(&D::TAU));
+    let x = rem(d, Consts::TAU);
+    debug_assert!(x.lt(&Consts::TAU));
 
-    match x.cmp(&D::PI) {
+    match x.cmp(&Consts::PI) {
         Ordering::Less => sin_less_pi(x),
         Ordering::Equal => D::ZERO.with_ctx(d.context()),
         Ordering::Greater => {
             // We can further reduce x, so it is between 0..π using the identity:
             // sin(x)=-sin(x-π) for x≥π.
-            sin_less_pi(sub(x, D::PI)).neg()
+            sin_less_pi(sub(x, Consts::PI)).neg()
         }
     }
 }
@@ -56,15 +56,15 @@ const fn sin_abs<const N: usize>(d: D<N>) -> D<N> {
 #[inline]
 const fn sin_less_pi<const N: usize>(x: D<N>) -> D<N> {
     debug_assert!(!x.is_negative());
-    debug_assert!(x.lt(&D::PI));
+    debug_assert!(x.lt(&Consts::PI));
 
-    match x.cmp(&D::FRAC_PI_2) {
+    match x.cmp(&Consts::FRAC_PI_2) {
         Ordering::Less => taylor_series(x),
         Ordering::Equal => D::ONE.with_ctx(x.context()),
         Ordering::Greater => {
             // We reduce it further by using the symmetry around to the range 0..π/2:
             // 𝑠𝑖𝑛(𝑥) = 𝑠𝑖𝑛(𝑥−𝜋/2) 𝑓𝑜𝑟 𝑥≥𝜋/2
-            taylor_series(sub(x, D::FRAC_PI_2))
+            taylor_series(sub(x, Consts::FRAC_PI_2))
         }
     }
 }
@@ -72,7 +72,7 @@ const fn sin_less_pi<const N: usize>(x: D<N>) -> D<N> {
 #[inline]
 const fn taylor_series<const N: usize>(x: D<N>) -> D<N> {
     debug_assert!(!x.is_negative());
-    debug_assert!(x.lt(&D::FRAC_PI_2));
+    debug_assert!(x.lt(&Consts::FRAC_PI_2));
 
     let mut result = D::ZERO;
     let mut result_next;
