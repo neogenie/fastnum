@@ -1,3 +1,4 @@
+pub(crate) mod fmt;
 pub(crate) mod types;
 
 #[cfg(not(feature = "numtraits"))]

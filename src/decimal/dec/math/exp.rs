@@ -1,19 +1,18 @@
 use crate::decimal::{
     dec::{
         intrinsics::Intrinsics,
-        math::{add::add, div::div, mul::mul, sub::sub},
+        math::{add::add, consts::Consts, div::div, mul::mul, sub::sub},
         parse::from_u32,
     },
     Decimal,
 };
-use crate::decimal::dec::math::consts::Consts;
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
 pub(crate) const fn exp<const N: usize>(x: D<N>) -> D<N> {
     if x.is_nan() {
-        return x.raise_op_invalid();
+        return x.op_invalid();
     }
 
     if x.is_zero() {
@@ -37,11 +36,11 @@ const fn exp_abs<const N: usize>(x: D<N>) -> D<N> {
     debug_assert!(!x.is_negative());
 
     if x.is_infinite() {
-        return D::INFINITY.with_ctx(x.context());
+        return D::INFINITY.set_ctx(x.context());
     }
 
     if x.is_one() {
-        return Consts::E.with_ctx(x.context());
+        return Consts::E.set_ctx(x.context());
     }
 
     argument_reduction(x)
@@ -67,7 +66,7 @@ const fn taylor_series<const N: usize>(x: D<N>) -> D<N> {
     while i < Intrinsics::<N>::SERIES_MAX_ITERATIONS + 2 {
         result_next = add(result, item);
 
-        if result.eq_with_extra_precision(&result_next) {
+        if result.eq(&result_next) {
             break;
         }
 

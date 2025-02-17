@@ -22,6 +22,12 @@ impl Sign {
         Self::Plus
     }
 
+    /// Returns `true` if sign is negative, and `false` otherwise.
+    #[inline]
+    pub const fn is_negative(self) -> bool {
+        matches!(self, Self::Minus)
+    }
+
     /// Tests for `self` and `other` signs to be equal, and is used by `==`
     /// operator.
     #[inline]

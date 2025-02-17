@@ -8,7 +8,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn acosh<const N: usize>(x: D<N>) -> D<N> {
     if x.is_nan() {
-        return x.raise_op_invalid();
+        return x.op_invalid();
     }
 
     if x.is_zero() {

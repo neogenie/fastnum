@@ -77,13 +77,13 @@ get rid of one indirect addressing, which improves cache-friendliness and reduce
 To install and use `fastnum`, add the following line to your `Cargo.toml` file in the `[dependencies]` section:
 
 ```toml
-fastnum = "0.1"
+fastnum = "0.2"
 ```
 
 Or, to enable various `fastnum` features as well, add for example this line instead:
 
 ```toml
-fastnum = { version = "0.1", features = ["serde"] } # enables the "serde" feature
+fastnum = { version = "0.2", features = ["serde"] } # enables the "serde" feature
 ```
 
 ## Example usage
@@ -301,12 +301,14 @@ precision_.
 
 ### Memory layout
 
-Under the hood any N-bit decimal type consists of an N-bit big unsigned integer (_coefficient_), paired with a _control
-block_ which consists of the following components:
+Under the hood any N-bit decimal type consists of an N-bit big unsigned integer (_coefficient_), paired with a 64-bit
+_control block_ which consists of the following components:
 
 - a signed 16-bit integer scaling factor (negotiated _exponent_),
 - decimal number flags (include _sign_ and [special value] flags),
-- signaling flags for [Exceptional conditions].
+- signaling flags for [Exceptional conditions],
+- decimal [Context] includes [rounding mode] and [signals traps],
+- [Extra precision] digits.
 
 <style>
 .mermaid svg { 
@@ -316,7 +318,7 @@ block_ which consists of the following components:
 </style>
 <pre class="mermaid">
     ---
-    title: D128 decimal memory layout (bytes)
+    title: D256 decimal memory layout (bytes)
     config:
       theme: 'forest'
       packet:
@@ -324,25 +326,24 @@ block_ which consists of the following components:
         bitWidth: 18
     ---
     packet-beta
-    0-31: "coefficient (U128)"
-    32-33: "exp"
-    34-34: "f"
-    35-39: "context"
+    0-31: "coefficient (U256)"
+    32-39: "control block"
 </pre>
 <pre class="mermaid">
     ---
-    title: D128 decimal memory layout (bits)
+    title: Control block memory layout (bits)
     config:
         theme: 'forest'
         packet:
-            bitsPerRow: 192
-            bitWidth: 5
+            bitsPerRow: 64
+            bitWidth: 10
     ---
     packet-beta
-    0-127: "coefficient (U128)"
-    128-143: "exp"
-    144-151: "flags"
-    152-191: "context"
+    0-15: "exp"
+    16-18: "flags"
+    19-26: "signals"
+    27-39: "context"
+    40-63: "extra precision"
 </pre>
 
 <script type="module">
@@ -588,7 +589,7 @@ assert!(res.is_op_subnormal());
 
 ## Precision
 
-Precision is an integral number of decimal digits. 
+Precision is an integral number of decimal digits.
 It is limited by the maximum decimal digits that N-bit unsigned coefficient can hold.
 
 ## Arithmetic
@@ -799,6 +800,7 @@ assert_eq!(dec256!(-1.3).unsigned_abs(), udec256!(1.3));
 #### Addition and subtraction
 
 [addition]: #addition-and-subtraction
+
 [subtraction]: #addition-and-subtraction
 
 [`add(self, other)`](crate::decimal::Decimal::add) | [`sub(self, other)`](crate::decimal::Decimal::sub)
@@ -947,6 +949,48 @@ use fastnum::*;
 
 assert_eq!(dec128!(1.0).mul_add(dec128!(2), dec128!(0.5)), dec128!(2.5));
 ```
+
+#### Remainder
+
+[remainder]: #remainder
+
+[`rem(self, other)`](crate::decimal::Decimal::rem) | [`rem(self, other)`](crate::decimal::UnsignedDecimal::rem)
+
+Remainder takes two operands; it returns the remainder from integer division.
+If either operand is a [special value] then the [general rules] apply.
+
+Otherwise, the result is the residue of the dividend after the operation of calculating integer division, rounded to
+precision digits if necessary.
+The sign of the result, if non-zero, is the same as that of the original dividend.
+
+##### Examples:
+
+```
+use fastnum::*;
+
+assert_eq!(dec128!(2.1) % dec128!(3), dec128!(2.1));
+assert_eq!(dec128!(10) % dec128!(3), dec128!(1));
+assert_eq!(dec128!(10) % dec128!(6), dec128!(4));
+assert_eq!(dec128!(-10) % dec128!(3), dec128!(-1));
+assert_eq!(dec128!(10.2) % dec128!(1), dec128!(0.2));
+assert_eq!(dec128!(10) % dec128!(0.3), dec128!(0.1));
+assert_eq!(dec128!(3.6) % dec128!(1.3), dec128!(1.0));
+```
+
+Notes:
+
+1. The divide-integer and remainder operations are defined so that they may be calculated as a by-product of the
+   standard division operation (described above).
+   The division process is ended as soon as the integer result is available; the residue of the dividend is the
+   remainder.
+2. The sign of the result will always be a sign of the dividend.
+3. The remainder operation differs from the remainder operation defined in [IEEE 754] (the remainder-near operator), in
+   that it gives the same results for numbers, whose values are equal to integers as would the usual remainder operator
+   on integers.
+   For example, the result of the operation remainder(`10`, `6`) as defined here is `4`, and remainder(`10.0`, `6`)
+   would give `4.0` (as would remainder(`10`, `6.0`) or remainder(`10.0`, `6.0`)).
+   The [IEEE 754] remainder operation would, however, give the result `-2` because its integer division step chooses the
+   closest integer, not the one nearer zero.
 
 #### Power
 
@@ -1328,6 +1372,8 @@ assert_eq!(C, udec256!(6));
 
 [Context]: #decimal-context
 
+[signals traps]: #decimal-context
+
 **_Decimal context_** represents the user-selectable parameters and rules which govern the results of arithmetic
 operations (for example, the rounding mode when rounding occurs).
 
@@ -1491,6 +1537,10 @@ incremented by one. This in turn may give rise to an overflow condition, which d
 
 ### Rounding mode
 
+[RoundingMode]: #rounding-mode
+
+[rounding mode]: #rounding-mode
+
 [RoundingMode](crate::decimal::RoundingMode) enum determines how to calculate the last digit of the number when
 performing rounding:
 
@@ -1619,6 +1669,12 @@ incremented by `1` (rounded up) if its rightmost digit is odd (to make an even d
 * `-1.6` → `-2.0`
 * `-2.5` → `-2.0`
 * `-5.5` → `-6.0`
+
+## Extra precision
+
+[Extra precision]: #extra-precision
+
+_Description is coming soon..._
 
 ## Base and mathematical constants
 
@@ -1752,7 +1808,7 @@ the decimal as a string, bytes, or some custom structure.
 
 ```toml
 [dependencies]
-fastnum = { version = "0.1", features = ["serde"] } 
+fastnum = { version = "0.2", features = ["serde"] } 
 ```
 
 Basic usage:

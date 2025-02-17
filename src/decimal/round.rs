@@ -20,6 +20,7 @@ pub(crate) fn round_pair_digits(
     let up = lhs + 1;
     let down = lhs;
     match (rounding_mode, rhs.cmp(&5)) {
+        (No, _) => down,
         (Up, _) => up,
         (Down, _) => down,
         (Floor, _) => {

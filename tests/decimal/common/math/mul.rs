@@ -106,7 +106,7 @@ macro_rules! test_impl {
             #[case] a: $D,
             #[case] b: $D,
             #[case] expected: $D,
-            #[case] signals: Signal
+            #[case] signals: Signals
         ) {
             let d = a * b;
 
@@ -142,7 +142,7 @@ macro_rules! test_impl {
         #[case($dec!(10000), $dec!(638655273892892437), $dec!(6386552738928924370000))]
         #[case($dec!(1e-10), $dec!(9056180052657301), $dec!(905618.0052657301))]
         #[case($dec!(34028236692093846346337460743176821145), $dec!(1.0), $dec!(34028236692093846346337460743176821145.0))]
-        #[case($D::MAX, $dec!(0), $dec!(0))]
+        #[case($D::MAX, $dec!(0), $dec!(0e32768))]
         #[case($D::MAX, $dec!(1), $D::MAX)]
         #[case($D::INFINITY, $D::INFINITY, $D::INFINITY)]
         #[case($D::INFINITY, $dec!(1000), $D::INFINITY)]
@@ -213,7 +213,7 @@ macro_rules! test_impl {
         #[case($dec!(-9e-1), $dec!(-368408638655273892892437473), $dec!(331567774789746503603193725.7))]
         #[case($dec!(-1.175470587012343730098), $dec!(577575785), $dec!(-678923347.038065234601180476930))]
         #[case($dec!(1e-10), $dec!(-9056180052657301), $dec!(-905618.0052657301))]
-        #[case($D::MIN, $dec!(0), $dec!(-0))]
+        #[case($D::MIN, $dec!(0), $dec!(-0e32768))]
         #[case($D::MIN, $dec!(1), $D::MIN)]
         #[case($D::NEG_INFINITY, $D::INFINITY, $D::NEG_INFINITY)]
         #[case($D::INFINITY, $D::NEG_INFINITY, $D::NEG_INFINITY)]

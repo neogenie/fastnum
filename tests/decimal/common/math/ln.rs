@@ -60,7 +60,7 @@ macro_rules! test_impl {
         #[rstest(::trace)]
         #[case($dec!(1), $SD::ZERO, signals![])]
         #[case($dec!(2), $SD::LN_2, signals![!ROUND, !INEXACT])]
-        fn test_ln(#[case] d: $D, #[case] expected: $SD, #[case] signals: Signal) {
+        fn test_ln(#[case] d: $D, #[case] expected: $SD, #[case] signals: Signals) {
             let res = d.ln();
 
             assert_eq!(res, expected);

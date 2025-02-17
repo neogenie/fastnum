@@ -142,7 +142,7 @@ macro_rules! test_impl {
             #[case] a: $D,
             #[case] b: $D,
             #[case] expected: $D,
-            #[case] signals: Signal
+            #[case] signals: Signals
         ) {
             let d = a / b;
 
@@ -162,7 +162,7 @@ macro_rules! test_impl {
             #[case] a: $D,
             #[case] b: $D,
             #[case] expected: $D,
-            #[case] signals: Signal
+            #[case] signals: Signals
         ) {
             let ctx = Context::default().with_rounding_mode(Up);
             let d = a.with_ctx(ctx) / b.with_ctx(ctx);
@@ -310,7 +310,7 @@ macro_rules! test_impl {
         #[case($dec!(1e-32767), $D::MAX)]
         #[should_panic(expected = "(fastnum) underflow was occurred while performing arithmetic operation")]
         fn test_div_underflow_panic(#[case] a: $D, #[case] b: $D) {
-            let ctx = Context::default().with_signal_traps(SignalsTraps::default().set(Signal::OP_UNDERFLOW));
+            let ctx = Context::default().with_signal_traps(SignalsTraps::default().set(Signals::OP_UNDERFLOW));
             let _ = a.with_ctx(ctx) / b.with_ctx(ctx);
         }
 

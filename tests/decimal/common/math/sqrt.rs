@@ -62,7 +62,7 @@ macro_rules! test_impl {
         #[case($dec!(1), $dec!(1), signals![])]
         #[case($dec!(2), $D::SQRT_2, signals![!CP, !ROUND, !INEXACT])]
         #[case($dec!(4), $dec!(2), signals![!CP, !ROUND, !INEXACT])]
-        fn test_sqrt(#[case] d: $D, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_sqrt(#[case] d: $D, #[case] expected: $D, #[case] signals: Signals) {
             let res = d.sqrt();
 
             assert_eq!(res, expected);

@@ -6,23 +6,26 @@ use crate::decimal::{
         scale,
         scale::extend_scale_to,
     },
-    Decimal,
+    Decimal, Signals,
 };
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
-pub(crate) const fn recip<const N: usize>(mut d: D<N>) -> D<N> {
+pub(crate) const fn recip<const N: usize>(d: D<N>) -> D<N> {
     if d.is_nan() {
-        return d.raise_op_invalid();
+        return d.op_invalid();
     }
 
     if d.is_zero() {
-        return D::INFINITY.compound(&d).raise_op_div_by_zero();
+        return D::INFINITY
+            .set_ctx(d.context())
+            .compound(&d)
+            .raise_signals(Signals::OP_DIV_BY_ZERO);
     }
 
     if d.is_infinite() {
-        return D::ZERO.compound(&d);
+        return D::ZERO.set_ctx(d.context()).compound(&d);
     }
 
     let scale = d.cb.get_scale();
@@ -37,15 +40,16 @@ pub(crate) const fn recip<const N: usize>(mut d: D<N>) -> D<N> {
     while result.is_ok() {
         result_next = add(result, mul(result, sub(D::ONE, mul(result, d))));
 
-        if result.eq_with_extra_precision(&result_next) {
+        if result.eq(&result_next) {
             break;
         }
 
         result = result_next;
     }
-    
-    extend_scale_to(scale::reduce(result), scale)
-        .raise_op_inexact()
-        .raise_op_clamped()
-        .raise_op_rounded()
+
+    extend_scale_to(scale::reduce(result), scale).raise_signals(
+        Signals::OP_INEXACT
+            .combine(Signals::OP_CLAMPED)
+            .combine(Signals::OP_ROUNDED),
+    )
 }

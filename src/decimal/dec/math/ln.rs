@@ -14,11 +14,11 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn ln<const N: usize>(x: D<N>) -> D<N> {
     if x.is_nan() {
-        return x.raise_op_invalid();
+        return x.op_invalid();
     }
 
     if x.is_zero() {
-        return D::NEG_INFINITY.raise_op_invalid().with_ctx(x.context());
+        return D::NEG_INFINITY.op_invalid().with_ctx(x.context());
     }
 
     if x.is_negative() {
@@ -65,7 +65,7 @@ const fn taylor_series<const N: usize>(x: D<N>) -> D<N> {
     while i < Intrinsics::<N>::SERIES_MAX_ITERATIONS * 2 {
         result_next = add(result, div(item, from_u32(i)));
 
-        if result.eq_with_extra_precision(&result_next) {
+        if result.eq(&result_next) {
             break;
         }
 

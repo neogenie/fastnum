@@ -72,7 +72,7 @@ macro_rules! test_impl {
         #[case(-3.92E-39, $dec!(-3.91999933059456489828739575494312783522406115751507460249208160269472102366083987590172910131514072418212890625e-39), signals![])]
         #[case(-1e-42, $dec!(-1.0005271035279193886395429224690001177341070264998322610345467546973108330377044694614596664905548095703125e-42), signals![])]
         #[case(-1.40129846432e-45, $dec!(-1.40129846432481707092372958328991613128026194187651577175706828388979108268586060148663818836212158203125e-45), signals![])]
-        fn test_from_f32_subnormal_signed_512(#[case] n: f32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f32_subnormal_signed_512(#[case] n: f32, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_subnormal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
@@ -95,7 +95,7 @@ macro_rules! test_impl {
         #[case(2.35098744048e-38,       $dec!(2.3509874404759571236021092430878663947128129613084273541533088311953790180975e-38), signals![!INEXACT, !ROUND])]
         #[case(2.3509889819e-38,        $dec!(2.3509889819042678809008872591904080136205573695965634183206577639704912968677e-38), signals![!INEXACT, !ROUND])]
         #[case(317e-40,                 $dec!(3.1700000098946435501119816090716154772221806896649747100732700841687651538425e-38), signals![!INEXACT, !ROUND])]
-        fn test_from_f32_256(#[case] n: f32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f32_256(#[case] n: f32, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_normal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
@@ -109,7 +109,7 @@ macro_rules! test_impl {
         #[case(1.0e-40,             $dec!(0.99999461011147595815259190522734994960422052696191918504127906874943271242628e-40), signals![!INEXACT, !ROUND])]
         #[case(1e-42,               $dec!(1.00052710352791938863954292246900011773410702649983226103454675469731083303771e-42), signals![!INEXACT, !ROUND])]
         #[case(1.40129846432e-45,   $dec!(1.4012984643248170709237295832899161312802619418765157717570682838897910826859e-45), signals![!INEXACT, !ROUND])]
-        fn test_from_f32_subnormal_256(#[case] n: f32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f32_subnormal_256(#[case] n: f32, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_subnormal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
@@ -134,7 +134,7 @@ macro_rules! test_impl {
         #[case(-3.92e-39, $dec!(-3.9199993305945648982873957549431278352240611575150746024920816026947210236608e-39), signals![!INEXACT, !ROUND])]
         #[case(-1e-42, $dec!(-1.00052710352791938863954292246900011773410702649983226103454675469731083303771e-42), signals![!INEXACT, !ROUND])]
         #[case(-1.40129846432e-45, $dec!(-1.4012984643248170709237295832899161312802619418765157717570682838897910826859e-45), signals![!INEXACT, !ROUND])]
-        fn test_from_f32_subnormal_signed_256(#[case] n: f32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f32_subnormal_signed_256(#[case] n: f32, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_subnormal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
@@ -690,7 +690,7 @@ macro_rules! test_impl {
         #[case(-3.92E-39, $dec!(-3.9199993305945648982873957549431278352e-39), signals![!INEXACT, !ROUND])]
         #[case(-1e-42, $dec!(-1.00052710352791938863954292246900011773e-42), signals![!INEXACT, !ROUND])]
         #[case(-1.40129846432e-45, $dec!(-1.40129846432481707092372958328991613128e-45), signals![!INEXACT, !ROUND])]
-        fn test_from_f32_subnormal_signed_128(#[case] n: f32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f32_subnormal_signed_128(#[case] n: f32, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_subnormal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);

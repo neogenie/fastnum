@@ -27,7 +27,7 @@ macro_rules! decimal_operation_panics {
             "### debug mode\n\n",
             "This method will panic if ",
             $op,
-            " performs with some [Exceptional condition](crate#signaling-flags-and-trap-enablers) and corresponding [Signal] in the [Context]
+            " performs with some [Exceptional condition](crate#signaling-flags-and-trap-enablers) and corresponding [Signals] in the [Context]
             is trapped by trap-enabler.
             \n\n",
             "### release mode\n\n",

@@ -1,7 +1,7 @@
 use crate::{
     decimal::{
-        dec::{ControlBlock, ExtraPrecision},
-        Decimal,
+        dec::{Context, ControlBlock, ExtraPrecision, Signals},
+        Decimal, Sign,
     },
     int::convert,
 };
@@ -12,13 +12,22 @@ macro_rules! from_int {
     ($n: ident, $nu: ident, $int: ty) => {
         #[inline]
         pub const fn $n<const N: usize>(n: $int) -> D<N> {
-            let cb = if n.is_negative() {
-                ControlBlock::default().neg()
+            let sign = if n.is_negative() {
+                Sign::Minus
             } else {
-                ControlBlock::default()
+                Sign::Plus
             };
 
-            D::new(convert::$nu(n.unsigned_abs()), 0, cb, ExtraPrecision::new())
+            D::new(
+                convert::$nu(n.unsigned_abs()),
+                ControlBlock::new(
+                    0,
+                    sign,
+                    Signals::empty(),
+                    Context::default(),
+                    ExtraPrecision::new(),
+                ),
+            )
         }
     };
 }

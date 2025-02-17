@@ -1,8 +1,9 @@
-use crate::{decimal::Signal, utils::err_msg};
 use core::{
     fmt,
     fmt::{Debug, Display, Formatter},
 };
+
+use crate::{decimal::Signals, utils::err_msg};
 
 #[doc(hidden)]
 #[derive(Copy, Clone, PartialEq)]
@@ -55,24 +56,24 @@ impl DecimalError {
     }
 
     #[inline]
-    pub(crate) const fn from_signals(signals: Signal) -> Self {
+    pub(crate) const fn from_signals(signals: Signals) -> Self {
         debug_assert!(!signals.is_empty());
 
-        if signals.is_raised(Signal::OP_DIV_BY_ZERO) {
+        if signals.is_raised(Signals::OP_DIV_BY_ZERO) {
             Self::DivByZero
-        } else if signals.is_raised(Signal::OP_INVALID) {
+        } else if signals.is_raised(Signals::OP_INVALID) {
             Self::Invalid
-        } else if signals.is_raised(Signal::OP_OVERFLOW) {
+        } else if signals.is_raised(Signals::OP_OVERFLOW) {
             Self::Overflow
-        } else if signals.is_raised(Signal::OP_UNDERFLOW) {
+        } else if signals.is_raised(Signals::OP_UNDERFLOW) {
             Self::Underflow
-        } else if signals.is_raised(Signal::OP_INEXACT) {
+        } else if signals.is_raised(Signals::OP_INEXACT) {
             Self::Inexact
-        } else if signals.is_raised(Signal::OP_ROUNDED) {
+        } else if signals.is_raised(Signals::OP_ROUNDED) {
             Self::Rounded
-        } else if signals.is_raised(Signal::OP_SUBNORMAL) {
+        } else if signals.is_raised(Signals::OP_SUBNORMAL) {
             Self::Subnormal
-        } else if signals.is_raised(Signal::OP_CLAMPED) {
+        } else if signals.is_raised(Signals::OP_CLAMPED) {
             Self::Clamped
         } else {
             unreachable!()

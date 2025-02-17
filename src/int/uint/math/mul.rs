@@ -2,6 +2,7 @@ use crate::int::{intrinsics::Intrinsics, UInt};
 
 #[inline(always)]
 pub const fn strict_mul10<const N: usize>(n: UInt<N>, power: u32) -> UInt<N> {
+    debug_assert!(power <= Intrinsics::<N>::MAX_POWER_OF_TEN);
     n.strict_mul(Intrinsics::<N>::POWERS_OF_TEN.lookup(power))
 }
 

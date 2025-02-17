@@ -31,7 +31,9 @@ use crate::{
             math::consts::Consts,
             round::round,
         },
-        doc, Context, DecimalError, ParseError, RoundingMode, Sign, UnsignedDecimal,
+        doc,
+        signals::Signals,
+        Context, DecimalError, ParseError, RoundingMode, Sign, UnsignedDecimal,
     },
     int::{math::ilog10, UInt},
 };
@@ -46,14 +48,9 @@ pub struct Decimal<const N: usize> {
     /// digits.
     digits: UInt<N>,
 
-    // /// Scaling factor (or _exponent_) which determines the position of the
-    // /// decimal point and indicates the power of ten by which the coefficient is
-    // /// multiplied.
-    // scale: i16,
     /// Control block
+    #[doc(hidden)]
     cb: ControlBlock,
-    // #[doc(hidden)]
-    // extra_precision: ExtraPrecision,
 }
 
 consts_impl!();
@@ -72,9 +69,15 @@ impl<const N: usize> Decimal<N> {
     #[must_use]
     #[inline]
     pub const fn from_parts(digits: UInt<N>, exp: i32, sign: Sign, ctx: Context) -> Self {
-        let mut d = construct::construct(digits, exp, sign);
-        d.cb.set_context(ctx);
-        d.check()
+        construct::construct(
+            digits,
+            exp,
+            sign,
+            Signals::empty(),
+            ctx,
+            ExtraPrecision::new(),
+        )
+        .check()
     }
 
     /// Creates and initializes decimal from string.
@@ -211,67 +214,67 @@ impl<const N: usize> Decimal<N> {
     /// assert!(res.is_op_div_by_zero());
     /// ```
     ///
-    /// More about [`OP_DIV_BY_ZERO`](Signal::OP_DIV_BY_ZERO) signal.
+    /// More about [`OP_DIV_BY_ZERO`](Signals::OP_DIV_BY_ZERO) signal.
     #[must_use]
     #[inline]
     pub const fn is_op_div_by_zero(&self) -> bool {
-        self.cb.is_op_div_by_zero()
+        self.cb.is_signals_raised(Signals::OP_DIV_BY_ZERO)
     }
 
-    /// Return `true` if the argument has [Signal::OP_OVERFLOW] signal flag, and
-    /// `false` otherwise.
+    /// Return `true` if the argument has [Signals::OP_OVERFLOW] signal flag,
+    /// and `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_overflow(&self) -> bool {
-        self.cb.is_op_overflow()
+        self.cb.is_signals_raised(Signals::OP_OVERFLOW)
     }
 
-    /// Return `true` if the argument has [Signal::OP_UNDERFLOW] signal flag,
+    /// Return `true` if the argument has [Signals::OP_UNDERFLOW] signal flag,
     /// and `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_underflow(&self) -> bool {
-        self.cb.is_op_underflow()
+        self.cb.is_signals_raised(Signals::OP_UNDERFLOW)
     }
 
-    /// Return `true` if the argument has [Signal::OP_INVALID] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_INVALID] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_invalid(&self) -> bool {
-        self.cb.is_op_invalid()
+        self.cb.is_signals_raised(Signals::OP_INVALID)
     }
 
-    /// Return `true` if the argument has [Signal::OP_SUBNORMAL] signal flag,
+    /// Return `true` if the argument has [Signals::OP_SUBNORMAL] signal flag,
     /// and `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_subnormal(&self) -> bool {
-        self.cb.is_op_subnormal()
+        self.cb.is_signals_raised(Signals::OP_SUBNORMAL)
     }
 
-    /// Return `true` if the argument has [Signal::OP_INEXACT] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_INEXACT] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_inexact(&self) -> bool {
-        self.cb.is_op_inexact()
+        self.cb.is_signals_raised(Signals::OP_INEXACT)
     }
 
-    /// Return `true` if the argument has [Signal::OP_ROUNDED] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_ROUNDED] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_rounded(&self) -> bool {
-        self.cb.is_op_rounded()
+        self.cb.is_signals_raised(Signals::OP_ROUNDED)
     }
 
-    /// Return `true` if the argument has [Signal::OP_CLAMPED] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_CLAMPED] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_clamped(&self) -> bool {
-        self.cb.is_op_clamped()
+        self.cb.is_signals_raised(Signals::OP_CLAMPED)
     }
 
     /// Return `true` if the argument has no signal flags, and `false`
@@ -282,12 +285,12 @@ impl<const N: usize> Decimal<N> {
         self.cb.is_op_ok()
     }
 
-    // /// Return the [`signaling block`](Signal) of given decimal.
-    // #[must_use]
-    // #[inline]
-    // pub const fn op_signals(&self) -> Signal {
-    //     self.signals()
-    // }
+    /// Return the [`signaling block`](Signals) of given decimal.
+    #[must_use]
+    #[inline]
+    pub const fn op_signals(&self) -> Signals {
+        self.signals()
+    }
 
     /// Return the decimal category of the number.
     /// If only one property is going to be tested, it is generally faster to
@@ -636,9 +639,8 @@ impl<const N: usize> Decimal<N> {
     #[must_use = doc::must_use_op!()]
     #[track_caller]
     #[inline]
-    pub const fn with_ctx(mut self, ctx: Context) -> Self {
-        self.cb.set_context(ctx);
-        self.check()
+    pub const fn with_ctx(self, ctx: Context) -> Self {
+        self.set_ctx(ctx).check()
     }
 
     /// Apply [RoundingMode] to the given decimal number.
@@ -1569,6 +1571,57 @@ impl<const N: usize> Decimal<N> {
         self.rescale(digits)
     }
 
+    /// Returns the largest integer less than or equal to a number.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::*;
+    ///
+    /// assert_eq!(dec256!(3.99).floor(), dec256!(3));
+    /// assert_eq!(dec256!(3.0).floor(), dec256!(3));
+    /// assert_eq!(dec256!(3.01).floor(), dec256!(3));
+    /// assert_eq!(dec256!(3.5).floor(), dec256!(3));
+    /// assert_eq!(dec256!(4.0).floor(), dec256!(4));
+    ///
+    /// assert_eq!(dec256!(-3.01).floor(), dec256!(-3));
+    /// assert_eq!(dec256!(-3.1).floor(), dec256!(-3));
+    /// assert_eq!(dec256!(-3.5).floor(), dec256!(-3));
+    /// assert_eq!(dec256!(-4.0).floor(), dec256!(-4));
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline]
+    pub const fn floor(self) -> Self {
+        round::floor(self)
+    }
+
+    /// Finds the nearest integer greater than or equal to `x`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::*;
+    ///
+    /// assert_eq!(dec256!(3.01).ceil(), dec256!(4));
+    /// assert_eq!(dec256!(3.99).ceil(), dec256!(4));
+    /// assert_eq!(dec256!(4.0).ceil(), dec256!(4));
+    /// assert_eq!(dec256!(1.0001).ceil(), dec256!(2));
+    /// assert_eq!(dec256!(1.00001).ceil(), dec256!(2));
+    /// assert_eq!(dec256!(1.000001).ceil(), dec256!(2));
+    /// assert_eq!(dec256!(1.00000000000001).ceil(), dec256!(2));
+    ///
+    /// assert_eq!(dec256!(-3.01).ceil(), dec256!(-4));
+    /// assert_eq!(dec256!(-3.5).ceil(), dec256!(-4));
+    /// assert_eq!(dec256!(-4.0).ceil(), dec256!(-4));
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline]
+    pub const fn ceil(self) -> Self {
+        round::ceil(self)
+    }
+
     /// _Deprecated_, use [`rescale`](Self::rescale) instead.
     #[must_use = doc::must_use_op!()]
     #[inline]
@@ -1653,8 +1706,8 @@ impl<const N: usize> Decimal<N> {
     }
 
     /// Returns:
-    /// - `true` if no [Exceptional condition] [Signal] flag has been trapped by
-    ///   [Context] trap-enabler, and
+    /// - `true` if no [Exceptional condition] [Signals] flag has been trapped
+    ///   by [Context] trap-enabler, and
     /// - `false` otherwise.
     ///
     /// [Exceptional condition]: crate#signaling-flags-and-trap-enablers
@@ -1664,7 +1717,7 @@ impl<const N: usize> Decimal<N> {
     }
 
     /// Returns:
-    /// - `Some(Self)` if no [Exceptional condition] [Signal] flag has been
+    /// - `Some(Self)` if no [Exceptional condition] [Signals] flag has been
     ///   trapped by [Context] trap-enabler, and
     /// - `None` otherwise.
     ///
@@ -1948,7 +2001,7 @@ impl<const N: usize> Decimal<N> {
     /// ```
     /// use fastnum::*;
     ///
-    /// assert_eq!(D128::FRAC_PI_4.cos().acos(), D128::FRAC_PI_4);
+    /// assert_eq!(dec256!(1).acos(), dec256!(0));
     /// ```
     ///
     /// See more about the [trigonometric
@@ -2190,33 +2243,35 @@ impl<const N: usize> Decimal<N> {
     pub(crate) const fn decimal_power(&self) -> i32 {
         ilog10(self.digits) as i32 - self.cb.get_scale() as i32
     }
-    // #[inline(always)]
-    // pub(crate) const fn flags(&self) -> Flags {
-    //     self.cb.flags()
-    // }
-    //
-    // #[inline(always)]
-    // pub(crate) const fn signals(&self) -> Signal {
-    //     self.cb.signals()
-    // }
-    //
+
+    #[inline(always)]
+    pub(crate) fn control_block(&self) -> ControlBlock {
+        self.cb
+    }
+
+    #[inline(always)]
+    pub(crate) const fn signals(&self) -> Signals {
+        self.cb.get_signals()
+    }
+
     #[inline(always)]
     pub(crate) const fn context(&self) -> Context {
         self.cb.get_context()
     }
 
-    // #[inline(always)]
-    // pub(crate) const fn raise_signal(mut self, signal: Signal) -> Self {
-    //     self.cb = self.cb.raise_signal(signal);
-    //     self
-    // }
-    //
-    // #[inline(always)]
-    // pub(crate) const fn quiet_signal(mut self, signal: Signal) -> Self {
-    //     self.cb = self.cb.quiet_signal(signal);
-    //     self
-    // }
-    //
+    #[inline(always)]
+    pub(crate) const fn raise_signals(mut self, signals: Signals) -> Self {
+        self.cb.raise_signals(signals);
+        self
+    }
+
+    #[allow(dead_code)]
+    #[inline(always)]
+    pub(crate) const fn quiet_signals(mut self, signals: Signals) -> Self {
+        self.cb.quiet_signals(signals);
+        self
+    }
+
     #[inline(always)]
     pub(crate) const fn compound(mut self, other: &Self) -> Self {
         self.cb.compound(&other.cb);
@@ -2224,122 +2279,32 @@ impl<const N: usize> Decimal<N> {
     }
 
     #[inline(always)]
-    pub(crate) const fn raise_op_div_by_zero(mut self) -> Self {
-        self.cb.raise_op_div_by_zero();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn raise_op_overflow(mut self) -> Self {
-        self.cb.raise_op_overflow();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn raise_op_underflow(mut self) -> Self {
-        self.cb.raise_op_underflow();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn raise_op_invalid(mut self) -> Self {
-        self.cb.raise_op_invalid();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn raise_op_subnormal(mut self) -> Self {
-        self.cb.raise_op_subnormal();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn raise_op_inexact(mut self) -> Self {
-        self.cb.raise_op_inexact();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn raise_op_rounded(mut self) -> Self {
-        self.cb.raise_op_rounded();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn raise_op_clamped(mut self) -> Self {
-        self.cb.raise_op_clamped();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_div_by_zero(mut self) -> Self {
-        self.cb.quiet_op_div_by_zero();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_overflow(mut self) -> Self {
-        self.cb.quiet_op_overflow();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_underflow(mut self) -> Self {
-        self.cb.quiet_op_underflow();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_invalid(mut self) -> Self {
-        self.cb.quiet_op_invalid();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_subnormal(mut self) -> Self {
-        self.cb.quiet_op_subnormal();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_inexact(mut self) -> Self {
-        self.cb.quiet_op_inexact();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_rounded(mut self) -> Self {
-        self.cb.quiet_op_rounded();
-        self
-    }
-
-    #[inline(always)]
-    pub(crate) const fn quiet_op_clamped(mut self) -> Self {
-        self.cb.quiet_op_clamped();
-        self
-    }
-
-    // #[inline(always)]
-    // pub(crate) const fn compound_and_raise(mut self, other: &Self, signal:
-    // Signal) -> Self {     self.cb = self.cb.compound_and_raise(other.cb,
-    // signal);     self
-    // }
-
-    // #[inline(always)]
-    // pub(crate) const fn with_cb(mut self, cb: ControlBlock) -> Self {
-    //     self.cb = self.cb.combine_and_set_ctx(cb);
-    //     self
-    // }
-    //
-    #[inline(always)]
     pub(crate) const fn signaling_nan(mut self) -> Self {
         self.cb.signaling_nan();
         self
     }
 
     #[inline(always)]
+    pub(crate) const fn op_invalid(mut self) -> Self {
+        self.cb.raise_signals(Signals::OP_INVALID);
+        self
+    }
+
+    #[inline(always)]
+    pub(crate) const fn op_overflow(mut self) -> Self {
+        self.cb.raise_signals(Signals::OP_OVERFLOW);
+        self
+    }
+
+    #[inline(always)]
     pub(crate) const fn set_sign(mut self, sign: Sign) -> Self {
         self.cb.set_sign(sign);
+        self
+    }
+
+    #[inline]
+    pub(crate) const fn set_ctx(mut self, ctx: Context) -> Self {
+        self.cb.set_context(ctx);
         self
     }
 
@@ -2350,59 +2315,38 @@ impl<const N: usize> Decimal<N> {
 
         if !trapped.is_empty() {
             DecimalError::from_signals(trapped).panic();
-            self.cb = self.cb.set_flags(Flags::nan());
+            self.cb.signaling_nan();
         }
 
         self
     }
 
-    // #[inline]
-    // pub(crate) const fn ok_or_err(self) -> Result<Self, DecimalError> {
-    //     let trapped = self.cb.trap_signals();
-    //
-    //     if trapped.is_empty() {
-    //         Ok(self)
-    //     } else {
-    //         Err(DecimalError::from_signals(trapped))
-    //     }
-    // }
+    #[inline]
+    pub(crate) const fn ok_or_err(self) -> Result<Self, DecimalError> {
+        let trapped = self.cb.trap_signals();
 
-    // #[inline]
-    // pub(crate) const fn extra_precision(&self) -> ExtraPrecision {
-    //     self.extra_precision
-    // }
-    //
+        if trapped.is_empty() {
+            Ok(self)
+        } else {
+            Err(DecimalError::from_signals(trapped))
+        }
+    }
+
     #[inline(always)]
     pub(crate) const fn round_extra_precision(mut self) -> Self {
         round(&mut self);
         self
     }
 
-    // #[inline]
-    // pub(crate) const fn extra_digits(&self) -> Self {
-    //     let mut extra_digits = self.extra_precision.as_decimal();
-    //     if !extra_digits.is_zero() {
-    //         let overflow;
-    //         (extra_digits.scale, overflow) =
-    // extra_digits.scale.overflowing_add(self.scale);         if overflow {
-    //             extra_digits = Self::ZERO;
-    //         }
-    //     } else {
-    //         extra_digits.scale = 0;
-    //     }
-    //
-    //     extra_digits
-    // }
-    //
-    #[inline]
+    #[inline(always)]
     pub(crate) const fn without_extra_digits(mut self) -> Self {
-        self.cb.reset_extra_digits();
+        self.cb.reset_extra_precision();
         self
     }
 
-    #[inline]
-    pub(crate) const fn eq_with_extra_precision(&self, other: &Self) -> bool {
-        cmp::eq(self, other) && self.cb.eq_extra_precision(&other.cb)
+    #[inline(always)]
+    pub(crate) const fn has_extra_precision(&self) -> bool {
+        self.cb.has_extra_precision()
     }
 
     #[inline]

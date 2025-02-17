@@ -33,7 +33,12 @@ pub(crate) const fn eq<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> bool {
     let lhs = reduce(*lhs);
     let rhs = reduce(*rhs);
 
-    (lhs.cb.get_scale() == rhs.cb.get_scale()) && (lhs.digits.eq(&rhs.digits))
+    match (lhs.has_extra_precision(), rhs.has_extra_precision()) {
+        (true, true) => eq_rounded(&lhs, &rhs) && lhs.cb.eq_extra_precision(&rhs.cb),
+        (true, false) => false,
+        (false, true) => false,
+        (false, false) => eq_rounded(&lhs, &rhs),
+    }
 }
 
 #[inline]
@@ -51,9 +56,31 @@ pub(crate) const fn cmp<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
     }
 }
 
+#[inline(always)]
+const fn eq_rounded<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> bool {
+    (lhs.cb.get_scale() == rhs.cb.get_scale()) && (lhs.digits.eq(&rhs.digits))
+}
+
 #[inline]
 const fn cmp_magnitude<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
-    match (lhs.is_zero(), rhs.is_zero()) {
+    let lhs = reduce(*lhs);
+    let rhs = reduce(*rhs);
+
+    match cmp_rounded(&lhs, &rhs) {
+        Ordering::Less => Ordering::Less,
+        Ordering::Equal => match (lhs.has_extra_precision(), rhs.has_extra_precision()) {
+            (true, true) => lhs.cb.cmp_extra_precision(&rhs.cb),
+            (true, false) => Ordering::Greater,
+            (false, true) => Ordering::Less,
+            (false, false) => Ordering::Equal,
+        },
+        Ordering::Greater => Ordering::Greater,
+    }
+}
+
+#[inline]
+const fn cmp_rounded<const N: usize>(a: &D<N>, b: &D<N>) -> Ordering {
+    match (a.is_zero(), b.is_zero()) {
         (true, true) => {
             return Ordering::Equal;
         }
@@ -66,9 +93,6 @@ const fn cmp_magnitude<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
         (_, _) => {}
     }
 
-    let a = reduce(*lhs);
-    let b = reduce(*rhs);
-
     if a.cb.get_scale() == b.cb.get_scale() {
         return a.digits.cmp(&b.digits);
     }
@@ -78,7 +102,8 @@ const fn cmp_magnitude<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
 
     if a_exp == b_exp {
         if a.cb.get_scale() > b.cb.get_scale() {
-            let (mul, false) = UInt::TEN.overflowing_pow((a.cb.get_scale() - b.cb.get_scale()) as u32)
+            let (mul, false) =
+                UInt::TEN.overflowing_pow((a.cb.get_scale() - b.cb.get_scale()) as u32)
             else {
                 return Ordering::Less;
             };
@@ -89,7 +114,8 @@ const fn cmp_magnitude<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
 
             a.digits.cmp(&value)
         } else {
-            let (mul, false) = UInt::TEN.overflowing_pow((b.cb.get_scale() - a.cb.get_scale()) as u32)
+            let (mul, false) =
+                UInt::TEN.overflowing_pow((b.cb.get_scale() - a.cb.get_scale()) as u32)
             else {
                 return Ordering::Less;
             };

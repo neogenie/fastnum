@@ -13,7 +13,6 @@ pub(crate) mod round;
 pub(crate) mod udec;
 
 mod context;
-mod flags;
 mod sign;
 mod signals;
 
@@ -31,9 +30,8 @@ mod macros;
 pub use context::{Context, RoundingMode, SignalsTraps};
 pub use dec::Decimal;
 pub use errors::{DecimalError, ParseError};
-// pub use flags::Flags;
 pub use sign::Sign;
-// pub use signals::Signal;
+pub use signals::Signals;
 pub use udec::UnsignedDecimal;
 
 use crate::decimal::doc::decimal_type_doc;

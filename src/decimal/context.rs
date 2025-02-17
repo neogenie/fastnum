@@ -6,7 +6,7 @@ pub use signal_traps::SignalsTraps;
 
 use core::fmt::{Debug, Display, Formatter};
 
-use crate::{decimal::Signal, utils::assert_eq_size};
+use crate::utils::assert_eq_size;
 
 /// # Decimal Context
 ///
@@ -27,7 +27,7 @@ impl Context {
     };
 
     /// Returns the [Default Decimal Context](#crate::default-decimal-context).
-    #[inline]
+    #[inline(always)]
     #[must_use]
     pub const fn default() -> Self {
         Self::DEFAULT
@@ -35,14 +35,14 @@ impl Context {
 
     /// Apply the given [RoundingMode] to the `Context`.
     #[must_use]
-    #[inline]
+    #[inline(always)]
     pub const fn with_rounding_mode(mut self, rm: RoundingMode) -> Self {
         self.rounding_mode = rm;
         self
     }
 
     /// Apply no traps to given `Context`.
-    #[inline]
+    #[inline(always)]
     #[must_use]
     pub const fn without_traps(mut self) -> Self {
         self.signal_traps = SignalsTraps::empty();
@@ -65,7 +65,7 @@ impl Context {
     /// assert!(res.is_op_invalid());
     /// ```
     #[must_use]
-    #[inline]
+    #[inline(always)]
     pub const fn with_signal_traps(mut self, traps: SignalsTraps) -> Self {
         self.signal_traps = traps;
         self
@@ -73,20 +73,34 @@ impl Context {
 
     /// Get [RoundingMode] of given `Context`.
     #[must_use]
-    #[inline]
+    #[inline(always)]
     pub const fn rounding_mode(&self) -> RoundingMode {
         self.rounding_mode
     }
 
-    #[inline]
-    pub(crate) const fn trap_signals(&self, raised: Signal) -> Signal {
-        self.signal_traps.trap(raised)
+    /// Get [SignalsTraps] of given `Context`.
+    #[must_use]
+    #[inline(always)]
+    pub const fn signal_traps(&self) -> SignalsTraps {
+        self.signal_traps
+    }
+
+    #[inline(always)]
+    pub(crate) const fn new(rounding_mode: RoundingMode, signal_traps: SignalsTraps) -> Self {
+        Self {
+            rounding_mode,
+            signal_traps,
+        }
     }
 
     #[inline(always)]
     pub(crate) const fn merge(mut self, other: Self) -> Self {
-        // TODO: rounding mode merge
         self.signal_traps = self.signal_traps.merge(other.signal_traps);
+
+        if !other.rounding_mode.is_default() {
+            self.rounding_mode = other.rounding_mode;
+        }
+
         self
     }
 }

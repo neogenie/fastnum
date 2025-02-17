@@ -19,7 +19,7 @@ impl<const N: usize> Intrinsics<N> {
     /// _E<sub>max</sub> = E<sub>limit</sub> + (C<sub>length</sub> – 1)_
     pub(crate) const E_MAX: i32 = E_LIMIT + (Self::MAX_CLENGTH as i32 - 1);
 
-    pub(crate) const SERIES_MAX_ITERATIONS: u32 = Self::MAX_CLENGTH * 5;
+    pub(crate) const SERIES_MAX_ITERATIONS: u32 = Self::MAX_CLENGTH * 6;
 }
 
 #[inline(always)]

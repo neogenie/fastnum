@@ -14,11 +14,11 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn add<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
     if lhs.is_nan() {
-        return lhs.compound(&rhs).raise_op_invalid();
+        return lhs.compound(&rhs).op_invalid();
     }
 
     if rhs.is_nan() {
-        return rhs.compound(&lhs).raise_op_invalid();
+        return rhs.compound(&lhs).op_invalid();
     }
 
     match (lhs.cb.is_negative(), rhs.cb.is_negative()) {
@@ -30,7 +30,7 @@ pub(crate) const fn add<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
 }
 
 #[inline]
-pub(crate) const fn add_abs<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
+pub(crate) const fn add_abs<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
     debug_assert!(!lhs.is_negative() && !rhs.is_negative());
 
     if lhs.is_infinite() {
@@ -83,6 +83,6 @@ const fn add_aligned<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
         rescale(&mut rhs, scale);
         add_aligned(lhs, rhs)
     } else {
-        lhs.compound(&rhs).raise_op_overflow()
+        lhs.compound(&rhs).op_overflow()
     }
 }

@@ -157,7 +157,7 @@ macro_rules! to_float_impl {
             }
 
             let exp = (exp + (MAX_EXP - 1)) as $u;
-            from_bits((exp << (MANTISSA_DIGITS - 1)) | mant & MAN_MASK)
+            $f::from_bits((exp << (MANTISSA_DIGITS - 1)) | mant & MAN_MASK)
         }
     };
 }

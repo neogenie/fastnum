@@ -1,6 +1,6 @@
 use core::fmt::{Debug, Display, Formatter};
 
-use crate::decimal::Signal;
+use crate::decimal::Signals;
 
 /// # SignalsTraps
 ///
@@ -9,11 +9,21 @@ use crate::decimal::Signal;
 /// mode.
 #[derive(Copy, Clone, Hash, PartialEq, Eq)]
 #[repr(transparent)]
-pub struct SignalsTraps(Signal);
+pub struct SignalsTraps(Signals);
 
 impl SignalsTraps {
-    const EMPTY: Self = Self(Signal::EMPTY);
-    const DEFAULT: Self = Self(Signal::DEFAULT_TRAPS);
+    const EMPTY: Self = Self(Signals::EMPTY);
+    const DEFAULT: Self = Self(Signals::DEFAULT_TRAPS);
+
+    #[inline(always)]
+    pub(crate) const fn new(signals: Signals) -> Self {
+        Self(signals)
+    }
+
+    #[inline(always)]
+    pub(crate) const fn signals(&self) -> Signals {
+        self.0
+    }
 
     /// Returns the empty list of signal traps.
     #[inline(always)]
@@ -29,13 +39,13 @@ impl SignalsTraps {
 
     /// Adds the signal trap for the given signal.
     #[inline(always)]
-    pub const fn set(mut self, signal: Signal) -> Self {
+    pub const fn set(mut self, signal: Signals) -> Self {
         self.0 = self.0.set(signal);
         self
     }
 
     #[inline]
-    pub(crate) const fn trap(&self, raised: Signal) -> Signal {
+    pub(crate) const fn trap(&self, raised: Signals) -> Signals {
         self.0.intersect(raised)
     }
 

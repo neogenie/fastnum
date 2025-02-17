@@ -1,6 +1,6 @@
 use core::fmt::{self, Debug, Display, Formatter, LowerExp, UpperExp};
 
-use crate::decimal::{dec::format, Decimal};
+use crate::decimal::{dec::format, utils, Decimal};
 
 impl<const N: usize> Display for Decimal<N> {
     #[inline]
@@ -10,7 +10,12 @@ impl<const N: usize> Display for Decimal<N> {
         } else if self.is_infinite() {
             return write!(f, "{}Inf", self.sign());
         }
-        format::format(self.digits.to_str_radix(10), self.cb.scale(), self.sign(), f)
+        format::format(
+            self.digits.to_str_radix(10),
+            self.cb.get_scale(),
+            self.sign(),
+            f,
+        )
     }
 }
 
@@ -19,7 +24,7 @@ impl<const N: usize> LowerExp for Decimal<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         format::format_exponential(
             self.digits.to_str_radix(10),
-            self.cb.scale(),
+            self.cb.get_scale(),
             self.sign(),
             f,
             "e",
@@ -32,7 +37,7 @@ impl<const N: usize> UpperExp for Decimal<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         format::format_exponential(
             self.digits.to_str_radix(10),
-            self.cb.scale(),
+            self.cb.get_scale(),
             self.sign(),
             f,
             "E",
@@ -42,35 +47,6 @@ impl<const N: usize> UpperExp for Decimal<N> {
 
 impl<const N: usize> Debug for Decimal<N> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        if f.alternate() {
-            if self.is_nan() {
-                return write!(f, "{}(NaN)", Self::type_name());
-            } else if self.is_infinite() {
-                return write!(f, "{}({}Inf)", Self::type_name(), self.sign(),);
-            }
-
-            let alert = if self.is_op_ok() { "" } else { "! " };
-            write!(
-                f,
-                "{}({}{}{}e{})",
-                Self::type_name(),
-                alert,
-                self.cb.sign(),
-                self.digits,
-                self.cb.exponent(),
-            )
-        } else {
-            write!(
-                f,
-                "{}(digits=[{:?}], exp=[{}], flags=[{}], signals=[{}], ctx=[{}], extra=[{}])",
-                Self::type_name(),
-                self.digits,
-                self.cb.exponent(),
-                self.cb.flags(),
-                self.cb.signals(),
-                self.cb.context(),
-                self.cb.extra_precision()
-            )
-        }
+        utils::fmt::debug_print(&self.digits, &self.cb, Self::type_name(), f)
     }
 }

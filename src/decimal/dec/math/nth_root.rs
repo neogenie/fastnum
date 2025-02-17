@@ -13,7 +13,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn nth_root<const N: usize>(d: D<N>, n: u32) -> D<N> {
     if d.is_nan() {
-        return d.raise_op_invalid();
+        return d.op_invalid();
     }
 
     if d.is_zero() || d.is_one() {
@@ -56,7 +56,7 @@ const fn nth_root_newton<const N: usize>(d: D<N>, n: u32) -> D<N> {
 
         result_next = mul(one_div_n, add(mul(n_minus_one, result), div(d, x_n)));
 
-        if result.eq_with_extra_precision(&result_next) {
+        if result.eq(&result_next) {
             break;
         }
 

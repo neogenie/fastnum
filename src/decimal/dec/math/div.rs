@@ -4,9 +4,10 @@ use crate::{
             construct::construct,
             intrinsics::Intrinsics,
             math::{mul::mul, sub::sub, utils::correct},
-            ControlBlock,
+            ExtraPrecision,
         },
-        Decimal,
+        signals::Signals,
+        Context, Decimal,
     },
     int::{
         math::{div_rem, div_rem_digit},
@@ -20,37 +21,37 @@ type U<const N: usize> = UInt<N>;
 #[inline]
 pub(crate) const fn div<const N: usize>(dividend: D<N>, divisor: D<N>) -> D<N> {
     if dividend.is_nan() {
-        return dividend.compound(&divisor).raise_op_invalid();
+        return dividend.compound(&divisor).op_invalid();
     }
 
     if divisor.is_nan() {
-        return divisor.compound(&dividend).raise_op_invalid();
+        return divisor.compound(&dividend).op_invalid();
     }
 
     let sign = dividend.sign().div(divisor.sign());
+    let mut signals = Signals::combine(dividend.cb.get_signals(), divisor.cb.get_signals());
+    let ctx = Context::merge(dividend.cb.get_context(), divisor.cb.get_context());
 
     if dividend.is_infinite() && divisor.is_infinite() {
-        return D::SIGNALING_NAN.compound(&dividend).compound(&divisor);
+        return D::SIGNALING_NAN.raise_signals(signals).set_ctx(ctx);
     }
 
     if divisor.is_zero() {
         D::INFINITY
-            .compound(&dividend)
-            .compound(&divisor)
+            .raise_signals(signals)
+            .set_ctx(ctx)
             .set_sign(sign)
-            .raise_op_div_by_zero()
+            .raise_signals(Signals::OP_DIV_BY_ZERO)
+            .op_invalid()
     } else if dividend.is_zero() || divisor.is_one() {
         dividend.compound(&divisor).set_sign(sign)
     } else if dividend.is_infinite() {
         D::INFINITY
+            .raise_signals(signals)
+            .set_ctx(ctx)
             .set_sign(sign)
-            .compound(&dividend)
-            .compound(&divisor)
     } else if divisor.is_infinite() {
-        D::ZERO
-            .set_sign(sign)
-            .compound(&dividend)
-            .compound(&divisor)
+        D::ZERO.raise_signals(signals).set_ctx(ctx).set_sign(sign)
     } else {
         let correction = div_correction(dividend, divisor);
 
@@ -65,15 +66,12 @@ pub(crate) const fn div<const N: usize>(dividend: D<N>, divisor: D<N>) -> D<N> {
                 (quotient, remainder) = div_rem_next(remainder, divisor.digits);
 
                 if digits.gt(&Intrinsics::<N>::COEFF_MEDIUM) {
-                    let mut result = construct(digits, exp, sign)
-                        .compound(&dividend)
-                        .compound(&divisor)
-                        .raise_op_inexact()
-                        .raise_op_rounded();
-
                     let extra_digits = extra_precision(quotient, remainder, divisor.digits);
-                    result.cb.set_extra_digits(extra_digits);
 
+                    signals.raise(Signals::OP_INEXACT);
+                    signals.raise(Signals::OP_ROUNDED);
+
+                    let result = construct(digits, exp, sign, signals, ctx, extra_digits);
                     return correct(result, correction);
                 }
 
@@ -81,15 +79,12 @@ pub(crate) const fn div<const N: usize>(dividend: D<N>, divisor: D<N>) -> D<N> {
                 exp -= 1;
 
                 if digits_prev.gt(&UInt::MAX.strict_sub(quotient)) {
-                    let mut result = construct(UInt::MAX, exp, sign)
-                        .compound(&dividend)
-                        .compound(&divisor)
-                        .raise_op_inexact()
-                        .raise_op_rounded();
-
                     let extra_digits = extra_precision(quotient, remainder, divisor.digits);
-                    result.cb.set_extra_digits(extra_digits);
 
+                    signals.raise(Signals::OP_INEXACT);
+                    signals.raise(Signals::OP_ROUNDED);
+
+                    let result = construct(UInt::MAX, exp, sign, signals, ctx, extra_digits);
                     return correct(result, correction);
                 }
 
@@ -97,10 +92,7 @@ pub(crate) const fn div<const N: usize>(dividend: D<N>, divisor: D<N>) -> D<N> {
             }
         }
 
-        let result = construct(digits, exp, sign)
-            .compound(&dividend)
-            .compound(&divisor);
-
+        let result = construct(digits, exp, sign, signals, ctx, ExtraPrecision::new());
         correct(result, correction)
     }
 }
@@ -111,54 +103,33 @@ const fn extra_precision<const N: usize>(
     mut quotient: U<N>,
     mut remainder: U<N>,
     divisor: U<N>,
-) -> u64 {
-    let (mut digits, mut count) = extra_digits(quotient);
+) -> ExtraPrecision {
+    let mut ep = extra_digits(quotient);
 
-    while !remainder.is_zero() && count < ControlBlock::EXTRA_PRECISION_DIGITS {
+    while !remainder.is_zero() && ep.count() < ExtraPrecision::EXTRA_PRECISION_DIGITS {
         (quotient, remainder) = div_rem_next(remainder, divisor);
-        let (d, c) = extra_digits(quotient);
+        let ep_next = extra_digits(quotient);
 
-        if count == 6 {
-            digits += d / 1_000_000;
-        } else if count == 5 {
-            digits += d / 100_000;
-        } else if count == 4 {
-            digits += d / 10_000;
-        } else if count == 3 {
-            digits += d / 1_000;
-        } else if count == 2 {
-            digits += d / 100;
-        } else if count == 1 {
-            digits += d / 10;
-        } else {
-            debug_assert!(count == 0);
-            digits = d;
-        }
-
-        count += c;
+        ep.push_back(ep_next);
     }
 
-    digits
+    ep
 }
 
-// FIXME: replace with push digit
 #[inline]
-const fn extra_digits<const N: usize>(mut quotient: U<N>) -> (u64, u8) {
-    let mut ep = 0;
-    let mut count = 0;
+const fn extra_digits<const N: usize>(mut quotient: U<N>) -> ExtraPrecision {
+    let mut ep = ExtraPrecision::new();
     let mut digit;
 
     (quotient, digit) = div_rem_digit(quotient, 10);
-    ep = digit * ControlBlock::EXTRA_PRECISION_SCALE + ep / 10;
-    count += 1;
+    ep.push_digit(digit);
 
     while !quotient.is_zero() {
         (quotient, digit) = div_rem_digit(quotient, 10);
-        ep = digit * ControlBlock::EXTRA_PRECISION_SCALE + ep / 10;
-        count += 1;
+        ep.push_digit(digit);
     }
 
-    (ep, count)
+    ep
 }
 
 #[inline]
@@ -226,8 +197,8 @@ const fn div_rem_wide<const N: usize>(low: U<N>, high: U<N>, divisor: U<N>) -> (
 
 #[inline]
 const fn div_correction<const N: usize>(mut dividend: D<N>, mut divisor: D<N>) -> D<N> {
-    let xi_dividend = dividend.cb.take_extra_digits();
-    let xi_divisor = divisor.cb.take_extra_digits();
+    let xi_dividend = dividend.cb.take_extra_precision_decimal();
+    let xi_divisor = divisor.cb.take_extra_precision_decimal();
 
     if xi_dividend.is_zero() && xi_divisor.is_zero() {
         D::ZERO

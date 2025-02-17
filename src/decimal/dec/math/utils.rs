@@ -1,41 +1,47 @@
 use crate::{
     decimal::{
-        dec::{
-            math::{add::add, sub::sub},
-            scale::reduce,
-            ControlBlock, ExtraPrecision,
-        },
-        Decimal,
+        dec::{math::add::add, scale::reduce},
+        signals::Signals,
+        Context, Decimal, Sign,
     },
-    int::UInt,
+    signals,
 };
 
 type D<const N: usize> = Decimal<N>;
 
 #[inline(always)]
-pub(crate) const fn overflow<const N: usize>(cb: ControlBlock) -> D<N> {
+pub(crate) const fn overflow<const N: usize>(sign: Sign, signals: Signals, ctx: Context) -> D<N> {
+    const OVERFLOW: Signals = signals![!OFW, !INEXACT, !ROUND];
+
     D::INFINITY
-        .with_ctx(cb.context())
-        .with_cb(cb.raise_signal(Signal::overflow()))
+        .raise_signals(signals.combine(OVERFLOW))
+        .set_ctx(ctx)
+        .set_sign(sign)
 }
 
 #[inline(always)]
-pub(crate) const fn underflow<const N: usize>(cb: ControlBlock) -> D<N> {
+pub(crate) const fn underflow<const N: usize>(sign: Sign, signals: Signals, ctx: Context) -> D<N> {
+    const UNDERFLOW: Signals = signals![!UFW, !INEXACT, !ROUND, !SN];
+
     D::ZERO
-        .with_ctx(cb.context())
-        .with_cb(cb.raise_signal(Signal::underflow()))
+        .raise_signals(signals.combine(UNDERFLOW))
+        .set_ctx(ctx)
+        .set_sign(sign)
 }
 
-#[inline]
-pub(crate) const fn overflow_exp<const N: usize>(exp: i32, cb: ControlBlock) -> D<N> {
+#[inline(always)]
+pub(crate) const fn overflow_exp<const N: usize>(
+    exp: i32,
+    sign: Sign,
+    signals: Signals,
+    ctx: Context,
+) -> D<N> {
     if exp > 0 {
-        underflow(cb)
+        underflow(sign, signals, ctx)
     } else {
-        overflow(cb)
+        overflow(sign, signals, ctx)
     }
 }
-
-
 
 #[inline(always)]
 pub(crate) const fn is_even<const N: usize>(d: &D<N>) -> bool {

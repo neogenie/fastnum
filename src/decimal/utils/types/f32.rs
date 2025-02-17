@@ -18,28 +18,6 @@ pub const MANTISSA_DIGITS: u32 = f32::MANTISSA_DIGITS;
 
 pub const MAX_EXP: i32 = f32::MAX_EXP;
 
-#[inline]
-pub const fn to_bits(n: f32) -> u32 {
-    #[allow(unsafe_code)]
-    unsafe {
-        core::mem::transmute(n)
-    }
-}
-
-#[inline]
-pub const fn from_bits(v: u32) -> f32 {
-    #[allow(unsafe_code)]
-    unsafe {
-        core::mem::transmute(v)
-    }
-}
-
-#[inline]
-#[allow(clippy::eq_op)]
-pub const fn is_nan(n: f32) -> bool {
-    n != n
-}
-
 pub struct FloatConsts<const N: usize>;
 
 impl<const N: usize> FloatConsts<N> {

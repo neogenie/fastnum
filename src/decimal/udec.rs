@@ -6,8 +6,8 @@ use core::{cmp::Ordering, num::FpCategory};
 
 use crate::{
     decimal::{
-        doc, udec::consts::consts_impl, Context, Decimal, DecimalError, Flags, ParseError,
-        RoundingMode, Sign, Signal,
+        doc, signals::Signals, udec::consts::consts_impl, Context, Decimal, DecimalError,
+        ParseError, RoundingMode, Sign,
     },
     int::UInt,
 };
@@ -204,14 +204,14 @@ impl<const N: usize> UnsignedDecimal<N> {
     /// assert!(res.is_op_div_by_zero());
     /// ```
     ///
-    /// More about [`OP_DIV_BY_ZERO`](Signal::OP_DIV_BY_ZERO) signal.
+    /// More about [`OP_DIV_BY_ZERO`](Signals::OP_DIV_BY_ZERO) signal.
     #[must_use]
     #[inline]
     pub const fn is_op_div_by_zero(&self) -> bool {
         self.0.is_op_div_by_zero()
     }
 
-    /// Return `true` if the argument has [Signal::OP_INVALID] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_INVALID] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
@@ -219,7 +219,7 @@ impl<const N: usize> UnsignedDecimal<N> {
         self.0.is_op_invalid()
     }
 
-    /// Return `true` if the argument has [Signal::OP_SUBNORMAL] signal flag,
+    /// Return `true` if the argument has [Signals::OP_SUBNORMAL] signal flag,
     /// and `false` otherwise.
     #[must_use]
     #[inline]
@@ -227,7 +227,7 @@ impl<const N: usize> UnsignedDecimal<N> {
         self.0.is_op_subnormal()
     }
 
-    /// Return `true` if the argument has [Signal::OP_INEXACT] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_INEXACT] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
@@ -235,7 +235,7 @@ impl<const N: usize> UnsignedDecimal<N> {
         self.0.is_op_inexact()
     }
 
-    /// Return `true` if the argument has [Signal::OP_ROUNDED] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_ROUNDED] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
@@ -243,7 +243,7 @@ impl<const N: usize> UnsignedDecimal<N> {
         self.0.is_op_rounded()
     }
 
-    /// Return `true` if the argument has [Signal::OP_CLAMPED] signal flag, and
+    /// Return `true` if the argument has [Signals::OP_CLAMPED] signal flag, and
     /// `false` otherwise.
     #[must_use]
     #[inline]
@@ -251,15 +251,15 @@ impl<const N: usize> UnsignedDecimal<N> {
         self.0.is_op_clamped()
     }
 
-    /// Return `true` if the argument has [Signal::OP_OVERFLOW] signal flag, and
-    /// `false` otherwise.
+    /// Return `true` if the argument has [Signals::OP_OVERFLOW] signal flag,
+    /// and `false` otherwise.
     #[must_use]
     #[inline]
     pub const fn is_op_overflow(&self) -> bool {
         self.0.is_op_overflow()
     }
 
-    /// Return `true` if the argument has [Signal::OP_UNDERFLOW] signal flag,
+    /// Return `true` if the argument has [Signals::OP_UNDERFLOW] signal flag,
     /// and `false` otherwise.
     #[must_use]
     #[inline]
@@ -275,10 +275,10 @@ impl<const N: usize> UnsignedDecimal<N> {
         self.0.is_op_ok()
     }
 
-    /// Return the [`signaling block`](Signal) of given unsigned decimal.
+    /// Return the [`signaling block`](Signals) of given unsigned decimal.
     #[must_use]
     #[inline]
-    pub const fn op_signals(&self) -> Signal {
+    pub const fn op_signals(&self) -> Signals {
         self.signals()
     }
 
@@ -1082,6 +1082,48 @@ impl<const N: usize> UnsignedDecimal<N> {
         Self::new(self.0.round(digits))
     }
 
+    /// Returns the largest integer less than or equal to a number.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::*;
+    ///
+    /// assert_eq!(udec256!(3.99).floor(), udec256!(3));
+    /// assert_eq!(udec256!(3.0).floor(), udec256!(3.0));
+    /// assert_eq!(udec256!(3.01).floor(), udec256!(3));
+    /// assert_eq!(udec256!(3.5).floor(), udec256!(3));
+    /// assert_eq!(udec256!(4.0).floor(), udec256!(4));
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline]
+    pub const fn floor(self) -> Self {
+        Self::new(self.0.floor())
+    }
+
+    /// Finds the nearest integer greater than or equal to `x`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::*;
+    ///
+    /// assert_eq!(udec256!(3.01).ceil(), udec256!(4));
+    /// assert_eq!(udec256!(3.99).ceil(), udec256!(4));
+    /// assert_eq!(udec256!(4.0).ceil(), udec256!(4));
+    /// assert_eq!(udec256!(1.0001).ceil(), udec256!(2));
+    /// assert_eq!(udec256!(1.00001).ceil(), udec256!(2));
+    /// assert_eq!(udec256!(1.000001).ceil(), udec256!(2));
+    /// assert_eq!(udec256!(1.00000000000001).ceil(), udec256!(2));
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline]
+    pub const fn ceil(self) -> Self {
+        Self::new(self.0.ceil())
+    }
+
     /// _Deprecated_, use [`rescale`](Self::rescale) instead.
     #[must_use = doc::must_use_op!()]
     #[track_caller]
@@ -1165,8 +1207,8 @@ impl<const N: usize> UnsignedDecimal<N> {
     }
 
     /// Returns:
-    /// - `true` if no [Exceptional condition] [Signal] flag has been trapped by
-    ///   [Context] trap-enabler, and
+    /// - `true` if no [Exceptional condition] [Signals] flag has been trapped
+    ///   by [Context] trap-enabler, and
     /// - `false` otherwise.
     ///
     /// [Exceptional condition]: crate#signaling-flags-and-trap-enablers
@@ -1176,7 +1218,7 @@ impl<const N: usize> UnsignedDecimal<N> {
     }
 
     /// Returns:
-    /// - `Some(Self)` if no [Exceptional condition] [Signal] flag has been
+    /// - `Some(Self)` if no [Exceptional condition] [Signals] flag has been
     ///   trapped by [Context] trap-enabler, and
     /// - `None` otherwise.
     ///
@@ -1248,18 +1290,8 @@ impl<const N: usize> UnsignedDecimal<N> {
     }
 
     #[inline(always)]
-    pub(crate) const fn flags(&self) -> Flags {
-        self.0.flags()
-    }
-
-    #[inline(always)]
-    pub(crate) const fn signals(&self) -> Signal {
+    pub(crate) const fn signals(&self) -> Signals {
         self.0.signals()
-    }
-
-    #[inline(always)]
-    pub(crate) const fn context(&self) -> Context {
-        self.0.context()
     }
 
     #[inline]

@@ -11,7 +11,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn exp2<const N: usize>(n: D<N>) -> D<N> {
     if n.is_nan() {
-        return n.raise_op_invalid();
+        return n.op_invalid();
     }
 
     if n.is_zero() {

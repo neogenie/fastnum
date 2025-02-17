@@ -1,6 +1,6 @@
 use crate::{
     decimal::{
-        dec::{ControlBlock, ExtraPrecision},
+        dec::{Context, ControlBlock, ExtraPrecision, Sign, Signals},
         Decimal,
     },
     int::convert,
@@ -14,9 +14,13 @@ macro_rules! from_uint {
         pub const fn $n<const N: usize>(n: $uint) -> D<N> {
             D::new(
                 convert::$n(n),
-                0,
-                ControlBlock::default(),
-                ExtraPrecision::new(),
+                ControlBlock::new(
+                    0,
+                    Sign::Plus,
+                    Signals::empty(),
+                    Context::default(),
+                    ExtraPrecision::new(),
+                ),
             )
         }
     };

@@ -11,31 +11,31 @@ macro_rules! test_impl {
             use rstest::*;
 
             #[rstest(::trace)]
-            #[case(0, $uint!(1), 0, Signal::empty())]
-            #[case(-0, $uint!(1), 0, Signal::empty())]
-            #[case(-1, $uint!(1), 1, Signal::empty())]
-            #[case(1, $uint!(1), -1, Signal::empty())]
-            #[case(-2, $uint!(1), 2, Signal::empty())]
-            #[case(2, $uint!(1), -2, Signal::empty())]
-            #[case(-3, $uint!(1), 3, Signal::empty())]
-            #[case(3, $uint!(1), -3, Signal::empty())]
+            #[case(0, $uint!(1), 0, Signals::empty())]
+            #[case(-0, $uint!(1), 0, Signals::empty())]
+            #[case(-1, $uint!(1), 1, Signals::empty())]
+            #[case(1, $uint!(1), -1, Signals::empty())]
+            #[case(-2, $uint!(1), 2, Signals::empty())]
+            #[case(2, $uint!(1), -2, Signals::empty())]
+            #[case(-3, $uint!(1), 3, Signals::empty())]
+            #[case(3, $uint!(1), -3, Signals::empty())]
             // -----------
-            #[case(1000, $uint!(1), -1000, Signal::empty())]
-            #[case(32767, $uint!(1), -32767, Signal::empty())]
-            #[case(32768, $uint!(1), -32768, Signal::empty())]
+            #[case(1000, $uint!(1), -1000, Signals::empty())]
+            #[case(32767, $uint!(1), -32767, Signals::empty())]
+            #[case(32768, $uint!(1), -32768, Signals::empty())]
             #[case(32769, $uint!(10), -32768, signals![!CP, !ROUND])]
             #[case(32770, $uint!(100), -32768, signals![!CP, !ROUND])]
             #[case(32771, $uint!(1000), -32768, signals![!CP, !ROUND])]
             // -----------
-            #[case(-1000, $uint!(1), 1000, Signal::empty())]
-            #[case(-32765, $uint!(1), 32765, Signal::empty())]
-            #[case(-32766, $uint!(1), 32766, Signal::empty())]
-            #[case(-32767, $uint!(1), 32767, Signal::empty())]
+            #[case(-1000, $uint!(1), 1000, Signals::empty())]
+            #[case(-32765, $uint!(1), 32765, Signals::empty())]
+            #[case(-32766, $uint!(1), 32766, Signals::empty())]
+            #[case(-32767, $uint!(1), 32767, Signals::empty())]
             fn test_quantum(
                 #[case] exp: i32,
                 #[case] digits: $U,
                 #[case] scale: i16,
-                #[case] signals: Signal,
+                #[case] signals: Signals,
             ) {
                 let d = $D::quantum(exp, Context::default());
 

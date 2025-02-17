@@ -3,45 +3,44 @@
 /// # Examples
 ///
 /// ```
-/// use fastnum::{UD256, udec256, signals};
-/// use fastnum::decimal::Signal;
+/// use fastnum::{*, decimal::*};
 ///
 /// let signals = signals![!OFW, !CP];
 ///
-/// assert_eq!(signals, Signal::OP_OVERFLOW.combine(Signal::OP_CLAMPED));
+/// assert_eq!(signals, Signals::OP_OVERFLOW.combine(Signals::OP_CLAMPED));
 /// ```
 #[macro_export]
 macro_rules! signals {
     [ $(! $tts: tt),* ] => {{
-        const __SIGNALS: $crate::decimal::Signal = signals!(@ [$($tts),*]);
+        const __SIGNALS: $crate::decimal::Signals = signals!(@ [$($tts),*]);
         __SIGNALS
     }};
     (@ []) => {
-        $crate::decimal::Signal::EMPTY
+        $crate::decimal::Signals::EMPTY
     };
     (@ CP) => {
-        $crate::decimal::Signal::OP_CLAMPED
+        $crate::decimal::Signals::OP_CLAMPED
     };
     (@ DBZ) => {
-        $crate::decimal::Signal::OP_DIV_BY_ZERO
+        $crate::decimal::Signals::OP_DIV_BY_ZERO
     };
     (@ INEXACT) => {
-        $crate::decimal::Signal::OP_INEXACT
+        $crate::decimal::Signals::OP_INEXACT
     };
     (@ INV) => {
-        $crate::decimal::Signal::OP_INVALID
+        $crate::decimal::Signals::OP_INVALID
     };
     (@ OFW) => {
-        $crate::decimal::Signal::OP_OVERFLOW
+        $crate::decimal::Signals::OP_OVERFLOW
     };
     (@ ROUND) => {
-        $crate::decimal::Signal::OP_ROUNDED
+        $crate::decimal::Signals::OP_ROUNDED
     };
     (@ SN) => {
-        $crate::decimal::Signal::OP_SUBNORMAL
+        $crate::decimal::Signals::OP_SUBNORMAL
     };
     (@ UFW) => {
-        $crate::decimal::Signal::OP_UNDERFLOW
+        $crate::decimal::Signals::OP_UNDERFLOW
     };
     (@ [$t:tt]) => {
         signals!(@ $t)

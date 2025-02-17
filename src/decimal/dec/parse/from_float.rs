@@ -1,7 +1,8 @@
 use crate::{
     decimal::{
         dec::{ControlBlock, ExtraPrecision},
-        Decimal, Sign,
+        signals::Signals,
+        Context, Decimal, Sign,
     },
     int::{math::ilog10, UInt},
 };
@@ -13,7 +14,16 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 const fn f2dec<const N: usize>(mant: u64, b_exp: i16, sign: Sign) -> D<N> {
     if b_exp == 0 {
-        return D::new(UInt::from_digit(mant), ControlBlock::new(0, sign));
+        return D::new(
+            UInt::from_digit(mant),
+            ControlBlock::new(
+                0,
+                sign,
+                Signals::empty(),
+                Context::default(),
+                ExtraPrecision::new(),
+            ),
+        );
     }
 
     let uint = if b_exp < 0 {
@@ -23,13 +33,40 @@ const fn f2dec<const N: usize>(mant: u64, b_exp: i16, sign: Sign) -> D<N> {
     };
 
     let d_exp = ilog10(uint) as i16 + 1;
-    let psi = D::<17>::new(uint, ControlBlock::new(d_exp, Sign::Plus));
+    let psi = D::<17>::new(
+        uint,
+        ControlBlock::new(
+            d_exp,
+            Sign::Plus,
+            Signals::empty(),
+            Context::default(),
+            ExtraPrecision::new(),
+        ),
+    );
 
     if b_exp < 0 {
-        let d = D::new(UInt::from_digit(mant), ControlBlock::new(d_exp, sign));
+        let d = D::new(
+            UInt::from_digit(mant),
+            ControlBlock::new(
+                d_exp,
+                sign,
+                Signals::empty(),
+                Context::default(),
+                ExtraPrecision::new(),
+            ),
+        );
         d.div(psi).transmute()
     } else {
-        let d = D::new(UInt::from_digit(mant), ControlBlock::new(-d_exp, sign));
+        let d = D::new(
+            UInt::from_digit(mant),
+            ControlBlock::new(
+                -d_exp,
+                sign,
+                Signals::empty(),
+                Context::default(),
+                ExtraPrecision::new(),
+            ),
+        );
         d.mul(psi).transmute()
     }
 }
@@ -40,11 +77,11 @@ macro_rules! from_float_impl {
         pub const fn $n<const N: usize>(n: $f) -> D<N> {
             use crate::decimal::utils::types::$f::*;
 
-            if is_nan(n) {
+            if n.is_nan() {
                 return D::NAN;
             }
 
-            let b = to_bits(n);
+            let b = n.to_bits();
 
             let sign = if b & SIGN_MASK != 0 {
                 Sign::Minus
@@ -56,11 +93,11 @@ macro_rules! from_float_impl {
             let exp = b & EXP_MASK;
 
             if frac == 0 && exp == EXP_MASK {
-                return D::INFINITY.with_cb(cb);
+                return D::INFINITY.set_sign(sign);
             }
 
             if frac == 0 && exp == 0 {
-                return D::ZERO.with_cb(cb);
+                return D::ZERO.set_sign(sign);
             }
 
             if exp == 0 {
@@ -77,7 +114,16 @@ macro_rules! from_float_impl {
                     - (MANTISSA_DIGITS - 1) as i16;
 
                 if pow == 0 {
-                    Decimal::new(uint(frac), 0, sign)
+                    Decimal::new(
+                        uint(frac),
+                        ControlBlock::new(
+                            0,
+                            sign,
+                            Signals::empty(),
+                            Context::default(),
+                            ExtraPrecision::new(),
+                        ),
+                    )
                 } else if pow < 0 {
                     let mut trailing_zeros = frac.trailing_zeros();
                     if trailing_zeros > -pow as u32 {

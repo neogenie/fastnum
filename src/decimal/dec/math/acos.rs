@@ -1,8 +1,7 @@
 use crate::decimal::{
-    dec::math::{asin::asin, sub::sub},
+    dec::math::{asin::asin, consts::Consts, sub::sub},
     Decimal,
 };
-use crate::decimal::dec::math::consts::Consts;
 
 type D<const N: usize> = Decimal<N>;
 

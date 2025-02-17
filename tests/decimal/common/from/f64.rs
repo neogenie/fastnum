@@ -147,7 +147,7 @@ macro_rules! test_impl {
         #[case(core::f64::consts::PI * 10000.0,     $dec!(31415.926535897931898944079875946044921875), signals![])]
         #[case(core::f64::consts::PI * 30000.0,     $dec!(94247.779607693795696832239627838134765625), signals![])]
         // -------------------------------
-        fn test_from_f64_512(#[case] n: f64, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f64_512(#[case] n: f64, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_normal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
@@ -186,7 +186,7 @@ macro_rules! test_impl {
         #[rstest(::trace)]
         #[case(f64::MIN,            $dec!(-1.797693134862315708145274237317043567980705675258449965989174768031572607800285387605895586327668781715404589535143824642343213268894641827684675467035375e+308), signals![!INEXACT, !ROUND])]
         #[case(-2.3509889819e-38,   $dec!(-2.350988981899999809754458784267977344449574846971330400802740014330933327934877246295418973536135720525663828084361739456653594970703125e-38), signals![])]
-        fn test_from_f64_signed_512(#[case] n: f64, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f64_signed_512(#[case] n: f64, #[case] expected: $D, #[case] signals: Signals) {
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
             assert_eq!(d.op_signals(), signals);
@@ -318,7 +318,7 @@ macro_rules! test_impl {
         #[case(core::f64::consts::PI * 10000.0, $dec!(31415.926535897931898944079875946044921875), signals![])]
         #[case(core::f64::consts::PI * 30000.0, $dec!(94247.779607693795696832239627838134765625), signals![])]
         // -------------------------------
-        fn test_from_f64_256(#[case] n: f64, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f64_256(#[case] n: f64, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_normal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
@@ -363,7 +363,7 @@ macro_rules! test_impl {
         #[rstest(::trace)]
         #[case(f64::MIN, $dec!(-1.7976931348623157081452742373170435679807056752584499659891747680315726078003e+308), signals![!INEXACT, !ROUND])]
         #[case(-2.3509889819e-38, $dec!(-2.3509889818999998097544587842679773444495748469713304008027400143309333279349e-38), signals![!INEXACT, !ROUND])]
-        fn test_from_f64_signed_256(#[case] n: f64, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f64_signed_256(#[case] n: f64, #[case] expected: $D, #[case] signals: Signals) {
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
             assert_eq!(d.op_signals(), signals);
@@ -497,7 +497,7 @@ macro_rules! test_impl {
         #[case(core::f64::consts::PI * 10000.0,     $dec!(31415.9265358979318989440798759460449219), signals![!INEXACT, !ROUND])]
         #[case(core::f64::consts::PI * 30000.0,     $dec!(94247.779607693795696832239627838134766), signals![!INEXACT, !ROUND])]
         // -------------------------------
-        fn test_from_f64_128(#[case] n: f64, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f64_128(#[case] n: f64, #[case] expected: $D, #[case] signals: Signals) {
             assert!(n.is_normal());
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
@@ -674,7 +674,7 @@ macro_rules! test_impl {
         #[rstest(::trace)]
         #[case(f64::MIN, $dec!(-1.79769313486231570814527423731704356798e+308), signals![!INEXACT, !ROUND])]
         #[case(-2.3509889819e-38, $dec!(-2.35098898189999980975445878426797734445e-38), signals![!INEXACT, !ROUND])]
-        fn test_from_f64_signed_128(#[case] n: f64, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_from_f64_signed_128(#[case] n: f64, #[case] expected: $D, #[case] signals: Signals) {
             let d = $D::try_from(n).unwrap();
             assert_eq!(d, expected);
             assert_eq!(d.op_signals(), signals);

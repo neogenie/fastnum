@@ -7,11 +7,11 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn rem<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
     if lhs.is_nan() {
-        return lhs.compound(&rhs).raise_op_invalid();
+        return lhs.compound(&rhs).op_invalid();
     }
 
     if rhs.is_nan() {
-        return rhs.compound(&lhs).raise_op_invalid();
+        return rhs.compound(&lhs).op_invalid();
     }
 
     if lhs.abs().lt(&rhs.abs()) {

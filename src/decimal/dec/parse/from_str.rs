@@ -2,7 +2,8 @@ use core::str::from_utf8_unchecked;
 
 use crate::{
     decimal::{
-        dec::{construct::construct_with_clength, ControlBlock, ExtraPrecision},
+        dec::{construct::construct_with_clength, ExtraPrecision},
+        signals::Signals,
         Context, Decimal, DecimalError, ParseError, Sign,
     },
     int::{
@@ -23,7 +24,7 @@ pub const fn from_slice<const N: usize>(
     }
 
     let len = buf.len();
-    let mut cb = ControlBlock::default().set_context(ctx);
+    let mut sign = Sign::Plus;
 
     let mut i = 0;
 
@@ -33,7 +34,7 @@ pub const fn from_slice<const N: usize>(
             i = 1;
         }
         b'-' => {
-            cb = cb.neg();
+            sign = Sign::Minus;
             i = 1;
         }
         b'n' | b'N' => {
@@ -50,7 +51,7 @@ pub const fn from_slice<const N: usize>(
 
     // Parse special cases Inf/Infinity
     if bytes_equal_ci(buf.split_at(i).1, b"inf") || bytes_equal_ci(buf.split_at(i).1, b"infinity") {
-        return Ok(Decimal::INFINITY.with_cb(cb));
+        return Ok(Decimal::INFINITY.set_ctx(ctx).set_sign(sign));
     }
 
     let mut clength = 0;
@@ -123,14 +124,14 @@ pub const fn from_slice<const N: usize>(
             (value, ovf) = overflowing_mul10(value, digits_count);
 
             if ovf {
-                return Err(overflow(cb.sign()));
+                return Err(overflow(sign));
             }
 
             let next = UInt::from_digit(n);
             (value, ovf) = value.overflowing_add(next);
 
             if ovf {
-                return Err(overflow(cb.sign()));
+                return Err(overflow(sign));
             }
         }
 
@@ -163,7 +164,15 @@ pub const fn from_slice<const N: usize>(
         }
     };
 
-    let dec = construct_with_clength(value, exp, cb, ExtraPrecision::new(), clength);
+    let dec = construct_with_clength(
+        value,
+        exp,
+        sign,
+        Signals::empty(),
+        ctx,
+        ExtraPrecision::new(),
+        clength,
+    );
 
     if dec.is_nan() {
         return Err(ParseError::Unknown);

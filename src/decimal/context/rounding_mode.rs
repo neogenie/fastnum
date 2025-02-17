@@ -10,6 +10,9 @@ include!(concat!(env!("OUT_DIR"), "/default_rounding_mode.rs"));
 #[derive(Clone, Copy, Hash, PartialEq, Eq)]
 #[repr(u8)]
 pub enum RoundingMode {
+    /// Special no-rounding mode.
+    No = 0,
+
     /// Always round away from zero
     ///
     ///
@@ -21,7 +24,7 @@ pub enum RoundingMode {
     /// * -1.6 → -2.0
     /// * -2.5 → -3.0
     /// * -5.5 → -6.0
-    Up,
+    Up = 1,
 
     /// Always round towards zero
     ///
@@ -33,7 +36,7 @@ pub enum RoundingMode {
     /// * -1.6 → -1.0
     /// * -2.5 → -2.0
     /// * -5.5 → -5.0
-    Down,
+    Down = 2,
 
     /// Towards +∞
     ///
@@ -45,7 +48,7 @@ pub enum RoundingMode {
     /// * -1.6 → -1.0
     /// * -2.5 → -2.0
     /// * -5.5 → -5.0
-    Ceiling,
+    Ceiling = 3,
 
     /// Towards -∞
     ///
@@ -57,7 +60,7 @@ pub enum RoundingMode {
     /// * -1.6 → -2.0
     /// * -2.5 → -3.0
     /// * -5.5 → -6.0
-    Floor,
+    Floor = 4,
 
     /// Round to 'nearest neighbor', or up if ending decimal is 5
     ///
@@ -69,7 +72,7 @@ pub enum RoundingMode {
     /// * -1.6 → -2.0
     /// * -2.5 → -3.0
     /// * -5.5 → -6.0
-    HalfUp,
+    HalfUp = 5,
 
     /// Round to 'nearest neighbor', or down if ending decimal is 5
     ///
@@ -81,7 +84,7 @@ pub enum RoundingMode {
     /// * -1.6 → -2.0
     /// * -2.5 → -2.0
     /// * -5.5 → -5.0
-    HalfDown,
+    HalfDown = 6,
 
     /// Round to 'nearest neighbor', if equidistant, round towards
     /// nearest even digit
@@ -94,7 +97,7 @@ pub enum RoundingMode {
     /// * -1.6 → -2.0
     /// * -2.5 → -2.0
     /// * -5.5 → -6.0
-    HalfEven,
+    HalfEven = 7,
 }
 
 impl Default for RoundingMode {
@@ -110,11 +113,19 @@ impl RoundingMode {
     pub const fn default() -> Self {
         DEFAULT_ROUNDING_MODE
     }
+
+    /// Returns `true` if given [RoundingMode] is
+    /// [default](crate#rounding-mode).
+    #[inline(always)]
+    pub const fn is_default(&self) -> bool {
+        (*self as u8) == (Self::default() as u8)
+    }
 }
 
 impl Display for RoundingMode {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let rm = match self {
+            RoundingMode::No => "No",
             RoundingMode::Up => "Up",
             RoundingMode::Down => "Down",
             RoundingMode::Ceiling => "Ceiling",

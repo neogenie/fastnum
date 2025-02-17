@@ -9,3 +9,4 @@ mod recip;
 mod rem;
 mod sqrt;
 mod sub;
+mod trigonometric;

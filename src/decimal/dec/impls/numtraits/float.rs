@@ -76,12 +76,12 @@ impl<const N: usize> Float for Decimal<N> {
 
     #[inline]
     fn floor(self) -> Self {
-        self.with_rounding_mode(RoundingMode::Floor).round(0)
+        self.floor()
     }
 
     #[inline]
     fn ceil(self) -> Self {
-        self.with_rounding_mode(RoundingMode::Ceiling).round(0)
+        self.ceil()
     }
 
     #[inline]

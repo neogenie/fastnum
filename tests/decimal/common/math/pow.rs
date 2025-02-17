@@ -49,7 +49,7 @@ macro_rules! test_impl {
         #[case($dec!(10), -77, $dec!(1E-77), signals![])]
         #[case($dec!(10), -22, $dec!(1E-22), signals![])]
         #[case($dec!(10), 22, $dec!(1E+22), signals![])]
-        fn test_powi_256(#[case] d: $D, #[case] n: i32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_powi_256(#[case] d: $D, #[case] n: i32, #[case] expected: $D, #[case] signals: Signals) {
             let d = d.powi(n);
 
             assert_eq!(d, expected);
@@ -84,7 +84,7 @@ macro_rules! test_impl {
         #[case($dec!(10), 99, $dec!(1E+99), signals![!ROUND])]
         #[case($dec!(10), -77, $dec!(1E-77), signals![!ROUND])]
         #[case($dec!(10), -22, $dec!(1E-22), signals![])]
-        fn test_powi_128(#[case] d: $D, #[case] n: i32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_powi_128(#[case] d: $D, #[case] n: i32, #[case] expected: $D, #[case] signals: Signals) {
             let d = d.powi(n);
 
             assert_eq!(d, expected);
@@ -385,7 +385,7 @@ macro_rules! test_impl {
         #[case($dec!(-10), 77, $dec!(-1E+77), signals![!ROUND])]
         #[case($dec!(-10), 99, $dec!(-1E+99), signals![!ROUND])]
         #[case($dec!(-10), 22, $dec!(1E+22), signals![])]
-        fn test_powi_128_signed(#[case] d: $D, #[case] n: i32, #[case] expected: $D, #[case] signals: Signal) {
+        fn test_powi_128_signed(#[case] d: $D, #[case] n: i32, #[case] expected: $D, #[case] signals: Signals) {
             let d = d.powi(n);
 
             assert_eq!(d, expected);

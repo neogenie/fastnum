@@ -1,0 +1,9 @@
+[package]
+name = "fastnum_examples_base"
+version = "0.0.1"
+authors = ["Neo"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+fastnum = { path = "../../" }

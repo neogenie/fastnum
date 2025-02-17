@@ -14,7 +14,7 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn sqrt<const N: usize>(d: D<N>) -> D<N> {
     if d.is_nan() {
-        return d.raise_op_invalid();
+        return d.op_invalid();
     }
 
     if d.is_zero() || d.is_one() {
@@ -45,7 +45,7 @@ const fn sqrt_heron<const N: usize>(d: D<N>) -> D<N> {
     while result.is_ok() && i < Intrinsics::<N>::SERIES_MAX_ITERATIONS {
         result_next = mul(D::HALF, add(result, div(d, result)));
 
-        if result.eq_with_extra_precision(&result_next) {
+        if result.eq(&result_next) {
             break;
         }
 

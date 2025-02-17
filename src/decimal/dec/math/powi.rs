@@ -3,9 +3,10 @@ use crate::{
         dec::{
             construct::construct,
             math::{div::div, utils::overflow_exp},
-            ControlBlock, ExtraPrecision,
+            ExtraPrecision,
         },
-        Decimal,
+        signals::Signals,
+        Context, Decimal, Sign,
     },
     int::{math::div_rem_digit, UInt},
 };
@@ -15,18 +16,18 @@ type D<const N: usize> = Decimal<N>;
 #[inline]
 pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
     if d.is_nan() {
-        return d.raise_op_invalid();
+        return d.op_invalid();
     }
 
-    let flags = if d.is_negative() && (n % 2 != 0) {
-        Flags::default().neg()
+    let sign = if d.is_negative() && (n % 2 != 0) {
+        Sign::Minus
     } else {
-        Flags::default()
+        Sign::Plus
     };
 
     if d.is_infinite() {
         return if n > 0 {
-            if flags.is_negative() ^ d.is_negative() {
+            if sign.is_negative() ^ d.is_negative() {
                 d.neg()
             } else {
                 d
@@ -34,7 +35,7 @@ pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
         } else if n == 0 {
             D::ONE
         } else {
-            D::ZERO.with_cb(ControlBlock::default().with_flags(flags))
+            D::ZERO.set_sign(sign)
         };
     }
 
@@ -48,9 +49,9 @@ pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
 
     if d.is_zero() {
         return if n < 0 {
-            D::INFINITY.with_cb(ControlBlock::default().with_flags(flags))
+            D::INFINITY.set_ctx(d.context()).set_sign(sign)
         } else {
-            D::ZERO.with_cb(ControlBlock::default().with_flags(flags))
+            D::ZERO.set_ctx(d.context()).set_sign(sign)
         };
     }
 
@@ -59,13 +60,22 @@ pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
             D::ONE,
             powi_integral(
                 d.digits,
-                d.exponent(),
-                d.cb.set_flags(flags),
+                d.cb.get_exponent(),
+                sign,
+                d.cb.get_signals(),
+                d.cb.get_context(),
                 n.overflowing_neg().0 as u32,
             ),
         )
     } else {
-        powi_integral(d.digits, d.exponent(), d.cb.set_flags(flags), n as u32)
+        powi_integral(
+            d.digits,
+            d.cb.get_exponent(),
+            sign,
+            d.cb.get_signals(),
+            d.cb.get_context(),
+            n as u32,
+        )
     }
 }
 
@@ -73,46 +83,48 @@ pub(crate) const fn powi<const N: usize>(d: D<N>, n: i32) -> D<N> {
 const fn powi_integral<const N: usize>(
     mut digits: UInt<N>,
     mut exp: i32,
-    mut cb: ControlBlock,
+    sign: Sign,
+    mut signals: Signals,
+    ctx: Context,
     n: u32,
 ) -> D<N> {
     // TODO: special case 2^n
+
+    if n > i32::MAX as u32 {
+        return overflow_exp(-1, sign, signals, ctx);
+    }
 
     let (mut out, mut overflow) = digits.overflowing_pow(n);
     let mut extra_precision = ExtraPrecision::new();
 
     if overflow {
         let mut extra_digit;
-        cb = cb.raise_signal(Signal::OP_ROUNDED);
+        signals.raise(Signals::OP_ROUNDED);
 
         while overflow {
             (digits, extra_digit) = div_rem_digit(digits, 10);
 
             if extra_digit != 0 {
-                cb = cb.raise_signal(Signal::OP_INEXACT);
+                signals.raise(Signals::OP_INEXACT);
             }
 
-            extra_precision = extra_precision.push(extra_digit);
+            extra_precision.push_digit(extra_digit);
 
             (exp, overflow) = exp.overflowing_add(1);
 
             if overflow {
-                return overflow_exp(exp, cb);
+                return overflow_exp(exp, sign, signals, ctx);
             }
 
             (out, overflow) = digits.overflowing_pow(n);
         }
     }
 
-    if n > i32::MAX as u32 {
-        return overflow_exp(-1, cb);
-    }
-
     (exp, overflow) = exp.overflowing_mul(n as i32);
 
     if overflow {
-        return overflow_exp(exp, cb);
+        return overflow_exp(exp, sign, signals, ctx);
     }
 
-    construct(out, exp, cb, extra_precision)
+    construct(out, exp, sign, signals, ctx, extra_precision)
 }

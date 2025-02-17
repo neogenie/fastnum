@@ -3,9 +3,10 @@ use crate::{
         dec::{
             construct::construct,
             math::{add::add, utils::correct},
-            ControlBlock,
+            ExtraPrecision,
         },
-        Decimal,
+        signals::Signals,
+        Context, Decimal,
     },
     int::{math::div_rem_wide, UInt},
 };
@@ -13,50 +14,45 @@ use crate::{
 type D<const N: usize> = Decimal<N>;
 
 #[inline]
-pub(crate) const fn mul<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
+pub(crate) const fn mul<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
     if lhs.is_nan() {
-        return lhs.compound(&rhs).raise_op_invalid();
+        return lhs.compound(&rhs).op_invalid();
     }
 
     if rhs.is_nan() {
-        return rhs.compound(&lhs).raise_op_invalid();
+        return rhs.compound(&lhs).op_invalid();
     }
 
     let sign = lhs.sign().mul(rhs.sign());
+    let mut signals = Signals::combine(lhs.cb.get_signals(), rhs.cb.get_signals());
+    let ctx = Context::merge(lhs.cb.get_context(), rhs.cb.get_context());
 
     if lhs.is_infinite() || rhs.is_infinite() {
         return if lhs.is_zero() || rhs.is_zero() {
-            D::SIGNALING_NAN.compound(&lhs).compound(&rhs)
+            D::SIGNALING_NAN.set_ctx(ctx).compound(&lhs).compound(&rhs)
         } else {
-            D::INFINITY.set_sign(sign)
+            D::INFINITY.set_ctx(ctx).set_sign(sign)
         };
     }
 
     let mut exp = lhs.cb.get_exponent() + rhs.cb.get_exponent();
 
+    let mut extra_precision = ExtraPrecision::new();
+
     if lhs.is_zero() {
-        return construct(UInt::ZERO, exp, sign)
-            .compound(&lhs)
-            .compound(&rhs);
+        return construct(UInt::ZERO, exp, sign, signals, ctx, extra_precision);
     }
 
     if rhs.is_zero() {
-        return construct(UInt::ZERO, exp, sign)
-            .compound(&lhs)
-            .compound(&rhs);
+        return construct(UInt::ZERO, exp, sign, signals, ctx, extra_precision);
     }
 
     let correction = mul_correction(lhs, rhs);
 
     let (mut low, mut high) = lhs.digits.widening_mul(rhs.digits);
 
-    // TODO: Remove this temp partial CB
-    let mut cb = ControlBlock::default();
-    cb.compound(&lhs.cb);
-    cb.compound(&rhs.cb);
-
     if !high.is_zero() {
-        cb.raise_op_rounded();
+        signals.raise(Signals::OP_ROUNDED);
 
         let mut out;
         let mut rem;
@@ -90,24 +86,21 @@ pub(crate) const fn mul<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
             low = UInt::from_digits(out);
 
             if rem != 0 {
-                cb.raise_op_inexact();
+                signals.raise(Signals::OP_INEXACT);
             }
 
-            cb.push_extra_precision_digit(rem);
+            extra_precision.push_digit(rem);
         }
     }
 
-    let mut result = construct(low, exp, sign);
-    result.cb.set_extra_digits(cb.get_extra_digits());
-    result.cb.compound(&cb);
-
+    let result = construct(low, exp, sign, signals, ctx, extra_precision);
     correct(result, correction)
 }
 
 #[inline]
 const fn mul_correction<const N: usize>(mut lhs: D<N>, mut rhs: D<N>) -> D<N> {
-    let xi_lhs = lhs.cb.take_extra_digits();
-    let xi_rhs = rhs.cb.take_extra_digits();
+    let xi_lhs = lhs.cb.take_extra_precision_decimal();
+    let xi_rhs = rhs.cb.take_extra_precision_decimal();
 
     if xi_lhs.is_zero() && xi_rhs.is_zero() {
         D::ZERO

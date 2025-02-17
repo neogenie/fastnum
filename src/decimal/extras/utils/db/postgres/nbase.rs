@@ -1,10 +1,7 @@
 use core::cmp::Ordering;
 
 use crate::{
-    decimal::{
-        dec::{ControlBlock, ExtraPrecision},
-        Decimal, ParseError,
-    },
+    decimal::{dec::ControlBlock, Decimal, ParseError, Sign},
     int::{
         math::{div_rem, to_i16},
         UInt,
@@ -139,17 +136,17 @@ impl<const N: usize> TryFrom<NBase> for D<N> {
     type Error = ParseError;
 
     fn try_from(value: NBase) -> Result<Self, Self::Error> {
-        let (flags, weight, scale, digits) = match value {
+        let (sign, weight, scale, digits) = match value {
             NBase::Positive {
                 weight,
                 scale,
                 digits,
-            } => (ControlBlock::default(), weight, scale, digits),
+            } => (Sign::Plus, weight, scale, digits),
             NBase::Negative {
                 weight,
                 scale,
                 digits,
-            } => (ControlBlock::default().neg(), weight, scale, digits),
+            } => (Sign::Minus, weight, scale, digits),
             NBase::NaN => {
                 return Ok(Self::NAN);
             }
@@ -188,6 +185,6 @@ impl<const N: usize> TryFrom<NBase> for D<N> {
             Ordering::Equal => {}
         }
 
-        Ok(D::new(uint, scale, flags, ExtraPrecision::new()))
+        Ok(D::new(uint, ControlBlock::basic(scale, sign)))
     }
 }
