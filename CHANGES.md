@@ -4,23 +4,40 @@ All user-visible changes to this library will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/), as described
 for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md)
 
-## [0.2.0] – unreleased
+## [0.2.0] – 2025-02-17
+
+This release primarily focuses on:
+
+- Increasing the accuracy of approximated mathematical calculations due to the use of `7` extra precision digits 
+  instead of `4`.
+- Performance optimizations.
+
+Expect better performance, precision handling, and expanded documentation covering new methods and examples.
 
 - Bump Rust version to `1.83`
     - [Stabilize &mut, *mut, &Cell, and *const Cell in const.](https://github.com/rust-lang/rust/pull/129195)
 
 ### Added
 
+- `floor()` and `ceil()` const methods.
+- Add basic tests for trivial trigonometric functions for 0–360 degree angles.
+
 ### Changed
 
+- Control block is completely refactored for better performance and more compact memory layout.
+- Micro-optimizations in rounding.
+- Inline optimizations and better precision handling for mathematical rounding.
+- Remove custom const float helpers as they're stabilized as const in rust 1.83.
+
 ### Fixed
+
+- Incorrect `floor()` and `ceil()` methods in `num_traits` `Float` implementation.
 
 ### Documentation
 
 - Minor fixes.
 
-
-## [0.1.14] – unreleased
+## [0.1.14] – canceled
 
 ### Fixed
 
@@ -29,7 +46,6 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 ### Documentation
 
 - Minor fixes.
-
 
 ## [0.1.13] – 2025-02-07
 
@@ -44,7 +60,6 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 
 - Minor fixes.
 
-
 ## [0.1.12] – 2025-02-06
 
 ### Fixed
@@ -54,7 +69,6 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 ### Documentation
 
 - Minor fixes.
-
 
 ## [0.1.11] – 2025-02-04
 
