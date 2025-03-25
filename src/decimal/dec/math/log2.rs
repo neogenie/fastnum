@@ -37,9 +37,10 @@ pub(crate) const fn log2<const N: usize>(x: D<N>) -> D<N> {
 const fn log2_reduce<const N: usize>(x: D<N>) -> D<N> {
     // TODO: remove iteration by direct 2^N
     match x.cmp(&D::TWO) {
-        Ordering::Less => log2_impl(x),
-        Ordering::Equal => D::ONE,
-        Ordering::Greater => add(log2_reduce(div(x, D::TWO)), D::ONE),
+        Some(Ordering::Less) => log2_impl(x),
+        Some(Ordering::Equal) => D::ONE,
+        Some(Ordering::Greater) => add(log2_reduce(div(x, D::TWO)), D::ONE),
+        None => x.signaling_nan(),
     }
 }
 

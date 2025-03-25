@@ -44,9 +44,10 @@ pub(crate) const fn ln_1p<const N: usize>(x: D<N>) -> D<N> {
 #[inline]
 const fn argument_reduction<const N: usize>(x: D<N>) -> D<N> {
     match x.cmp(&D::TWO) {
-        Ordering::Less => taylor_series(x),
-        Ordering::Equal => Consts::LN_2,
-        Ordering::Greater => mul(D::TWO, argument_reduction(sqrt(x))),
+        Some(Ordering::Less) => taylor_series(x),
+        Some(Ordering::Equal) => Consts::LN_2,
+        Some(Ordering::Greater) => mul(D::TWO, argument_reduction(sqrt(x))),
+        None => x.signaling_nan(),
     }
 }
 

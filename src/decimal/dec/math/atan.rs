@@ -22,21 +22,23 @@ pub(crate) const fn atan<const N: usize>(x: D<N>) -> D<N> {
     }
 
     match x.cmp(&D::ONE.neg()) {
-        Ordering::Less => {
+        Some(Ordering::Less) => {
             return x.signaling_nan();
         }
-        Ordering::Equal => return Consts::FRAC_PI_4.neg(),
-        Ordering::Greater => {}
+        Some(Ordering::Equal) => return Consts::FRAC_PI_4.neg(),
+        Some(Ordering::Greater) => {},
+        None => return x.signaling_nan(),
     }
 
     match x.cmp(&D::ONE) {
-        Ordering::Less => {}
-        Ordering::Equal => {
+        Some(Ordering::Less) => {}
+        Some(Ordering::Equal) => {
             return Consts::FRAC_PI_4;
         }
-        Ordering::Greater => {
+        Some(Ordering::Greater) => {
             return x.signaling_nan();
         }
+        None => return x.signaling_nan(),
     }
 
     let x2 = mul(x, x);

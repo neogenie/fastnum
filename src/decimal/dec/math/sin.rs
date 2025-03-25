@@ -43,13 +43,14 @@ const fn sin_abs<const N: usize>(d: D<N>) -> D<N> {
     debug_assert!(x.lt(&Consts::TAU));
 
     match x.cmp(&Consts::PI) {
-        Ordering::Less => sin_less_pi(x),
-        Ordering::Equal => D::ZERO.with_ctx(d.context()),
-        Ordering::Greater => {
+        Some(Ordering::Less) => sin_less_pi(x),
+        Some(Ordering::Equal) => D::ZERO.with_ctx(d.context()),
+        Some(Ordering::Greater) => {
             // We can further reduce x, so it is between 0..π using the identity:
             // sin(x)=-sin(x-π) for x≥π.
             sin_less_pi(sub(x, Consts::PI)).neg()
         }
+        None => d.signaling_nan(),
     }
 }
 

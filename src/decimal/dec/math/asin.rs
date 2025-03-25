@@ -26,23 +26,24 @@ pub(crate) const fn asin<const N: usize>(x: D<N>) -> D<N> {
     }
 
     match x.cmp(&D::ONE.neg()) {
-        Ordering::Less => {
+        Some(Ordering::Less) => {
             return x.signaling_nan();
         }
-        Ordering::Equal => return Consts::FRAC_PI_2.neg(),
-        Ordering::Greater => {}
+        Some(Ordering::Equal) => return Consts::FRAC_PI_2.neg(),
+        Some(Ordering::Greater) => {},
+        None => return x.signaling_nan(),
     }
 
     match x.cmp(&D::ONE) {
-        Ordering::Less => {}
-        Ordering::Equal => {
+        Some(Ordering::Less) => {}
+        Some(Ordering::Equal) => {
             return Consts::FRAC_PI_2;
         }
-        Ordering::Greater => {
+        Some(Ordering::Greater) => {
             return x.signaling_nan();
         }
+        None => return x.signaling_nan(),
     }
-
     asin_reduction(x)
 }
 

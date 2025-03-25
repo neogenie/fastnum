@@ -563,7 +563,8 @@ impl<const N: usize> UnsignedDecimal<N> {
     #[inline]
     pub const fn max(self, other: Self) -> Self {
         match self.cmp(&other) {
-            Ordering::Less | Ordering::Equal => other,
+            Some(Ordering::Less) | Some(Ordering::Equal) => other,
+            None => if self.is_nan() { other } else { self },
             _ => self,
         }
     }
@@ -585,7 +586,8 @@ impl<const N: usize> UnsignedDecimal<N> {
     #[inline]
     pub const fn min(self, other: Self) -> Self {
         match self.cmp(&other) {
-            Ordering::Less | Ordering::Equal => self,
+            Some(Ordering::Less) | Some(Ordering::Equal) => self,
+            None => if self.is_nan() { other } else { self },
             _ => other,
         }
     }
@@ -612,13 +614,7 @@ impl<const N: usize> UnsignedDecimal<N> {
     #[inline]
     pub const fn clamp(self, min: Self, max: Self) -> Self {
         assert!(min.le(&max));
-        if let Ordering::Less = self.cmp(&min) {
-            min
-        } else if let Ordering::Greater = self.cmp(&max) {
-            max
-        } else {
-            self
-        }
+        self.max(min).min(max)
     }
 
     /// Tests unsigned decimal `self` less than `other` and is used by the `<`
@@ -638,7 +634,7 @@ impl<const N: usize> UnsignedDecimal<N> {
     pub const fn lt(&self, other: &Self) -> bool {
         #[allow(clippy::match_like_matches_macro)]
         match self.cmp(other) {
-            Ordering::Less => true,
+            Some(Ordering::Less) => true,
             _ => false,
         }
     }
@@ -660,7 +656,7 @@ impl<const N: usize> UnsignedDecimal<N> {
     pub const fn le(&self, other: &Self) -> bool {
         #[allow(clippy::match_like_matches_macro)]
         match self.cmp(other) {
-            Ordering::Less | Ordering::Equal => true,
+            Some(Ordering::Less) | Some(Ordering::Equal) => true,
             _ => false,
         }
     }
@@ -682,7 +678,7 @@ impl<const N: usize> UnsignedDecimal<N> {
     pub const fn gt(&self, other: &Self) -> bool {
         #[allow(clippy::match_like_matches_macro)]
         match self.cmp(other) {
-            Ordering::Greater => true,
+            Some(Ordering::Greater) => true,
             _ => false,
         }
     }
@@ -704,7 +700,7 @@ impl<const N: usize> UnsignedDecimal<N> {
     pub const fn ge(&self, other: &Self) -> bool {
         #[allow(clippy::match_like_matches_macro)]
         match self.cmp(other) {
-            Ordering::Greater | Ordering::Equal => true,
+            Some(Ordering::Greater) | Some(Ordering::Equal) => true,
             _ => false,
         }
     }
@@ -720,13 +716,13 @@ impl<const N: usize> UnsignedDecimal<N> {
     /// use fastnum::udec256;
     /// use std::cmp::Ordering;
     ///
-    /// assert_eq!(udec256!(5).cmp(&udec256!(10)), Ordering::Less);
-    /// assert_eq!(udec256!(10).cmp(&udec256!(5)), Ordering::Greater);
-    /// assert_eq!(udec256!(5).cmp(&udec256!(5)), Ordering::Equal);
+    /// assert_eq!(udec256!(5).cmp(&udec256!(10)), Some(Ordering::Less));
+    /// assert_eq!(udec256!(10).cmp(&udec256!(5)), Some(Ordering::Greater));
+    /// assert_eq!(udec256!(5).cmp(&udec256!(5)), Some(Ordering::Equal));
     /// ```
     #[must_use]
     #[inline]
-    pub const fn cmp(&self, other: &Self) -> Ordering {
+    pub const fn cmp(&self, other: &Self) -> Option<Ordering> {
         self.0.cmp(&other.0)
     }
 

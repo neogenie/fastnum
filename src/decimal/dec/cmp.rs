@@ -47,13 +47,17 @@ pub(crate) const fn ne<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> bool {
 }
 
 #[inline]
-pub(crate) const fn cmp<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Ordering {
-    match (lhs.is_negative(), rhs.is_negative()) {
+pub(crate) const fn cmp<const N: usize>(lhs: &D<N>, rhs: &D<N>) -> Option<Ordering> {
+    if lhs.is_nan() || rhs.is_nan() {
+        return None;
+    }
+    
+    Some(match (lhs.is_negative(), rhs.is_negative()) {
         (false, true) => Ordering::Greater,
         (true, false) => Ordering::Less,
         (true, true) => cmp_magnitude(lhs, rhs).reverse(),
         (false, false) => cmp_magnitude(lhs, rhs),
-    }
+    })
 }
 
 #[inline(always)]

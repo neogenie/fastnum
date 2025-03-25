@@ -8,7 +8,6 @@ macro_rules! test_impl {
     (UNSIGNED: $bits: tt, $dec: ident, $D: ident) => {
         mod $dec {
             use rstest::*;
-            use std::cmp::{max, min};
             use fastnum::{$dec, $D};
 
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
@@ -18,7 +17,6 @@ macro_rules! test_impl {
     (SIGNED: $bits: tt, $dec: ident, $D: ident) => {
         mod $dec {
             use rstest::*;
-            use std::cmp::{max, min};
             use fastnum::{$dec, $D};
 
             super::test_impl!(COMMON:: $bits, $dec, $D, THIS);
@@ -43,8 +41,8 @@ macro_rules! test_impl {
             assert!(a <= b);
             assert!(b > a);
             assert!(b >= a);
-            assert_eq!(max(a, b), b);
-            assert_eq!(min(a, b), a)
+            assert_eq!(a.max(b), b);
+            assert_eq!(a.min(b), a)
         }
     };
     (UNSIGNED:: 512, $dec: ident, $D: ident, THIS) => {
@@ -68,8 +66,8 @@ macro_rules! test_impl {
             assert!(a <= b);
             assert!(b > a);
             assert!(b >= a);
-            assert_eq!(max(a, b), b);
-            assert_eq!(min(a, b), a)
+            assert_eq!(a.max(b), b);
+            assert_eq!(a.min(b), a)
         }
     };
 
@@ -96,8 +94,8 @@ macro_rules! test_impl {
             assert!(a <= b);
             assert!(b > a);
             assert!(b >= a);
-            assert_eq!(max(a, b), b);
-            assert_eq!(min(a, b), a)
+            assert_eq!(a.max(b), b);
+            assert_eq!(a.min(b), a)
         }
     };
     (UNSIGNED:: 256, $dec: ident, $D: ident, THIS) => {
@@ -126,8 +124,8 @@ macro_rules! test_impl {
             assert!(a <= b);
             assert!(b > a);
             assert!(b >= a);
-            assert_eq!(max(a, b), b);
-            assert_eq!(min(a, b), a)
+            assert_eq!(a.max(b), b);
+            assert_eq!(a.min(b), a)
         }
     };
 
@@ -168,8 +166,8 @@ macro_rules! test_impl {
             assert!(a <= b);
             assert!(b > a);
             assert!(b >= a);
-            assert_eq!(max(a, b), b);
-            assert_eq!(min(a, b), a)
+            assert_eq!(a.max(b), b);
+            assert_eq!(a.min(b), a)
         }
 
         #[rstest(::trace)]
@@ -252,8 +250,8 @@ macro_rules! test_impl {
             assert!(a < b);
             assert!(b > a);
             assert!(b >= a);
-            assert_eq!(max(a, b), b);
-            assert_eq!(min(a, b), a)
+            assert_eq!(a.max(b), b);
+            assert_eq!(a.min(b), a)
         }
 
         #[rstest(::trace)]
