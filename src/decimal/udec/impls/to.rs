@@ -1,6 +1,6 @@
 use core::num::IntErrorKind;
 
-use crate::decimal::UnsignedDecimal;
+use crate::decimal::{UnsignedDecimal, Decimal};
 
 type UD<const N: usize> = UnsignedDecimal<N>;
 
@@ -68,5 +68,10 @@ impl<const N: usize> UD<N> {
     /// Converts [UnsignedDecimal] into [`f64`].
     pub const fn to_f64(self) -> f64 {
         self.0.to_f64()
+    }
+
+    /// Converts [UnsignedDecimal] into [Decimal].
+    pub const fn to_decimal(self) -> Decimal<N> {
+        Decimal::from_unsigned_decimal(self)
     }
 }
