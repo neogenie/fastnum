@@ -1,6 +1,6 @@
 [package]
 name = "fastnum"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 authors = ["Neo"]
 description = "Fast decimal numbers library"
@@ -75,7 +75,7 @@ dev = []
 
 # For internal use only
 test-util = ["num-traits"]
-extra-postgres = []
+extra-postgres = ["num-traits"]
 extra-postgres-encode = ["extra-postgres", "bytes", "byteorder"]
 
 [profile.release]

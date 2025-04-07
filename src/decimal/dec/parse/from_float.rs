@@ -1,11 +1,9 @@
 mod f2dec;
 
-use crate::{
-    decimal::{
-        dec::{ControlBlock, ExtraPrecision},
-        signals::Signals,
-        Context, Decimal, Sign,
-    },
+use crate::decimal::{
+    dec::{ControlBlock, ExtraPrecision},
+    signals::Signals,
+    Context, Decimal, Sign,
 };
 
 type D<const N: usize> = Decimal<N>;

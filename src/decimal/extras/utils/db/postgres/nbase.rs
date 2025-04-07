@@ -1,9 +1,11 @@
 use core::cmp::Ordering;
+use num_traits::Euclid;
 
 use crate::{
     decimal::{dec::ControlBlock, Decimal, ParseError, Sign},
     int::{
-        math::{div_rem, to_i16},
+        intrinsics::Intrinsics,
+        math::{mul_div_rem_wide, to_i16},
         UInt,
     },
 };
@@ -86,29 +88,27 @@ impl<const N: usize> TryFrom<D<N>> for NBase {
         }
 
         let mut scale = dec.fractional_digits_count();
-
-        while scale <= -1 {
-            checked!(uint *= UInt::<N>::TEN);
-            scale += 1;
-        }
-
-        // Ensure that the decimal will always lie on a digit boundary
-        for _ in 0..(4 - scale % 4) {
-            checked!(uint *= UInt::<N>::TEN);
-        }
-
         let mut digits = Vec::with_capacity(0);
-
         let mut weight = 0;
+        let mut exp = 0;
+
+        if scale < 0 {
+            (weight, exp) = (-scale).div_rem_euclid(&4);
+            scale = 0;
+        }
+
+        exp += 4 - scale % 4;
 
         while !uint.is_zero() {
-            let (div, rem) = div_rem(uint, Consts::<N>::NBASE);
+            let correction = Intrinsics::<N>::POWERS_OF_TEN.lookup(exp as u32);
+            let (div, rem) = mul_div_rem_wide(uint, correction, Consts::<N>::NBASE);
 
             if !digits.is_empty() || !rem.is_zero() {
                 digits.push(to_i16(rem).expect("10000 always fits in an i16"));
             }
 
             uint = div;
+            exp = 0;
             weight += 1;
         }
 

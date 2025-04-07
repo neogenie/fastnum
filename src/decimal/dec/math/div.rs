@@ -10,7 +10,7 @@ use crate::{
         Context, Decimal,
     },
     int::{
-        math::{div_rem, div_rem_digit},
+        math::{div_rem, div_rem_digit, mul_div_rem_wide},
         UInt,
     },
 };
@@ -139,59 +139,6 @@ const fn div_rem_next<const N: usize>(mut remainder: U<N>, divisor: U<N>) -> (U<
         remainder = remainder.strict_mul(UInt::TEN);
         div_rem(remainder, divisor)
     }
-}
-
-#[inline]
-const fn mul_div_rem_wide<const N: usize>(lhs: U<N>, rhs: U<N>, divisor: U<N>) -> (U<N>, U<N>) {
-    let (low, high) = lhs.widening_mul(rhs);
-
-    if high.is_zero() {
-        div_rem(low, divisor)
-    } else {
-        div_rem_wide(low, high, divisor)
-    }
-}
-
-#[inline]
-const fn overflow_remainder<const N: usize>(
-    mut quotient: U<N>,
-    mut remainder: U<N>,
-    add: U<N>,
-    divisor: U<N>,
-) -> (U<N>, U<N>) {
-    let overflow;
-
-    (remainder, overflow) = remainder.overflowing_add(add);
-
-    if overflow {
-        quotient = quotient.strict_add(UInt::ONE);
-        (quotient, remainder) =
-            overflow_remainder(quotient, remainder, UInt::MAX.strict_sub(divisor).strict_add(UInt::ONE), divisor);
-    }
-
-    let q;
-    (q, remainder) = div_rem(remainder, divisor);
-    quotient = quotient.strict_add(q);
-
-    (quotient, remainder)
-}
-
-#[inline]
-const fn div_rem_wide<const N: usize>(low: U<N>, high: U<N>, divisor: U<N>) -> (U<N>, U<N>) {
-    let mut quotient;
-    let mut remainder;
-
-    (quotient, remainder) = div_rem(low, divisor);
-
-    let (high_quotient, high_remainder) =
-        mul_div_rem_wide(UInt::MAX.shr(1).add(UInt::ONE), high, divisor);
-
-    (quotient, remainder) = overflow_remainder(quotient, remainder, high_remainder, divisor);
-    (quotient, remainder) = overflow_remainder(quotient, remainder, high_remainder, divisor);
-
-    quotient = quotient.strict_add(high_quotient).strict_add(high_quotient);
-
-    (quotient, remainder)
 }
 
 #[inline]

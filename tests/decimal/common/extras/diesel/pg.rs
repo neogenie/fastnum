@@ -83,11 +83,23 @@ macro_rules! test_impl {
         #[case($dec!(12345.67890), PgNumeric::Positive { weight: 1, scale: 5, digits: vec![1, 2345, 6789] })]
         #[case($dec!(0.00001234), PgNumeric::Positive { weight: -2, scale: 8, digits: vec![1234] })]
         #[case($dec!(123.456), PgNumeric::Positive { weight: 0, scale: 3, digits: vec![123, 4560] })]
+        #[case($dec!(5000), PgNumeric::Positive { weight: 0, scale: 0, digits: vec![5000] })]
+        #[case($dec!(5e1), PgNumeric::Positive { weight: 0, scale: 0, digits: vec![50] })]
+        #[case($dec!(5e2), PgNumeric::Positive { weight: 0, scale: 0, digits: vec![500] })]
+        #[case($dec!(5e3), PgNumeric::Positive { weight: 0, scale: 0, digits: vec![5000] })]
+        #[case($dec!(5e4), PgNumeric::Positive { weight: 1, scale: 0, digits: vec![5] })]
+        #[case($dec!(5e5), PgNumeric::Positive { weight: 1, scale: 0, digits: vec![50] })]
         #[case($dec!(50e2), PgNumeric::Positive { weight: 0, scale: 0, digits: vec![5000] })]
+        #[case($dec!(50.123e5), PgNumeric::Positive { weight: 1, scale: 0, digits: vec![501, 2300] })]
+        #[case($dec!(50.123000e6), PgNumeric::Positive { weight: 1, scale: 0, digits: vec![5012, 3000] })]
+        #[case($dec!(5000e2), PgNumeric::Positive { weight: 1, scale: 0, digits: vec![50] })]
+        #[case($dec!(5000e4), PgNumeric::Positive { weight: 1, scale: 0, digits: vec![5000] })]
         #[case($dec!(1e4), PgNumeric::Positive { weight: 1, scale: 0, digits: vec![1] })]
         #[case($dec!(0.1000000000000000), PgNumeric::Positive { weight: -1, scale: 16, digits: vec![1000] })]
         #[case($dec!(0.00315937), PgNumeric::Positive { weight: -1, scale: 8, digits: vec![31, 5937] })]
         #[case($dec!(0.003159370000000000), PgNumeric::Positive { weight: -1, scale: 18, digits: vec![31, 5937] })]
+        #[case($dec!(1e18) + $dec!(9e-16), PgNumeric::Positive { weight: 4, scale: 16, digits: vec![100, 0, 0, 0, 0, 0, 0, 0, 9] })]
+        #[case($dec!(9e18) + $dec!(9e-16), PgNumeric::Positive { weight: 4, scale: 16, digits: vec![900, 0, 0, 0, 0, 0, 0, 0, 9] })]
         fn test_convert(#[case] d: $D, #[case] expected: PgNumeric) {
             let numeric: PgNumeric = d.try_into().unwrap();
             assert_eq!(numeric, expected);

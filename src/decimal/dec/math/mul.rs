@@ -8,7 +8,7 @@ use crate::{
         signals::Signals,
         Context, Decimal,
     },
-    int::{math::div_rem_wide, UInt},
+    int::{math::div_rem_wide_digit, UInt},
 };
 
 type D<const N: usize> = Decimal<N>;
@@ -66,7 +66,7 @@ pub(crate) const fn mul<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
             let mut i = N;
             while i > 0 {
                 i -= 1;
-                let (q, r) = div_rem_wide(high.digits()[i], rem, 10);
+                let (q, r) = div_rem_wide_digit(high.digits()[i], rem, 10);
                 rem = r;
                 out[i] = q;
             }
@@ -78,7 +78,7 @@ pub(crate) const fn mul<const N: usize>(lhs: D<N>, rhs: D<N>) -> D<N> {
 
             while i > 0 {
                 i -= 1;
-                let (q, r) = div_rem_wide(low.digits()[i], rem, 10);
+                let (q, r) = div_rem_wide_digit(low.digits()[i], rem, 10);
                 rem = r;
                 out[i] = q;
             }

@@ -8,12 +8,14 @@ use core::cmp::Ordering;
 
 use crate::int::{uint::intrinsics::*, UInt};
 
+type U<const N: usize> = UInt<N>;
+
 macro_rules! to_int {
     { $($name: ident -> $int: ty), * }  => {
         $(
             #[allow(dead_code)]
             #[inline]
-            pub const fn $name<const N: usize>(this: UInt<N>) -> Option<$int> {
+            pub const fn $name<const N: usize>(this: U<N>) -> Option<$int> {
                 let digits = this.digits();
                 let mut out = 0;
                 let mut i = 0;
@@ -73,27 +75,56 @@ to_int! {
 // This Hell is here because of the div_rem methods are not public in the bnum.
 
 #[inline]
-pub const fn div_rem<const N: usize>(dividend: UInt<N>, divisor: UInt<N>) -> (UInt<N>, UInt<N>) {
+pub const fn div_rem<const N: usize>(dividend: U<N>, divisor: U<N>) -> (U<N>, U<N>) {
     match dividend.cmp(&divisor) {
-        Ordering::Less => (UInt::<N>::ZERO, dividend),
-        Ordering::Equal => (UInt::<N>::ONE, UInt::<N>::ZERO),
+        Ordering::Less => (U::<N>::ZERO, dividend),
+        Ordering::Equal => (U::<N>::ONE, U::<N>::ZERO),
         Ordering::Greater => {
             let ldi = last_digit_index(divisor.digits());
             if ldi == 0 {
                 let digits = divisor.digits();
                 let (div, rem) = div_rem_digit(dividend, digits[0]);
-                (div, UInt::<N>::from_digit(rem))
+                (div, U::<N>::from_digit(rem))
             } else {
                 let (div, rem) =
                     basecase_div_rem(*(dividend.digits()), *(divisor.digits()), ldi + 1);
-                (UInt::<N>::from_digits(div), UInt::<N>::from_digits(rem))
+                (U::<N>::from_digits(div), U::<N>::from_digits(rem))
             }
         }
     }
 }
 
 #[inline]
-pub const fn div_rem_wide(low: Digit, high: Digit, rhs: Digit) -> (Digit, Digit) {
+pub const fn mul_div_rem_wide<const N: usize>(lhs: U<N>, rhs: U<N>, divisor: U<N>) -> (U<N>, U<N>) {
+    let (low, high) = lhs.widening_mul(rhs);
+
+    if high.is_zero() {
+        div_rem(low, divisor)
+    } else {
+        div_rem_wide(low, high, divisor)
+    }
+}
+
+#[inline]
+pub const fn div_rem_wide<const N: usize>(low: U<N>, high: U<N>, divisor: U<N>) -> (U<N>, U<N>) {
+    let mut quotient;
+    let mut remainder;
+
+    (quotient, remainder) = div_rem(low, divisor);
+
+    let (high_quotient, high_remainder) =
+        mul_div_rem_wide(U::MAX.shr(1).add(U::ONE), high, divisor);
+
+    (quotient, remainder) = overflow_remainder(quotient, remainder, high_remainder, divisor);
+    (quotient, remainder) = overflow_remainder(quotient, remainder, high_remainder, divisor);
+
+    quotient = quotient.strict_add(high_quotient).strict_add(high_quotient);
+
+    (quotient, remainder)
+}
+
+#[inline]
+pub const fn div_rem_wide_digit(low: Digit, high: Digit, rhs: Digit) -> (Digit, Digit) {
     let a = to_double_digit(low, high);
     (
         (a / rhs as DoubleDigit) as Digit,
@@ -102,7 +133,7 @@ pub const fn div_rem_wide(low: Digit, high: Digit, rhs: Digit) -> (Digit, Digit)
 }
 
 #[inline]
-pub const fn div_rem_digit<const N: usize>(value: UInt<N>, rhs: Digit) -> (UInt<N>, Digit) {
+pub const fn div_rem_digit<const N: usize>(value: U<N>, rhs: Digit) -> (U<N>, Digit) {
     let mut out = [0; N];
 
     let mut rem: Digit = 0;
@@ -112,11 +143,39 @@ pub const fn div_rem_digit<const N: usize>(value: UInt<N>, rhs: Digit) -> (UInt<
 
     while i > 0 {
         i -= 1;
-        let (q, r) = div_rem_wide(digits[i], rem, rhs);
+        let (q, r) = div_rem_wide_digit(digits[i], rem, rhs);
         rem = r;
         out[i] = q;
     }
-    (UInt::from_digits(out), rem)
+    (U::from_digits(out), rem)
+}
+
+#[inline]
+const fn overflow_remainder<const N: usize>(
+    mut quotient: U<N>,
+    mut remainder: U<N>,
+    add: U<N>,
+    divisor: U<N>,
+) -> (U<N>, U<N>) {
+    let overflow;
+
+    (remainder, overflow) = remainder.overflowing_add(add);
+
+    if overflow {
+        quotient = quotient.strict_add(UInt::ONE);
+        (quotient, remainder) = overflow_remainder(
+            quotient,
+            remainder,
+            UInt::MAX.strict_sub(divisor).strict_add(UInt::ONE),
+            divisor,
+        );
+    }
+
+    let q;
+    (q, remainder) = div_rem(remainder, divisor);
+    quotient = quotient.strict_add(q);
+
+    (quotient, remainder)
 }
 
 const fn last_digit_index<const N: usize>(digits: &Digits<N>) -> usize {
@@ -157,7 +216,7 @@ const fn basecase_div_rem<const N: usize>(
 
         // q_hat will be either `q` or `q + 1`
         let mut q_hat = if u_jn < v_n_m1 {
-            let (mut q_hat, r_hat) = div_rem_wide(u.digit(j + n - 1), u_jn, v_n_m1); // D3
+            let (mut q_hat, r_hat) = div_rem_wide_digit(u.digit(j + n - 1), u_jn, v_n_m1); // D3
 
             if tuple_gt(
                 widening_mul(q_hat, v_n_m2),
@@ -362,9 +421,9 @@ const fn wrapping_shr<const N: usize>(digits: Digits<N>, rhs: ExpType) -> Digits
 
 #[inline]
 const fn overflowing_shr<const N: usize>(digits: Digits<N>, rhs: ExpType) -> (Digits<N>, bool) {
-    if rhs >= UInt::<N>::BITS {
+    if rhs >= U::<N>::BITS {
         (
-            unchecked_shr_internal(digits, rhs & (UInt::<N>::BITS - 1)),
+            unchecked_shr_internal(digits, rhs & (U::<N>::BITS - 1)),
             true,
         )
     } else {

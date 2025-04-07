@@ -54,7 +54,7 @@ macro_rules! test_impl {
 
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(1),   $D::E)]
         #[case($dec!(1.5), $dec!(4.4816890703380648226020554601192758190057498683696670567726500827859366744667))]
@@ -84,7 +84,7 @@ macro_rules! test_impl {
     };
     (SIGNED:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $dec, $D);
-        
+
         #[rstest(::trace)]
         #[case($dec!(-1),   $dec!(0.36787944117144232159552377016146086744581113103176783450783680169746149574490))]
         // #[case($dec!(-1.5), $dec!(4.4816890703380648226020554601192758187))]
