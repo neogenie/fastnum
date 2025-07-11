@@ -38,6 +38,7 @@ bytes = { version = "1.1.0", default-features = false, optional = true }
 byteorder = { version = "1.5.0", default-features = false, optional = true }
 utoipa = { version = ">= 5.0.0", default-features = false, optional = true }
 tokio-postgres = { version = "0.7.13", default-features = false, optional = true }
+rust_decimal = { version = "^1", default-features = false, features = ["macros"], optional = true }
 
 [dev-dependencies]
 rstest = { version = "0.23.0" }
@@ -53,7 +54,7 @@ autocfg = "1"
 default = ["std"]
 std = []
 
-numtraits = ["num-traits", "bnum/numtraits"]
+numtraits = ["dep:num-traits", "bnum/numtraits"]
 
 rand = ["dep:rand"]
 zeroize = ["dep:zeroize"]
@@ -72,11 +73,13 @@ utoipa = ["dep:utoipa", "utoipa/macros"]
 
 tokio-postgres = ["dep:tokio-postgres", "extra-postgres-encode"]
 
+rust_decimal = ["dep:rust_decimal", "dep:num-traits"]
+
 dev = []
 
 # For internal use only
-test-util = ["num-traits"]
-extra-postgres = ["num-traits"]
+test-util = ["dep:num-traits"]
+extra-postgres = ["dep:num-traits"]
 extra-postgres-encode = ["extra-postgres", "bytes", "byteorder"]
 
 [profile.release]
