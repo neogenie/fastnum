@@ -1671,11 +1671,22 @@ impl<const N: usize> Decimal<N> {
     /// ```
     /// use fastnum::{*, decimal::*};
     ///
-    /// assert_eq!(dec256!(2.17).truncate(3), dec256!(2.170));
-    /// assert_eq!(dec256!(2.17).truncate(2), dec256!(2.17));
-    /// assert_eq!(dec256!(2.17).truncate(1), dec256!(2.1));
-    /// assert_eq!(dec256!(2.9).truncate(0), dec256!(2));
-    /// assert_eq!(dec256!(2.17).truncate(-1), dec256!(0));
+    /// fn assert_eq_value(a: fastnum::D256, b: fastnum::D256) {
+    ///   assert_eq!(a.digits(), b.digits(), "{} != {}", a, b);
+    ///   assert_eq!(
+    ///       a.fractional_digits_count(),
+    ///       b.fractional_digits_count(),
+    ///       "{} != {}",
+    ///       a,
+    ///       b
+    ///   );
+    /// }
+    ///
+    /// assert_eq_value(dec256!(2.17).truncate(3),dec256!(2.170));
+    /// assert_eq_value(dec256!(2.17).truncate(2), dec256!(2.17));
+    /// assert_eq_value(dec256!(2.17).truncate(1), dec256!(2.1));
+    /// assert_eq_value(dec256!(2.9).truncate(0), dec256!(2));
+    /// assert_eq_value(dec256!(2.17).truncate(-1), dec256!(0).rescale(-1));
     ///
     /// let ctx = Context::default().without_traps();
     ///
@@ -1690,11 +1701,9 @@ impl<const N: usize> Decimal<N> {
     #[must_use = doc::must_use_op!()]
     #[track_caller]
     #[inline]
-    pub const fn truncate(self, precision: i16) -> Self {
-        self.with_rounding_mode(RoundingMode::No)
-            .round(precision)
-            // We need to reset the rounding mode to the default, for future operations
-            .with_rounding_mode(RoundingMode::default())
+    pub const fn truncate(mut self, precision: i16) -> Self {
+        scale::rescale(&mut self, precision);
+        self.check()
     }
 
     /// Returns a value equal to `self` (rounded), having the exponent of

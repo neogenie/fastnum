@@ -1172,11 +1172,22 @@ impl<const N: usize> UnsignedDecimal<N> {
     /// ```
     /// use fastnum::{*, decimal::*};
     ///
-    /// assert_eq!(udec256!(2.17).truncate(3), udec256!(2.170));
-    /// assert_eq!(udec256!(2.17).truncate(2), udec256!(2.17));
-    /// assert_eq!(udec256!(2.17).truncate(1), udec256!(2.1));
-    /// assert_eq!(udec256!(2.9).truncate(0), udec256!(2));
-    /// assert_eq!(udec256!(2.17).truncate(-1), udec256!(0));
+    /// fn assert_eq_value(a: fastnum::D256, b: fastnum::D256) {
+    ///   assert_eq!(a.digits(), b.digits(), "{} != {}", a, b);
+    ///   assert_eq!(
+    ///       a.fractional_digits_count(),
+    ///       b.fractional_digits_count(),
+    ///       "{} != {}",
+    ///       a,
+    ///       b
+    ///   );
+    /// }
+    ///
+    /// assert_eq_value(dec256!(2.17).truncate(3),dec256!(2.170));
+    /// assert_eq_value(dec256!(2.17).truncate(2), dec256!(2.17));
+    /// assert_eq_value(dec256!(2.17).truncate(1), dec256!(2.1));
+    /// assert_eq_value(dec256!(2.9).truncate(0), dec256!(2));
+    /// assert_eq_value(dec256!(2.17).truncate(-1), dec256!(0).rescale(-1));
     ///
     /// let ctx = Context::default().without_traps();
     ///

@@ -1497,19 +1497,30 @@ The coefficient:
 
 ### Examples
 
-```                                                                                       
+```
 use fastnum::{*, decimal::*};
 
-assert_eq!(dec256!(2.17).truncate(3), dec256!(2.170));
-assert_eq!(dec256!(2.17).truncate(2), dec256!(2.17));
-assert_eq!(dec256!(2.17).truncate(1), dec256!(2.1));
-assert_eq!(dec256!(2.9).truncate(0), dec256!(2));
-assert_eq!(dec256!(2.17).truncate(-1), dec256!(0));
+let ctx = Context::default().without_traps();                                                        
 
+fn assert_eq_value(a: fastnum::D256, b: fastnum::D256) {
+  assert_eq!(a.digits(), b.digits(), "{} != {}", a, b);
+  assert_eq!(
+      a.fractional_digits_count(),
+      b.fractional_digits_count(),
+      "{} != {}",
+      a,
+      b
+  );
+}
 
-assert!(D256::INFINITY.with_ctx(ctx).truncate(2).is_nan());
-assert!(D256::NEG_INFINITY.with_ctx(ctx).truncate(2).is_nan());
-assert!(D256::NAN.with_ctx(ctx).truncate(1).is_nan());                                 
+assert_eq_value(dec256!(2.17).truncate(3),dec256!(2.170));
+assert_eq_value(dec256!(2.17).truncate(2), dec256!(2.17));
+assert_eq_value(dec256!(2.17).truncate(1), dec256!(2.1));
+assert_eq_value(dec256!(2.9).truncate(0), dec256!(2));
+assert_eq_value(dec256!(2.17).truncate(-1), dec256!(0).rescale(-1));
+
+assert!(D256::NEG_INFINITY.with_ctx(ctx).rescale(2).is_nan());
+assert!(D256::NAN.with_ctx(ctx).rescale(1).is_nan());
 ```
 
 
