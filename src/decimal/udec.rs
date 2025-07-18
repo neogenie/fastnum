@@ -1164,6 +1164,37 @@ impl<const N: usize> UnsignedDecimal<N> {
         self
     }
 
+    /// Returns the given decimal number _truncated_ to `digits` precision after
+    /// the decimal point.
+    #[doc = doc::decimal_operation_panics!("truncate operation")]
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::{*, decimal::*};
+    ///
+    /// assert_eq!(udec256!(2.17).truncate(3), udec256!(2.170));
+    /// assert_eq!(udec256!(2.17).truncate(2), udec256!(2.17));
+    /// assert_eq!(udec256!(2.17).truncate(1), udec256!(2.1));
+    /// assert_eq!(udec256!(2.9).truncate(0), udec256!(2));
+    /// assert_eq!(udec256!(2.17).truncate(-1), udec256!(0));
+    ///
+    /// let ctx = Context::default().without_traps();
+    ///
+    /// assert!(UD256::INFINITY.with_ctx(ctx).truncate(2).is_nan());
+    /// assert!(UD256::NAN.with_ctx(ctx).truncate(1).is_nan());
+    /// ```
+    ///
+    /// See also:
+    /// - More about [`truncate`](crate#truncate) decimals.
+    /// - [Self::quantize].
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline]
+    pub const fn truncate(mut self, precision: i16) -> Self {
+        self.0 = self.0.truncate(precision);
+        self
+    }
+
     /// Returns a value equal to `self` (rounded), having the exponent of
     /// `other`.
     #[doc = doc::decimal_operation_panics!("quantize operation")]

@@ -1481,6 +1481,38 @@ assert!(D256::NEG_INFINITY.with_ctx(ctx).rescale(2).is_nan());
 assert!(D256::NAN.with_ctx(ctx).rescale(1).is_nan());                                    
 ```
 
+## Truncate
+
+[truncate]: #truncate
+
+[`truncate(self, precision)`](crate::decimal::Decimal::truncate)
+
+If `self` is a [special value] then the [general rules] apply, and an [`Invalid operation`] condition is raised
+and the result is [`NaN`].
+Otherwise, `truncate` quantize the `self` decimal number specified to the power of ten of the quantum (`precision`).
+
+The coefficient:
+
+- **Is not rounded**, in opposition to rescale
+
+### Examples
+
+```                                                                                       
+use fastnum::{*, decimal::*};
+
+assert_eq!(dec256!(2.17).truncate(3), dec256!(2.170));
+assert_eq!(dec256!(2.17).truncate(2), dec256!(2.17));
+assert_eq!(dec256!(2.17).truncate(1), dec256!(2.1));
+assert_eq!(dec256!(2.9).truncate(0), dec256!(2));
+assert_eq!(dec256!(2.17).truncate(-1), dec256!(0));
+
+
+assert!(D256::INFINITY.with_ctx(ctx).truncate(2).is_nan());
+assert!(D256::NEG_INFINITY.with_ctx(ctx).truncate(2).is_nan());
+assert!(D256::NAN.with_ctx(ctx).truncate(1).is_nan());                                 
+```
+
+
 ## Quantize
 
 [quantize]: #quantize

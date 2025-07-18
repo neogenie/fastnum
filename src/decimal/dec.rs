@@ -1663,6 +1663,40 @@ impl<const N: usize> Decimal<N> {
         self.round_extra_precision().check()
     }
 
+    /// Returns the given decimal number _truncated_ to `digits` precision after
+    /// the decimal point, with no rounding.
+    #[doc = doc::decimal_operation_panics!("truncate operation")]
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::{*, decimal::*};
+    ///
+    /// assert_eq!(dec256!(2.17).truncate(3), dec256!(2.170));
+    /// assert_eq!(dec256!(2.17).truncate(2), dec256!(2.17));
+    /// assert_eq!(dec256!(2.17).truncate(1), dec256!(2.1));
+    /// assert_eq!(dec256!(2.9).truncate(0), dec256!(2));
+    /// assert_eq!(dec256!(2.17).truncate(-1), dec256!(0));
+    ///
+    /// let ctx = Context::default().without_traps();
+    ///
+    /// assert!(D256::INFINITY.with_ctx(ctx).truncate(2).is_nan());
+    /// assert!(D256::NEG_INFINITY.with_ctx(ctx).truncate(2).is_nan());
+    /// assert!(D256::NAN.with_ctx(ctx).truncate(1).is_nan());
+    /// ```
+    ///
+    /// See also:
+    /// - More about [`truncate`](crate#truncate) decimals.
+    /// - [Self::quantize].
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline]
+    pub const fn truncate(self, precision: i16) -> Self {
+        self.with_rounding_mode(RoundingMode::No)
+            .round(precision)
+            // We need to reset the rounding mode to the default, for future operations
+            .with_rounding_mode(RoundingMode::default())
+    }
+
     /// Returns a value equal to `self` (rounded), having the exponent of
     /// `other`.
     #[doc = doc::decimal_operation_panics!("quantize operation")]
