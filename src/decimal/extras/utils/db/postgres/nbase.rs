@@ -150,17 +150,26 @@ impl<const N: usize> TryFrom<NBase> for D<N> {
 
         let count = i16::try_from(digits.len()).map_err(|_| ParseError::PosOverflow)?;
         let scale = i16::try_from(scale).map_err(|_| ParseError::ExponentOverflow)?;
+        let number_size: i16 = scale + ((weight + 1) * 4);
+        // If the number is negative, we don't need to do anything.
+        let last_digit_to_trim = ((count * 4) - number_size).max(0);
 
         let mut uint = UInt::<N>::ZERO;
 
-        for digit in digits {
+        for (i, digit) in digits.into_iter().enumerate() {
             let d = u64::try_from(digit).map_err(|_| ParseError::InvalidLiteral)?;
-            checked!(uint *= Consts::<N>::NBASE);
-            checked!(uint += UInt::<N>::from_digit(d));
+
+            if last_digit_to_trim > 0 && i as i16 == count - 1 {
+                checked!(uint *= UInt::<N>::from_digit(10_u64.pow(4 - last_digit_to_trim as u32)));
+                let rescaled = d / 10_u64.pow(last_digit_to_trim as u32);
+                checked!(uint += UInt::<N>::from_digit(rescaled));
+            } else {
+                checked!(uint *= Consts::<N>::NBASE);
+                checked!(uint += UInt::<N>::from_digit(d));
+            }
         }
 
-        let correction_exp = -(4 * (weight - (count - 1)));
-
+        let correction_exp = -(4 * (weight - (count - 1))) - last_digit_to_trim;
         match scale.cmp(&correction_exp) {
             Ordering::Greater => {
                 let scale_diff =
