@@ -322,6 +322,7 @@ _control block_ which consists of the following components:
 .mermaid svg { 
   max-width: 100% !important; 
   height: auto;
+  background-color: rgba(255,255,255,50%);
 }
 </style>
 <pre class="mermaid">
