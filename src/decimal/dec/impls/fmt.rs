@@ -48,6 +48,14 @@ impl<const N: usize> UpperExp for Decimal<N> {
 
 impl<const N: usize> Debug for Decimal<N> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        utils::fmt::debug_print(&self.digits, &self.cb, Self::type_name(), f)
+        #[cfg(not(feature = "debug_display"))]
+        {
+            utils::fmt::debug_print(&self.digits, &self.cb, Self::type_name(), f)
+        }
+
+        #[cfg(feature = "debug_display")]
+        {
+            write!(f, "{}", self)
+        }
     }
 }
