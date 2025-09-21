@@ -24,7 +24,7 @@ impl<const N: usize> TryFrom<PgNumeric> for D<N> {
 
         Ok(nbase
             .try_into()
-            .map_err(|e| pretty_error_msg(Self::type_name().as_str(), e))?)
+            .map_err(|e| pretty_error_msg(Self::type_name(), e))?)
     }
 }
 
@@ -34,7 +34,7 @@ impl<const N: usize> TryFrom<D<N>> for PgNumeric {
     fn try_from(dec: D<N>) -> deserialize::Result<Self> {
         let nbase: NBase = dec
             .try_into()
-            .map_err(|e| pretty_error_msg(D::<N>::type_name().as_str(), e))?;
+            .map_err(|e| pretty_error_msg(D::<N>::type_name(), e))?;
 
         Ok(nbase.into())
     }

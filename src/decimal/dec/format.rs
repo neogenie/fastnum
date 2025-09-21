@@ -1,5 +1,8 @@
 use core::{cmp::Ordering, fmt, fmt::Write, ops::Neg};
 
+#[cfg(not(feature = "std"))]
+use alloc::{string::String, vec::Vec};
+
 use crate::decimal::round::round_pair_digits;
 #[cfg(not(feature = "numtraits"))]
 use crate::decimal::utils::cast::ToPrimitive;

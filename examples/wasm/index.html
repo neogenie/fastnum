@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fastnum Wasm Example</title>
+</head>
+<body>
+<h1 id="greeting"></h1>
+
+<script type="module">
+    import init, { greet } from './pkg/fastnum_examples_wasm.js';
+
+    async function run() {
+        await init();
+        document.getElementById('greeting').textContent = greet();
+    }
+
+    run();
+</script>
+</body>
+</html>

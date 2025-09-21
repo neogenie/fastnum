@@ -24,15 +24,15 @@ pub(crate) use extra_precision::ExtraPrecision;
 
 use core::{cmp::Ordering, fmt, num::FpCategory, panic};
 
-use crate::{
-    bint::UInt,
-    decimal::{
-        dec::{consts::consts_impl, intrinsics::Intrinsics, math::consts::Consts, round::round},
-        doc,
-        signals::Signals,
-        Context, DecimalError, ParseError, RoundingMode, Sign, UnsignedDecimal,
-    },
-};
+#[cfg(not(feature = "std"))]
+use alloc::{format, string::String};
+
+use crate::{bint::UInt, decimal, decimal::{
+    dec::{consts::consts_impl, intrinsics::Intrinsics, math::consts::Consts, round::round},
+    doc,
+    signals::Signals,
+    Context, DecimalError, ParseError, RoundingMode, Sign, UnsignedDecimal,
+}};
 
 /// # Decimal
 ///
@@ -1707,7 +1707,7 @@ impl<const N: usize> Decimal<N> {
             .check()
     }
 
-    /// Create string of this decimal in scientific notation.
+    /// Create a string of this decimal in scientific notation.
     ///
     /// # Examples
     ///
@@ -1726,7 +1726,7 @@ impl<const N: usize> Decimal<N> {
         output
     }
 
-    /// Create string of this decimal in engineering notation.
+    /// Create a string of this decimal in engineering notation.
     ///
     /// Engineering notation is scientific notation with the exponent
     /// coerced to a multiple of three
@@ -2185,6 +2185,8 @@ impl<const N: usize> Decimal<N> {
 impl<const N: usize> Decimal<N> {
     pub(crate) const SIGNALING_NAN: Self = Self::new(UInt::ZERO, ControlBlock::SIGNALING_NAN);
 
+    pub(crate) const TYPE_NAME: &'static str = decimal::utils::fmt::type_name!("D");
+
     #[inline(always)]
     pub(crate) const fn new(digits: UInt<N>, cb: ControlBlock) -> Self {
         Self { digits, cb }
@@ -2306,8 +2308,8 @@ impl<const N: usize> Decimal<N> {
     }
 
     #[inline]
-    pub(crate) fn type_name() -> String {
-        format!("D{}", N * 64)
+    pub(crate) const fn type_name() -> &'static str {
+        Self::TYPE_NAME
     }
 
     /// Write unsigned decimal in scientific notation to writer `w`.

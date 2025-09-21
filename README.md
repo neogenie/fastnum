@@ -90,6 +90,7 @@ indirect addressing, which improves cache-friendliness and reduces the CPU load.
   Support for crates such as [`rand`](https://docs.rs/rand/latest/rand/) and [
   `serde`](https://docs.rs/serde/latest/serde/) can be enabled with crate [features](#features).
 - **`no-std` compatible**: `fastnum` can be used in `no_std` environments.
+- **`wasm` compatible**: `fastnum` is fully compatible with WebAssembly.
 - **`const` evaluation**: nearly all methods defined on `fastnum` integers and decimals are `const`, which allows
   complex compile-time calculations and checks.
 - **Full range of advanced mathematical functions**: exponential, roots, power, logarithmic, and trigonometric functions

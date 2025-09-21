@@ -14,10 +14,10 @@ impl<'a, const N: usize> FromSql<'a> for UD<N> {
     fn from_sql(_: &Type, raw: &'a [u8]) -> Result<Self, Box<dyn Error + Sync + Send>> {
         let dec: D<N> = NBase::decode(raw)?
             .try_into()
-            .map_err(|e| pretty_error_msg(UD::<N>::type_name().as_str(), e))?;
+            .map_err(|e| pretty_error_msg(UD::<N>::type_name(), e))?;
 
         if dec.is_negative() {
-            return Err(pretty_error_msg(Self::type_name().as_str(), ParseError::Signed).into());
+            return Err(pretty_error_msg(Self::type_name(), ParseError::Signed).into());
         }
 
         Ok(UD::new(dec))
@@ -34,7 +34,7 @@ impl<const N: usize> ToSql for UD<N> {
         let nbase: NBase = self
             .0
             .try_into()
-            .map_err(|e| pretty_error_msg(D::<N>::type_name().as_str(), e))?;
+            .map_err(|e| pretty_error_msg(D::<N>::type_name(), e))?;
         nbase.encode(&mut out.writer())?;
 
         Ok(IsNull::No)

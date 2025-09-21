@@ -4,6 +4,21 @@ All user-visible changes to this library will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/), as described
 for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md).
 
+# [0.7.2] - 2025-09-20
+
+### Fixed
+
+- Incorrect division result for numbers with large amount of decimal digits [#49](https://github.com/neogenie/fastnum/issues/49).
+- Fix `no_std` build [#50](https://github.com/neogenie/fastnum/issues/50).
+
+### Changed
+
+- Improve debug formatting of `Decimal` and `UnsignedDecimal`.
+
+### Examples
+
+- Add `no_std` wasm example [#50](https://github.com/neogenie/fastnum/issues/50).
+
 # [0.7.1] - 2025-08-31
 
 ### Fixed

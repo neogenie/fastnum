@@ -13,6 +13,9 @@ use to_uint::*;
 use bnum::BInt;
 use core::str::from_utf8_unchecked;
 
+#[cfg(not(feature = "std"))]
+use alloc::{string::String, vec::Vec};
+
 use crate::bint::{
     convert, doc, error::from_int_error_kind, int::intrinsics, Int, ParseError, UInt,
 };

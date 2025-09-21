@@ -37,7 +37,7 @@ impl<const N: usize> Encode<'_, Postgres> for UD<N> {
         let nbase: NBase = self
             .0
             .try_into()
-            .map_err(|e| pretty_error_msg(UD::<N>::type_name().as_str(), e))?;
+            .map_err(|e| pretty_error_msg(UD::<N>::type_name(), e))?;
         nbase.encode(buf.deref_mut())?;
 
         Ok(IsNull::No)
@@ -50,11 +50,11 @@ impl<const N: usize> Decode<'_, Postgres> for UD<N> {
             PgValueFormat::Binary => {
                 let dec: D<N> = NBase::decode(value.as_bytes()?)?
                     .try_into()
-                    .map_err(|e| pretty_error_msg(UD::<N>::type_name().as_str(), e))?;
+                    .map_err(|e| pretty_error_msg(UD::<N>::type_name(), e))?;
 
                 if dec.is_negative() {
                     return Err(
-                        pretty_error_msg(Self::type_name().as_str(), ParseError::Signed).into(),
+                        pretty_error_msg(Self::type_name(), ParseError::Signed).into(),
                     );
                 }
 

@@ -1,6 +1,6 @@
 [package]
 name = "fastnum"
-version = "0.7.1"
+version = "0.7.2"
 edition = "2021"
 authors = ["Neo"]
 description = "Fast decimal numbers library"
@@ -87,11 +87,7 @@ lto = true # enable link-time optimization for faster runtime, but slower compil
 opt-level = 3 # maximum optimization level for faster runtime, but slower compile time
 
 [package.metadata.docs.rs]
-# FIXME:
-# sqlx_postgres 0.8.6 failed with rustc 1.91.0-nightly (1ebbd87a6 2025-08-11)
-# https://docs.rs/crate/fastnum/0.4.3/builds/2408007/x86_64-unknown-linux-gnu_json.txt
-# https://github.com/launchbadge/sqlx/issues/3973
-all-features = false
+all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [[test]]

@@ -1,5 +1,6 @@
 #![doc = include_str!("../doc/LIB.md")]
 #![deny(unsafe_code, missing_docs, clippy::all, clippy::cargo)]
+#![cfg_attr(not(feature = "std"), no_std)]
 // #![cfg_attr(nightly, feature(generic_const_exprs))]
 
 extern crate alloc;

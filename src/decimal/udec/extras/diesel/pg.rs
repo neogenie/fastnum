@@ -25,10 +25,10 @@ impl<const N: usize> TryFrom<PgNumeric> for UD<N> {
         let nbase: NBase = numeric.into();
         let dec: D<N> = nbase
             .try_into()
-            .map_err(|e| pretty_error_msg(Self::type_name().as_str(), e))?;
+            .map_err(|e| pretty_error_msg(Self::type_name(), e))?;
 
         if dec.is_negative() {
-            return Err(pretty_error_msg(Self::type_name().as_str(), ParseError::Signed).into());
+            return Err(pretty_error_msg(Self::type_name(), ParseError::Signed).into());
         }
 
         Ok(UD::new(dec))
@@ -42,7 +42,7 @@ impl<const N: usize> TryFrom<UD<N>> for PgNumeric {
         let nbase: NBase = dec
             .0
             .try_into()
-            .map_err(|e| pretty_error_msg(D::<N>::type_name().as_str(), e))?;
+            .map_err(|e| pretty_error_msg(D::<N>::type_name(), e))?;
 
         Ok(nbase.into())
     }

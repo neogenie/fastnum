@@ -26,6 +26,6 @@ impl<const N: usize> ComposeSchema for UnsignedDecimal<N> {
 
 impl<const N: usize> ToSchema for UnsignedDecimal<N> {
     fn name() -> Cow<'static, str> {
-        Cow::Owned(Self::type_name())
+        Cow::Borrowed(Self::type_name())
     }
 }

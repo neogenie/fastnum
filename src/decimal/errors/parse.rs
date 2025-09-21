@@ -4,6 +4,9 @@ use core::{
     num::{IntErrorKind, ParseIntError},
 };
 
+#[cfg(not(feature = "std"))]
+use alloc::{format, string::String};
+
 use crate::utils::err_prefix;
 
 /// Enum to store the various types of errors that can cause parsing decimal to

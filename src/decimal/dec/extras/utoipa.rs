@@ -25,6 +25,6 @@ impl<const N: usize> ComposeSchema for Decimal<N> {
 
 impl<const N: usize> utoipa::ToSchema for Decimal<N> {
     fn name() -> Cow<'static, str> {
-        Cow::Owned(Self::type_name())
+        Cow::Borrowed(Self::type_name())
     }
 }

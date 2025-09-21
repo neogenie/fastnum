@@ -1,7 +1,7 @@
 # fastnum
 
 Fixed-size signed and unsigned decimal numbers, implemented in pure Rust.
-Suitable for financial, crypto and any other fixed-precision calculations.
+Suitable for financial, crypto, and any other fixed-precision calculations.
 
 [IEEE 754]: https://en.wikipedia.org/wiki/IEEE_754
 
@@ -72,6 +72,7 @@ get rid of one indirect addressing, which improves cache-friendliness and reduce
   Support for crates such as [`rand`](https://docs.rs/rand/latest/rand/) and [
   `serde`](https://docs.rs/serde/latest/serde/) can be enabled with crate [features](#features).
 - **`no-std` compatible**: `fastnum` can be used in `no_std` environments.
+- **`wasm` compatible**: `fastnum` is fully compatible with WebAssembly.
 - **`const` evaluation**: nearly all methods defined on `fastnum` integers and decimals are `const`, which allows
   complex compile-time calculations and checks.
 - **Full range of advanced mathematical functions**: exponential, roots, power, logarithmic, and trigonometric functions
@@ -86,7 +87,7 @@ To install and use `fastnum`, add the following line to your `Cargo.toml` file i
 fastnum = "0.7"
 ```
 
-Or, to enable various `fastnum` features as well, add for example this line instead:
+Or, to enable various `fastnum` features as well, add, for example, this line instead:
 
 ```toml
 fastnum = { version = "0.7", features = ["serde"] } # enables the "serde" feature

@@ -9,7 +9,7 @@ use crate::{bint::UInt, decimal::dec::ControlBlock};
 pub(crate) fn debug_print<const N: usize>(
     digits: &UInt<N>,
     cb: &ControlBlock,
-    ty: String,
+    ty: &str,
     f: &mut Formatter,
 ) -> fmt::Result {
     if f.alternate() {
@@ -22,7 +22,7 @@ pub(crate) fn debug_print<const N: usize>(
 fn debug_print_alternate<const N: usize>(
     digits: &UInt<N>,
     cb: &ControlBlock,
-    ty: String,
+    ty: &str,
     f: &mut Formatter,
 ) -> fmt::Result {
     if cb.is_nan() {
@@ -46,7 +46,7 @@ fn debug_print_alternate<const N: usize>(
 fn debug_print_default<const N: usize>(
     digits: &UInt<N>,
     cb: &ControlBlock,
-    ty: String,
+    ty: &str,
     f: &mut Formatter,
 ) -> fmt::Result {
     write!(
@@ -100,3 +100,44 @@ impl Display for Flags {
         Ok(())
     }
 }
+
+macro_rules! type_name {
+    ($t: literal) => {
+        const {
+            const PREFIX: &'static [u8] = $t.as_bytes();
+
+            let buffer: &[u8] = &const {
+                let mut buffer = [0; PREFIX.len() + usize::MAX.ilog10() as usize + 1];
+
+                let mut i = buffer.len();
+                let mut n = N * 64;
+
+                while 0 < i && n != 0 {
+                    i -= 1;
+
+                    buffer[i] = (n % 10) as u8 + b'0';
+                    n /= 10;
+                }
+
+                let mut j = PREFIX.len();
+                while 0 < i && 0 < j {
+                    i -= 1;
+                    j -= 1;
+
+                    buffer[i] = PREFIX[j];
+                }
+
+                buffer
+            };
+
+            let buffer_len = PREFIX.len() + (N * 64).ilog10() as usize + 1;
+
+            match core::str::from_utf8(buffer.split_at(buffer.len() - buffer_len).1) {
+                Ok(x) => x,
+                Err(_) => panic!("buffer is always ascii"),
+            }
+        }
+    };
+}
+
+pub(crate) use type_name;

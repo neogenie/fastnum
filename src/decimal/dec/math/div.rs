@@ -220,18 +220,20 @@ impl<const N: usize> DivGeneralCaseImpl<N> {
             }
 
             if quotient == 0 {
-                if !self.digits.is_zero() {
-                    let multiplicator = DIGIT_POWERS_10[max_power as usize];
+                let p = min(max_power, q_power);
 
-                    // SAFETY: `self.digits` can always be multiplied by 10^max_power
-                    debug_assert!(self.digits.can_scaled_by_power_of_ten(max_power));
+                if !self.digits.is_zero() {
+                    let multiplicator = DIGIT_POWERS_10[p as usize];
+
+                    // SAFETY: `self.digits` always can be multiplied by 10^p
+                    debug_assert!(self.digits.can_scaled_by_power_of_ten(p));
                     #[allow(unsafe_code)]
                     {
                         self.digits = unsafe { self.digits.unchecked_mul_digit(multiplicator) };
                     }
                 }
 
-                self.exp -= max_power as i32;
+                self.exp -= p as i32;
                 continue;
             }
 
