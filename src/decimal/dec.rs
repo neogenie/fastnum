@@ -27,12 +27,16 @@ use core::{cmp::Ordering, fmt, num::FpCategory, panic};
 #[cfg(not(feature = "std"))]
 use alloc::{format, string::String};
 
-use crate::{bint::UInt, decimal, decimal::{
-    dec::{consts::consts_impl, intrinsics::Intrinsics, math::consts::Consts, round::round},
-    doc,
-    signals::Signals,
-    Context, DecimalError, ParseError, RoundingMode, Sign, UnsignedDecimal,
-}};
+use crate::{
+    bint::UInt,
+    decimal,
+    decimal::{
+        dec::{consts::consts_impl, intrinsics::Intrinsics, math::consts::Consts, round::round},
+        doc,
+        signals::Signals,
+        Context, DecimalError, ParseError, RoundingMode, Sign, UnsignedDecimal,
+    },
+};
 
 /// # Decimal
 ///
@@ -2185,7 +2189,7 @@ impl<const N: usize> Decimal<N> {
 impl<const N: usize> Decimal<N> {
     pub(crate) const SIGNALING_NAN: Self = Self::new(UInt::ZERO, ControlBlock::SIGNALING_NAN);
 
-    pub(crate) const TYPE_NAME: &'static str = decimal::utils::fmt::type_name!("D");
+    const TYPE_NAME: &'static str = decimal::utils::fmt::type_name!("D");
 
     #[inline(always)]
     pub(crate) const fn new(digits: UInt<N>, cb: ControlBlock) -> Self {

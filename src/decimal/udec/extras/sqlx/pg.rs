@@ -53,9 +53,7 @@ impl<const N: usize> Decode<'_, Postgres> for UD<N> {
                     .map_err(|e| pretty_error_msg(UD::<N>::type_name(), e))?;
 
                 if dec.is_negative() {
-                    return Err(
-                        pretty_error_msg(Self::type_name(), ParseError::Signed).into(),
-                    );
+                    return Err(pretty_error_msg(Self::type_name(), ParseError::Signed).into());
                 }
 
                 Ok(UD::new(dec))
