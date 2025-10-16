@@ -17,13 +17,13 @@ pub const unsafe fn transmute<const N: usize, const M: usize>(v: Int<N>) -> Int<
             digits
         } else {
             // For positive values, initialize with zeros (existing behavior)
-            _transmute::<_, _, N>(src_digits)
+            _transmute::<N, M, N>(src_digits)
         }
     } else {
         // Narrowing conversion
         debug_assert!(v.last_digit_index() < M);
         debug_assert!(v.bits() <= Int::<M>::BITS);
-        _transmute::<_, _, M>(src_digits)
+        _transmute::<N, M, M>(src_digits)
     };
 
     Int::from_digits(digits)

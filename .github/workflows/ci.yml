@@ -1,0 +1,120 @@
+name: Rust CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  MSRV: '1.87'
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+      - name: Install Rust toolchain via rustup
+        run: |
+          rustup component add clippy
+          rustup component add rustfmt
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Check linting
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  docs:
+    name: Documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-docs-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-docs-
+            ${{ runner.os }}-cargo-
+      - name: Install Rust nightly
+        run: rustup install nightly --profile minimal
+      - name: Build docs
+        run: cargo +nightly doc --all-features --no-deps
+        env:
+          RUSTDOCFLAGS: "--cfg docsrs -D warnings"
+
+  test:
+    name: Test (${{ matrix.rust-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        rust-version: [ '1.87', 'stable' ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ matrix.rust-version }}-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ matrix.rust-version }}-
+            ${{ runner.os }}-cargo-
+      - name: Install Rust ${{ matrix.rust-version }}
+        run: |
+          if [ "${{ matrix.rust-version }}" != "stable" ]; then
+            rustup install ${{ matrix.rust-version }} --profile minimal
+          fi
+      - name: Build (no features)
+        run: cargo +${{ matrix.rust-version }} build --no-default-features
+      - name: Build (default features)
+        run: cargo +${{ matrix.rust-version }} build
+      - name: Build (std feature)
+        run: cargo +${{ matrix.rust-version }} build --features std
+      - name: Build (numtraits feature)
+        run: cargo +${{ matrix.rust-version }} build --features numtraits
+      - name: Build (all features)
+        run: cargo +${{ matrix.rust-version }} build --all-features
+      - name: Test (no features)
+        run: cargo +${{ matrix.rust-version }} test --no-default-features
+      - name: Test (default features)
+        run: cargo +${{ matrix.rust-version }} test
+      - name: Test (std feature)
+        run: cargo +${{ matrix.rust-version }} test --features std
+      - name: Test (numtraits feature)
+        run: cargo +${{ matrix.rust-version }} test --features numtraits
+      - name: Test (test-util feature for integration tests)
+        run: cargo +${{ matrix.rust-version }} test --features test-util
+      - name: Test docs (all features)
+        run: cargo +${{ matrix.rust-version }} test --doc --all-features
+
+  check-msrv:
+    name: Verify MSRV
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install cargo-msrv
+        run: cargo install cargo-msrv
+      - name: Verify MSRV
+        run: cargo msrv verify
