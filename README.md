@@ -4,7 +4,7 @@
 [![Crates.io](https://img.shields.io/crates/v/fastnum.svg)](https://crates.io/crates/fastnum)
 [![Crates.io](https://img.shields.io/crates/d/fastnum.svg)](https://crates.io/crates/fastnum)
 [![doc.rs](https://img.shields.io/docsrs/fastnum)](https://docs.rs/fastnum/latest/fastnum)
-![MSRV](https://img.shields.io/static/v1?label=MSRV&message=1.87&color=blue&logo=rust)
+![MSRV](https://img.shields.io/static/v1?label=MSRV&message=1.88&color=blue&logo=rust)
 
 Fixed-size decimal numbers implemented in pure Rust. Suitable for
 financial, crypto and any other fixed-precision calculations.

@@ -1,6 +1,6 @@
 [package]
 name = "fastnum"
-version = "0.7.3"
+version = "0.7.4"
 edition = "2021"
 authors = ["Neo"]
 description = "Fast decimal numbers library"
