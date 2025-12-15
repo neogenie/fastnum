@@ -9,7 +9,7 @@ macro_rules! test_impl {
         mod $bint {
             use rstest::*;
             use fastnum::*;
-            
+
             super::test_impl!(COMMON:: $bits, $bint, $BInt, THIS);
             super::test_impl!(UNSIGNED:: $bits, $bint, $BInt, THIS);
         }
@@ -18,7 +18,7 @@ macro_rules! test_impl {
         mod $bint {
             use rstest::*;
             use fastnum::*;
-            
+
             super::test_impl!(COMMON:: $bits, $bint, $BInt, THIS);
             super::test_impl!(SIGNED:: $bits, $bint, $BInt, THIS);
         }
@@ -32,8 +32,8 @@ macro_rules! test_impl {
     (SIGNED:: 512, $bint: ident, $BInt: ident, THIS) => {
         super::test_impl!(SIGNED:: 256, $bint, $BInt);
     };
-    
-    
+
+
     (COMMON:: 256, $bint: ident, $BInt: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $bint, $BInt);
     };
@@ -52,7 +52,7 @@ macro_rules! test_impl {
     (SIGNED:: 256, $bint: ident, $BInt: ident) => {
         super::test_impl!(SIGNED:: 128, $bint, $BInt);
     };
-    
+
     (COMMON:: 128, $bint: ident, $BInt: ident, THIS) => {
         super::test_impl!(COMMON:: 128, $bint, $BInt);
     };
@@ -73,7 +73,7 @@ macro_rules! test_impl {
         super::test_impl!(SIGNED:: 64, $bint, $BInt);
         super::test_impl!(TRY FROM SIGNED $bint, $BInt, i128);
     };
-    
+
     (COMMON:: 64, $bint: ident, $BInt: ident, THIS) => {
         super::test_impl!(COMMON:: 64, $bint, $BInt);
     };
@@ -145,7 +145,7 @@ macro_rules! test_impl {
             }
         )*
     };
-    
+
     (FROM SIGNED $bint: ident, $BInt: ident, $($Pt: ty),*) => {
         $(
             paste::paste! {

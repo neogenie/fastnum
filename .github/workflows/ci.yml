@@ -9,7 +9,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  MSRV: '1.87'
+  MSRV: '1.88'
 
 jobs:
   lint:
@@ -67,7 +67,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        rust-version: [ '1.87', 'stable' ]
+        rust-version: [ '1.88', 'stable' ]
     steps:
       - uses: actions/checkout@v4
       - name: Cache Cargo registry

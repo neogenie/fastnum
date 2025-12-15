@@ -19,7 +19,7 @@ categories = ["mathematics", "science", "no-std"]
 license = "MIT OR Apache-2.0"
 autobenches = false
 exclude = ["examples/*", "benchmark/*"]
-rust-version = "1.87"
+rust-version = "1.88"
 
 [lib]
 bench = false
@@ -53,9 +53,9 @@ itertools = { version = "0.14.0" }
 
 [features]
 default = ["std"]
-std = []
+std = ["num-integer/std", "num-traits/std"]
 
-numtraits = ["num-traits", "bnum/numtraits", "num-integer"]
+numtraits = ["num-traits/libm", "bnum/numtraits", "num-integer"]
 
 rand = ["dep:rand"]
 zeroize = ["dep:zeroize"]
@@ -93,4 +93,3 @@ rustdoc-args = ["--cfg", "docsrs"]
 [[test]]
 name = "tests"
 required-features = ["test-util"]
-

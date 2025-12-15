@@ -332,7 +332,7 @@ cargo test --all-features
 
 ## Minimum Supported Rust Version
 
-The current Minimum Supported Rust Version (MSRV) is `1.87.0`.
+The current Minimum Supported Rust Version (MSRV) is `1.88.0`.
 
 ## Documentation
 

@@ -1,5 +1,5 @@
-use rstest::*;
 use fastnum::*;
+use rstest::*;
 
 #[rstest(::trace)]
 fn test_from_i32_sign_extends() {
