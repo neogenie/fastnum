@@ -45,6 +45,7 @@ macro_rules! test_impl {
     };
     (COMMON, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
+        #[case($dec!(1), $dec!(1.1).floor())]
         #[case($dec!(1.1234), $dec!(1.1234000))]
         #[case($dec!(001.1234), $dec!(0001.1234))]
         #[case($dec!(1.1234000000), $dec!(1.1234000))]
@@ -74,6 +75,8 @@ macro_rules! test_impl {
     (UNSIGNED, $dec: ident, $D: ident) => {};
     (SIGNED, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
+        #[case($dec!(0.00), $dec!(-0.000))]
+        #[case($dec!(-0.00), $dec!(0.000))]
         #[case($dec!(-0901300e-3), $dec!(-901.3))]
         #[case($dec!(-0.901300e+3), $dec!(-901.3))]
         fn test_hash_eq_signed(#[case] a: $D, #[case] b: $D) {
@@ -84,9 +87,8 @@ macro_rules! test_impl {
         #[rstest(::trace)]
         #[case($dec!(-0901300e-4), $dec!(-901.3))]
         #[case($dec!(-0.901300e+3), $dec!(-901.31))]
-        #[case($dec!(-0.00), $dec!(0.000))]
-        #[case($dec!(0.00), $dec!(-0.000))]
         fn test_hash_ne_signed(#[case] a: $D, #[case] b: $D) {
+            assert_ne!(a, b);
             assert_ne!(hash(&a), hash(&b));
         }
     };
