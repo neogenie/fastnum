@@ -54,7 +54,15 @@ macro_rules! test_impl {
         #[case($dec!(0.00), $dec!(0.000))]
         #[case($dec!(100), $dec!(1e2))]
         #[case($dec!(0.01), $dec!(1e-2))]
+        #[case($dec!(1), $dec!(1.1).floor())]
         fn test_hash_eq(#[case] a: $D, #[case] b: $D) {
+            assert_eq!(a, b);
+            assert_eq!(hash(&a), hash(&b));
+        }
+
+        #[rstest(::trace)]
+        #[case($D::INFINITY, $D::INFINITY)]
+        fn test_hash_eq_special_case(#[case] a: $D, #[case] b: $D) {
             assert_eq!(a, b);
             assert_eq!(hash(&a), hash(&b));
         }
@@ -70,13 +78,31 @@ macro_rules! test_impl {
             assert_ne!(a, b);
             assert_ne!(hash(&a), hash(&b));
         }
+
+        #[rstest(::trace)]
+        #[case($D::NAN, $D::NAN)]
+        fn test_hash_ne_special_case(#[case] a: $D, #[case] b: $D) {
+            assert_ne!(a, b);
+            assert_eq!(hash(&a), hash(&b));
+        }
     };
     (UNSIGNED, $dec: ident, $D: ident) => {};
     (SIGNED, $dec: ident, $D: ident) => {
         #[rstest(::trace)]
         #[case($dec!(-0901300e-3), $dec!(-901.3))]
         #[case($dec!(-0.901300e+3), $dec!(-901.3))]
+        #[case($dec!(-0.00), $dec!(0.000))]
+        #[case($dec!(0.00), $dec!(-0.000))]
+        #[case($dec!(-0.01), $dec!(-1e-2))]
+        #[case($dec!(-1), $dec!(-1.1).round(0))]
         fn test_hash_eq_signed(#[case] a: $D, #[case] b: $D) {
+            assert_eq!(a, b);
+            assert_eq!(hash(&a), hash(&b));
+        }
+
+        #[rstest(::trace)]
+        #[case($D::NEG_INFINITY, $D::NEG_INFINITY)]
+        fn test_hash_eq_signed_special_case(#[case] a: $D, #[case] b: $D) {
             assert_eq!(a, b);
             assert_eq!(hash(&a), hash(&b));
         }
@@ -84,9 +110,17 @@ macro_rules! test_impl {
         #[rstest(::trace)]
         #[case($dec!(-0901300e-4), $dec!(-901.3))]
         #[case($dec!(-0.901300e+3), $dec!(-901.31))]
-        #[case($dec!(-0.00), $dec!(0.000))]
-        #[case($dec!(0.00), $dec!(-0.000))]
+        #[case($dec!(-0.01), $dec!(1e-2))]
+        #[case($dec!(-1), $dec!(1.1).floor())]
         fn test_hash_ne_signed(#[case] a: $D, #[case] b: $D) {
+            assert_ne!(a, b);
+            assert_ne!(hash(&a), hash(&b));
+        }
+
+        #[rstest(::trace)]
+        #[case($D::INFINITY, $D::NEG_INFINITY)]
+        fn test_hash_ne_signed_special_case(#[case] a: $D, #[case] b: $D) {
+            assert_ne!(a, b);
             assert_ne!(hash(&a), hash(&b));
         }
     };

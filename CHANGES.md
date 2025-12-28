@@ -4,6 +4,12 @@ All user-visible changes to this library will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/), as described
 for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md).
 
+# [0.7.5] - 2025-12-28
+
+### Fixed
+
+- Hashcode in Decimal violates the [hash contract](https://doc.rust-lang.org/std/hash/trait.Hash.html#hash-and-eq): [#59](https://github.com/neogenie/fastnum/issues/59).
+
 # [0.7.4] - 2025-12-15
 
 ### Fixed
