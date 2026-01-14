@@ -82,6 +82,8 @@ test-util = ["num-traits/std"]
 extra-postgres = ["num-traits"]
 extra-postgres-encode = ["extra-postgres", "bytes", "byteorder"]
 
+debug_display = []
+
 [profile.release]
 lto = true # enable link-time optimization for faster runtime, but slower compile time
 opt-level = 3 # maximum optimization level for faster runtime, but slower compile time

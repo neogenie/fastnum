@@ -1,6 +1,6 @@
 use core::fmt::{self, Debug, Display, Formatter, LowerExp, UpperExp};
 
-use crate::decimal::{dec::format, utils, Decimal};
+use crate::decimal::{dec::format, Decimal};
 
 impl<const N: usize> Display for Decimal<N> {
     #[inline]
@@ -48,6 +48,14 @@ impl<const N: usize> UpperExp for Decimal<N> {
 
 impl<const N: usize> Debug for Decimal<N> {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        utils::fmt::debug_print(&self.digits, &self.cb, Self::type_name(), f)
+        #[cfg(not(feature = "debug_display"))]
+        {
+            crate::decimal::utils::fmt::debug_print(&self.digits, &self.cb, Self::type_name(), f)
+        }
+
+        #[cfg(feature = "debug_display")]
+        {
+            write!(f, "{}", self)
+        }
     }
 }
