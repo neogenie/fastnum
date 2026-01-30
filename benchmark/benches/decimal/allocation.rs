@@ -2,6 +2,8 @@ use std::{hint::black_box, str::FromStr};
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 
+extern crate fixed_num;
+
 criterion_group!(allocate, vector);
 criterion_main!(allocate);
 
@@ -15,7 +17,12 @@ fn vector(c: &mut Criterion) {
         });
 
         group.bench_with_input(BenchmarkId::new("rust_decimal", size), &size, |b, size| {
-           let n = rust_decimal::Decimal::from_str("0.12345678910111213").unwrap();
+            let n = rust_decimal::Decimal::from_str("0.12345678910111213").unwrap();
+            b.iter(|| vec![black_box(n); black_box(*size)])
+        });
+
+        group.bench_with_input(BenchmarkId::new("fixed_num", size), &size, |b, size| {
+            let n = fixed_num::Dec19x19::from_str("0.12345678910111213").unwrap();
             b.iter(|| vec![black_box(n); black_box(*size)])
         });
 
