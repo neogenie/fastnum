@@ -1,4 +1,4 @@
-use std::{hint::black_box};
+use std::hint::black_box;
 
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 
@@ -16,6 +16,14 @@ macro_rules! macro_impl {
         $group.bench_with_input(BenchmarkId::new("rust_decimal", $size), &$size, |b, _| {
             b.iter(|| rust_decimal::Decimal::from_f64_retain(black_box($f)).unwrap())
         });
+
+        // fixed-num Dec19x19: try_from for f64
+        if let Ok(_) = fixed_num::Dec19x19::try_from($f) {
+            $group.bench_with_input(BenchmarkId::new("fixed_num", $size), &$size, |b, _| {
+                b.iter(|| fixed_num::Dec19x19::try_from(black_box($f)).unwrap())
+            });
+        }
+
         macro_impl!(@ A $group, [$($bits),*], $f, $size);
     }};
     (@ A $group: ident, [$($bits: literal),*], $f: expr, $size: ident) => {{

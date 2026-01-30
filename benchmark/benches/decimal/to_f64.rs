@@ -19,6 +19,14 @@ macro_rules! macro_impl {
         $group.bench_with_input(BenchmarkId::new("rust_decimal", $size), &$size, |b, _| {
             b.iter(|| black_box(n).to_f64().unwrap());
         });
+
+        // fixed-num Dec19x19: only benchmark if value is within range
+        if let Ok(n_fn) = fixed_num::Dec19x19::from_str($str) {
+            $group.bench_with_input(BenchmarkId::new("fixed_num", $size), &$size, |b, _| {
+                b.iter(|| f64::from(black_box(n_fn)))
+            });
+        }
+
         macro_impl!(@ A $group, [$($bits),*], $str, $size);
     }};
     (@ A $group: ident, [$($bits: literal),*], $str: ident, $size: ident) => {{
