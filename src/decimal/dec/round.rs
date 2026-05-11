@@ -1,5 +1,8 @@
 use crate::decimal::{
-    dec::math::{add::add, sub::sub},
+    dec::{
+        math::{add::add, sub::sub},
+        scale::reduce,
+    },
     Decimal,
     RoundingMode::*,
 };
@@ -50,7 +53,7 @@ pub(crate) const fn floor<const N: usize>(d: D<N>) -> D<N> {
     }
 
     if d.is_integral() {
-        d
+        reduce(d)
     } else {
         let rounded = d.with_rounding_mode(Down).round(0);
         if d.is_negative() {
@@ -68,7 +71,7 @@ pub(crate) const fn ceil<const N: usize>(d: D<N>) -> D<N> {
     }
 
     if d.is_integral() {
-        d
+        reduce(d)
     } else {
         let rounded = d.with_rounding_mode(Down).round(0);
         if d.is_negative() {
