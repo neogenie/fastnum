@@ -1,6 +1,7 @@
 mod consts;
-mod extras;
 mod impls;
+
+pub(crate) mod extras;
 
 use core::{cmp::Ordering, num::FpCategory};
 

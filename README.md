@@ -144,7 +144,7 @@ crate.
 
 The `serde` feature enables serialization and deserialization of `fastnum` decimals via the [
 `serde`](https://docs.rs/serde/latest/serde/) crate. More details about serialization and deserialization you can found
-in
+in [API Docs](https://docs.rs/fastnum/latest/fastnum).
 
 ### Zeroize
 

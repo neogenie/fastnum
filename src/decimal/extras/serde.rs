@@ -6,10 +6,15 @@ include!(concat!(env!("OUT_DIR"), "/serde_deserialize_mode.rs"));
 #[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
 pub enum DeserializeMode {
     /// Allow only string values such as `"0.1"`, `"0.25"`, etc.
+    #[allow(unused)]
     Strict,
+
     /// Decimal values such as `0.1` will be stringify to `"0.1"`
+    #[allow(unused)]
     Stringify,
+
     /// Any values
+    #[allow(unused)]
     Any,
 }
 

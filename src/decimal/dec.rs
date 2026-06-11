@@ -6,7 +6,6 @@ mod consts;
 mod control_block;
 mod convert;
 mod extra_precision;
-mod extras;
 mod format;
 mod impls;
 mod intrinsics;
@@ -16,6 +15,7 @@ mod round;
 mod scale;
 mod truncate;
 
+pub(crate) mod extras;
 pub(crate) mod math;
 pub(crate) mod utils;
 

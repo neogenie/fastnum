@@ -1,4 +1,4 @@
-use crate::bint::intrinsics::{MAX_POWER_10, _U128};
+use crate::bint::intrinsics::{_U128, MAX_POWER_10};
 
 impl _U128 {
     pub(super) const POWERS_10: [_U128; MAX_POWER_10 as usize + 1] = make_power_10();

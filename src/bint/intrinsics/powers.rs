@@ -1,4 +1,4 @@
-use crate::bint::intrinsics::{Digit, ExpType, _ilog10_64, DIGIT_POWER_10};
+use crate::bint::intrinsics::{_ilog10_64, Digit, ExpType, DIGIT_POWER_10};
 
 pub const DIGIT_POWERS_10: [Digit; 20] = [
     1,

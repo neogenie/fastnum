@@ -1,7 +1,7 @@
 mod powers;
 
 use crate::{
-    bint::intrinsics::{ExpType, _div_rem_128_64, _div_rem_64, _widening_mul_64},
+    bint::intrinsics::{_div_rem_128_64, _div_rem_64, _widening_mul_64, ExpType},
     utils::assert_eq_size,
 };
 

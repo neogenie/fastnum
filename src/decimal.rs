@@ -7,6 +7,9 @@ pub mod extras;
 #[cfg(not(feature = "test-util"))]
 pub(crate) mod extras;
 
+#[cfg(feature = "serde")]
+pub mod serde;
+
 pub(crate) mod dec;
 pub(crate) mod doc;
 pub(crate) mod impls;

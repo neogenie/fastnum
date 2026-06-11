@@ -5,7 +5,7 @@ mod diesel;
 mod sqlx;
 
 #[cfg(feature = "serde")]
-mod serde;
+pub(crate) mod serde;
 
 #[cfg(feature = "utoipa")]
 mod utoipa;

@@ -1,3 +1,5 @@
+pub mod utils;
+
 mod visitors;
 
 use serde::{self, de, ser};

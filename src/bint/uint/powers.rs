@@ -1,6 +1,6 @@
 use crate::bint::{
     intrinsics::{
-        ExpType, _can_scaled_by_power_of_ten_64, _decimal_digits_64, _remaining_decimal_digits_64,
+        _can_scaled_by_power_of_ten_64, _decimal_digits_64, _remaining_decimal_digits_64, ExpType,
     },
     uint::{
         intrinsics::Intrinsics,

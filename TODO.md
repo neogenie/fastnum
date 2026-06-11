@@ -11,4 +11,6 @@
 
 # BACKLOG
 
+- [ ]  Bump `bnum` version to `0.14`
+
 # DONE

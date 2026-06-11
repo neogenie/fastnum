@@ -1,14 +1,17 @@
 # Changelog
 
-All user-visible changes to this library will be documented in this file.
-This project adheres to [Semantic Versioning](http://semver.org/), as described
-for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md).
+All user-visible changes to this library will be documented in this file. This project adheres
+to [Semantic Versioning](http://semver.org/), as described for Rust libraries
+in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolution.md).
 
-# [0.7.5] - 2025-12-28
+# [0.7.5] - 2025-06-11
 
 ### Fixed
 
-- Hashcode in Decimal violates the [hash contract](https://doc.rust-lang.org/std/hash/trait.Hash.html#hash-and-eq): [#59](https://github.com/neogenie/fastnum/issues/59).
+- Hashcode in Decimal violates
+  the [hash contract](https://doc.rust-lang.org/std/hash/trait.Hash.html#hash-and-eq): [#59](https://github.com/neogenie/fastnum/issues/59).
+- Add `serde-arbitrary-precision` feature to enable arbitrary precision serialization and deserialization for `Decimal`
+  and `UnsignedDecimal` types via `arbitrary-precision` feature of `serde_json`.
 
 # [0.7.4] - 2025-12-15
 
@@ -18,22 +21,27 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 
 # [0.7.3] - 2025-10-14
 
-### Fixed 
+### Fixed
 
-- Sign Extension Not Performed in From<i32/i64>, Cast, and TryCast for Signed Integers [#52](https://github.com/neogenie/fastnum/issues/52).
+- Sign Extension Not Performed in From<i32/i64>, Cast, and TryCast for Signed
+  Integers [#52](https://github.com/neogenie/fastnum/issues/52).
 
 ### Internal
+
 - Refactored integer conversion implementation for better code organization and maintainability.
 - Simplified signed integer conversion methods by removing redundant intermediate logic.
 - Improved macro handling for literal construction to properly support token concatenation.
-- Reorganized test infrastructure with macro-based test generation for comprehensive coverage of integer conversions across different bit widths (64/128/256/512).
-- Consolidated test structure by moving conversion tests into dedicated modules with automatic test generation for all supported integer types.
+- Reorganized test infrastructure with macro-based test generation for comprehensive coverage of integer conversions
+  across different bit widths (64/128/256/512).
+- Consolidated test structure by moving conversion tests into dedicated modules with automatic test generation for all
+  supported integer types.
 
 # [0.7.2] - 2025-09-20
 
 ### Fixed
 
-- Incorrect division result for numbers with large amount of decimal digits [#49](https://github.com/neogenie/fastnum/issues/49).
+- Incorrect division result for numbers with large amount of decimal
+  digits [#49](https://github.com/neogenie/fastnum/issues/49).
 - Fix `no_std` build [#50](https://github.com/neogenie/fastnum/issues/50).
 
 ### Changed
@@ -48,7 +56,7 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 
 ### Fixed
 
-- .ln() panic regression (0.2.10 -> 0.7.0) [#46](https://github.com/neogenie/fastnum/issues/46).
+- .ln () panic regression (0.2.10 -> 0.7.0) [#46](https://github.com/neogenie/fastnum/issues/46).
 
 ### Changed
 
@@ -59,8 +67,8 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 - Documentation for `Decimal::with_rounding_mode` and `Decimal::with_ctx`:
     - Clarified that when changing the rounding mode, any existing extra precision (if present) is immediately rounded
       using the new rule.
-    - Clarified that applying a new context may trigger traps if the current value already has signaling flags set (
-      e.g., `INEXACT`) and the new context enables traps for those signals; this may result in a panic depending on
+    - Clarified that applying a new context may trigger traps if the current value already has signaling flags set
+      (e.g., `INEXACT`) and the new context enables traps for those signals; this may result in a panic depending on
       build/configuration.
 - Minor fixes.
 
@@ -159,8 +167,8 @@ for Rust libraries in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/
 
 ### Deprecated
 
-- Decimal `.transmute()` is now deprecated (since "0.5.0"); removal is planned for a future major release.
-  Use `.resize()` or cast via `Cast` and `TryCast` traits instead.
+- Decimal `.transmute()` is now deprecated (since "0.5.0"); removal is planned for a future major release. Use
+  `.resize()` or cast via `Cast` and `TryCast` traits instead.
 
 ### Documentation
 
@@ -200,8 +208,8 @@ This release is still mostly focused on fix: [#32](https://github.com/neogenie/f
 
 # [0.4.0] - 2025-08-10
 
-This release is mostly focused on fix: [#32](https://github.com/neogenie/fastnum/issues/32).
-A lot of work was done, but a huge part of the optimization should still be completed.
+This release is mostly focused on fix: [#32](https://github.com/neogenie/fastnum/issues/32). A lot of work was done, but
+a huge part of the optimization should still be completed.
 
 ### Added
 
@@ -244,8 +252,7 @@ A lot of work was done, but a huge part of the optimization should still be comp
 
 This release is mostly focused on fix: [#34](https://github.com/neogenie/fastnum/issues/34).
 
-Converting decimal numbers to floating point IEEE 754 was completely redesigned.
-Implementation is based on LLVM’s libc
+Converting decimal numbers to floating point IEEE 754 was completely redesigned. Implementation is based on LLVM’s libc
 experience: https://llvm.org/devmtg/2022-11/slides/QuickTalk3-ApproximatingatScale-StringToFloat.pdf
 Algorithms:
 
@@ -351,8 +358,8 @@ Algorithms:
 
 This release primarily focuses on:
 
-- Increasing the accuracy of approximated mathematical calculations due to the use of `7` extra precision digits
-  instead of `4`.
+- Increasing the accuracy of approximated mathematical calculations due to the use of `7` extra precision digits instead
+  of `4`.
 - Performance optimizations.
 
 Expect better performance, precision handling, and expanded documentation covering new methods and examples.
@@ -462,8 +469,8 @@ Highlights include removing `libm` dependency and major refinements for `no-std`
 
 ### Fixed
 
-- Corrected edge cases for float (`f32`/`f64`) from/to `Decimal` conversions (
-  fix [#5](https://github.com/neogenie/fastnum/issues/5#issue-2813957559)).
+- Corrected edge cases for float (`f32`/`f64`) from/to `Decimal` conversions
+  (fix [#5](https://github.com/neogenie/fastnum/issues/5#issue-2813957559)).
 - Fix _long_ rounding issues with improved context precision.
 - General code quality improvements and bug fixes, including better inexact flag handling.
 
@@ -548,8 +555,7 @@ The main goals of this release are:
 ### Breaking changes
 
 * Remove [`Context`] from a most methods argument list and put it into decimal control block for better context
-  handling.
-  Now [`Context`] is a property of any Decimal number instance.
+  handling. Now [`Context`] is a property of any Decimal number instance.
 
 ### Added
 

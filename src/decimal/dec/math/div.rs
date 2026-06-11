@@ -1,7 +1,7 @@
 use crate::{
     bint::{
         intrinsics::{
-            Digit, ExpType, _decimal_digits_64, _div_rem_64, _downscale_64, min, DIGIT_POWERS_10,
+            _decimal_digits_64, _div_rem_64, _downscale_64, min, Digit, ExpType, DIGIT_POWERS_10,
             DIGIT_POWER_10,
         },
         UInt,

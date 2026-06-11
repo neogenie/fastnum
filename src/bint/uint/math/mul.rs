@@ -1,5 +1,5 @@
 use crate::bint::{
-    intrinsics::{Digit, _carrying_mul_64, _widening_mul_64},
+    intrinsics::{_carrying_mul_64, _widening_mul_64, Digit},
     uint::math::utils::{as_u128, as_u64, uint128, uint64, uint_pair64},
     UInt,
 };

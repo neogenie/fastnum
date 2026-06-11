@@ -38,10 +38,8 @@ pub const fn from_slice<const N: usize>(
             sign = Sign::Minus;
             i = 1;
         }
-        b'n' | b'N' => {
-            if bytes_equal_ci(buf.split_at(1).1, b"an") {
-                return Ok(Decimal::NAN);
-            }
+        b'n' | b'N' if bytes_equal_ci(buf.split_at(1).1, b"an") => {
+            return Ok(Decimal::NAN);
         }
         _ => {}
     }
