@@ -6,8 +6,8 @@ mod details;
 #[cfg(feature = "serde-arbitrary-precision")]
 type D<const N: usize> = crate::decimal::Decimal<N>;
 
-/// Serialize/deserialize [crate::decimal::Decimal] as arbitrary precision numbers in JSON using
-/// the `arbitrary_precision` feature within `serde_json`.
+/// Serialize/deserialize [crate::decimal::Decimal] as arbitrary precision
+/// numbers in JSON using the `arbitrary_precision` feature within `serde_json`.
 ///
 /// ```
 /// # use serde::Deserialize;
@@ -49,8 +49,9 @@ pub mod arbitrary_precision {
     }
 }
 
-/// Serialize/deserialize optional [crate::decimal::Decimal] as arbitrary precision numbers in
-/// JSON using the `arbitrary_precision` feature within `serde_json`.
+/// Serialize/deserialize optional [crate::decimal::Decimal] as arbitrary
+/// precision numbers in JSON using the `arbitrary_precision` feature within
+/// `serde_json`.
 ///
 /// ```
 /// # use serde::Deserialize;

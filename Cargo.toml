@@ -19,7 +19,7 @@ categories = ["mathematics", "science", "no-std"]
 license = "MIT OR Apache-2.0"
 autobenches = false
 exclude = ["examples/*", "benchmark/*"]
-rust-version = "1.88"
+rust-version = "1.94"
 
 [lib]
 bench = false

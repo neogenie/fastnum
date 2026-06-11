@@ -12,6 +12,7 @@ in [RFC #1105](https://github.com/rust-lang/rfcs/blob/master/text/1105-api-evolu
   the [hash contract](https://doc.rust-lang.org/std/hash/trait.Hash.html#hash-and-eq): [#59](https://github.com/neogenie/fastnum/issues/59).
 - Add `serde-arbitrary-precision` feature to enable arbitrary precision serialization and deserialization for `Decimal`
   and `UnsignedDecimal` types via `arbitrary-precision` feature of `serde_json`.
+- bump MSRV to 1.94
 
 # [0.7.4] - 2025-12-15
 
