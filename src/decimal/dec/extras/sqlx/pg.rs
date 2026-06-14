@@ -48,7 +48,7 @@ impl<const N: usize> Decode<'_, Postgres> for D<N> {
             PgValueFormat::Binary => Ok(NBase::decode(value.as_bytes()?)?
                 .try_into()
                 .map_err(|e| pretty_error_msg(D::<N>::type_name(), e))?),
-            PgValueFormat::Text => Ok(value.as_str()?.parse::<Decimal<N>>()?),
+            PgValueFormat::Text => Ok(value.as_str()?.parse::<D<N>>()?),
         }
     }
 }
