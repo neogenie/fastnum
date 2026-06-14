@@ -137,6 +137,16 @@ macro_rules! test_impl {
 
         super::test_impl!(FROM INT:: $dec, $D, U8, U16, U32, U64);
         super::test_impl!(TRY FROM FLOAT:: $dec, $D, F32, F64);
+
+        #[rstest(::trace)]
+        fn test_serialize_floor_of_integral_mul_result() {
+            // Regression test: floor() on a product that is mathematically integral
+            // but retains trailing fractional zeros must serialize without a decimal
+            // point (e.g. "3", not "3.0").
+            let n = ($dec!(1.5) * $dec!(2)).floor();
+            let expected = serde_test::Token::Str("3");
+            serde_test::assert_tokens(&n, &[expected]);
+        }
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(UNSIGNED:: 128, $dec, $D);
