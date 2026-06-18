@@ -21,6 +21,18 @@ macro_rules! benchmark_op {
             |bench, (a, b)| bench.iter(|| black_box(*a) $op black_box(*b)),
         );
 
+        // fixed-num Dec19x19: only benchmarks values within its range (±17_014_118_346_046_923_173.168...)
+        if let (Ok(a_fn), Ok(b_fn)) = (
+            fixed_num::Dec19x19::from_str($a),
+            fixed_num::Dec19x19::from_str($b),
+        ) {
+            $group.bench_with_input(
+                BenchmarkId::new("fixed_num", $case),
+                &(a_fn, b_fn),
+                |bench, (a, b)| bench.iter(|| black_box(*a) $op black_box(*b)),
+            );
+        }
+
         benchmark_op!(@ A $op, $case, $group, [$($bits),*], $a, $b);
     }};
     (@ A $op: tt, $case: literal, $group: ident, [$($bits: literal),*], $a: literal, $b: literal) => {{
