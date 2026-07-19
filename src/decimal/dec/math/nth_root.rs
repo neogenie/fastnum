@@ -22,6 +22,10 @@ pub(crate) const fn nth_root<const N: usize>(d: D<N>, n: u32) -> D<N> {
     }
 
     if d.is_negative() {
+        // Odd roots of a negative are real: ⁿ√(−d) = −ⁿ√d. Even roots have no real value.
+        if n % 2 == 1 {
+            return nth_root(d.abs(), n).neg();
+        }
         return d.signaling_nan();
     }
 
