@@ -11,17 +11,19 @@ pub(crate) const fn acosh<const N: usize>(x: D<N>) -> D<N> {
         return x.op_invalid();
     }
 
-    if x.is_zero() {
-        return D::ZERO.with_ctx(x.context());
-    }
-
     if x.is_infinite() {
+        // acosh(+∞) = +∞; acosh(−∞) is out of domain.
+        return if x.is_negative() {
+            x.signaling_nan()
+        } else {
+            x
+        };
+    }
+
+    if x.lt(&D::ONE) {
         return x.signaling_nan();
     }
 
-    if x.le(&D::ONE) {
-        return x.signaling_nan();
-    }
-
+    // acosh(1) = 0 falls out of the formula: ln(1 + √0) = 0.
     ln(add(x, sqrt(sub(mul(x, x), D::ONE))))
 }

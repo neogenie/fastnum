@@ -1,6 +1,7 @@
 mod abs;
 mod add;
 mod div;
+mod domain;
 mod exp;
 mod ln;
 mod mul;

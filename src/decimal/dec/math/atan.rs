@@ -1,7 +1,7 @@
 use core::cmp::Ordering;
 
 use crate::decimal::{
-    dec::math::{add::add, asin::asin, consts::Consts, div::div, mul::mul, sqrt::sqrt},
+    dec::math::{add::add, asin::asin, consts::Consts, div::div, mul::mul, sqrt::sqrt, sub::sub},
     Decimal,
 };
 
@@ -18,13 +18,12 @@ pub(crate) const fn atan<const N: usize>(x: D<N>) -> D<N> {
     }
 
     if x.is_infinite() {
-        return x.signaling_nan();
+        // atan(±∞) = ±π/2.
+        return frac_pi_2_signed(x);
     }
 
     match x.cmp(&D::ONE.neg()) {
-        Ordering::Less => {
-            return x.signaling_nan();
-        }
+        Ordering::Less => return atan_reduce(x),
         Ordering::Equal => return Consts::FRAC_PI_4.neg(),
         Ordering::Greater => {}
     }
@@ -34,11 +33,24 @@ pub(crate) const fn atan<const N: usize>(x: D<N>) -> D<N> {
         Ordering::Equal => {
             return Consts::FRAC_PI_4;
         }
-        Ordering::Greater => {
-            return x.signaling_nan();
-        }
+        Ordering::Greater => return atan_reduce(x),
     }
 
     let x2 = mul(x, x);
     asin(div(x, sqrt(add(x2, D::<N>::ONE))))
+}
+
+// atan(x) = sign(x)·π/2 − atan(1/x) for |x| > 1; |1/x| < 1 reuses the accurate small-argument path.
+#[inline]
+const fn atan_reduce<const N: usize>(x: D<N>) -> D<N> {
+    sub(frac_pi_2_signed(x), atan(div(D::ONE, x)))
+}
+
+#[inline]
+const fn frac_pi_2_signed<const N: usize>(x: D<N>) -> D<N> {
+    if x.is_negative() {
+        Consts::FRAC_PI_2.neg()
+    } else {
+        Consts::FRAC_PI_2
+    }
 }
