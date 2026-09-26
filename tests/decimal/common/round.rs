@@ -91,6 +91,10 @@ macro_rules! test_impl {
             let n = $dec!(129.41675);
 
             assert_eq!(n.with_rounding_mode(Up).round(2), $dec!(129.42));
+            assert_eq!($dec!(1.01).with_rounding_mode(Up).round(0), $dec!(2));
+            assert_eq!($dec!(1.1).with_rounding_mode(Up).round(0), $dec!(2));
+            assert_eq!($dec!(1.01).with_rounding_mode(HalfUp).round(0), $dec!(1));
+            assert_eq!($dec!(0.40001).with_rounding_mode(Up).round(3), $dec!(0.401));
             assert_eq!(n.with_rounding_mode(Down).round(-1), $dec!(120));
             assert_eq!(n.with_rounding_mode(HalfUp).round(4), $dec!(129.4168));
             assert_eq!(n.with_rounding_mode(HalfEven).round(4), $dec!(129.4168));
@@ -197,6 +201,14 @@ macro_rules! test_impl {
         #[case($dec!(8.5), HalfDown, $dec!(8))]
         #[case($dec!(8.5), HalfEven, $dec!(8))]
         //---------------------------------------
+        #[case($dec!(1.01), Up, $dec!(2))]
+        #[case($dec!(1.01), Ceiling, $dec!(2))]
+        #[case($dec!(1.01), Down, $dec!(1))]
+        #[case($dec!(1.01), Floor, $dec!(1))]
+        #[case($dec!(1.01), HalfUp, $dec!(1))]
+        #[case($dec!(1.01), HalfDown, $dec!(1))]
+        #[case($dec!(1.01), HalfEven, $dec!(1))]
+        //---------------------------------------
         #[case($dec!(3.0), Up, $dec!(3))]
         #[case($dec!(3.0), Ceiling, $dec!(3))]
         #[case($dec!(3.0), HalfUp, $dec!(3))]
@@ -281,6 +293,12 @@ macro_rules! test_impl {
         #[case($dec!(-6.5), Ceiling, $dec!(-6))]
         #[case($dec!(-6.5), HalfDown, $dec!(-6))]
         #[case($dec!(-6.5), HalfEven, $dec!(-6))]
+        //---------------------------------------
+        #[case($dec!(-1.01), Up, $dec!(-2))]
+        #[case($dec!(-1.01), Floor, $dec!(-2))]
+        #[case($dec!(-1.01), Down, $dec!(-1))]
+        #[case($dec!(-1.01), Ceiling, $dec!(-1))]
+        #[case($dec!(-1.01), HalfUp, $dec!(-1))]
         //---------------------------------------
         #[case($dec!(-2.0), Up, $dec!(-2))]
         #[case($dec!(-2.0), Ceiling, $dec!(-2))]
