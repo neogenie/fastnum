@@ -58,7 +58,13 @@ impl ExtraPrecision {
 
     #[inline(always)]
     pub const fn get_round_reminder(&self) -> u8 {
-        (self.digits / Self::EXTRA_PRECISION_SCALE) as u8
+        let digit = (self.digits / Self::EXTRA_PRECISION_SCALE) as u8;
+        // `1.01` keeps a leading zero in the extra digits. Up still has a remainder.
+        if digit == 0 && self.digits != 0 {
+            1
+        } else {
+            digit
+        }
     }
 
     #[inline]
