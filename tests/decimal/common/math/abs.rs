@@ -38,11 +38,19 @@ macro_rules! test_impl {
             }
 
             #[rstest(::trace)]
-            fn test_abs_nan() {
-                let ctx = Context::default().without_traps();
-                let d = $D::NAN.with_ctx(ctx).abs();
-                assert!(d.is_nan());
-                assert!(d.is_op_invalid());
+            #[case($D::NAN)]
+            #[case($D::NAN.neg())]
+            #[case($D::NAN.with_ctx(Context::default().without_traps()).neg())]
+            fn test_abs_nan(#[case] d: $D) {
+                // `abs` only clears the sign, quietly, even on NaN: the default context does not trap.
+                let res = d.abs();
+                assert!(res.is_nan());
+                assert!(res.is_sign_positive());
+                assert!(!res.is_op_invalid());
+
+                let res = d.unsigned_abs();
+                assert!(res.is_nan());
+                assert!(!res.is_op_invalid());
             }
         }
     };
