@@ -670,13 +670,19 @@ impl<const N: usize> Decimal<N> {
 
     /// Get the absolute value of the decimal (non-negative sign).
     ///
+    /// Like [`neg`](Self::neg), this only clears the sign: it is quiet, and
+    /// applies to [`NaN`](crate#special-values) too, without signaling.
+    ///
     /// # Examples
     ///
     /// ```
-    /// use fastnum::dec256;
+    /// use fastnum::{dec256, D256};
     ///
     /// assert_eq!(dec256!(1.0).abs(), dec256!(1.0));
     /// assert_eq!(dec256!(-1.0).abs(), dec256!(1.0));
+    ///
+    /// let nan = D256::NAN.neg().abs();
+    /// assert!(nan.is_nan() && nan.is_sign_positive());
     /// ```
     #[must_use]
     #[inline(always)]
