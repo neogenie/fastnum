@@ -14,6 +14,7 @@ impl<const N: usize> Display for Decimal<N> {
                 self.digits.to_str_radix(10),
                 self.cb.get_scale(),
                 self.sign(),
+                self.digits.remaining_decimal_digits(),
                 f,
             )
         }

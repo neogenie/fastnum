@@ -64,10 +64,14 @@ pub(crate) fn write_engineering_notation<W: Write>(
     write!(out, "e{exp}")
 }
 
+/// `remaining_digits` is how many decimal digits the coefficient can still take
+/// (the number of times it can be multiplied by 10 without overflow): an integer
+/// written with more trailing zeros than that would not parse back.
 pub(crate) fn format(
     digits: String,
     scale: i16,
     sign: Sign,
+    remaining_digits: u32,
     f: &mut fmt::Formatter,
 ) -> fmt::Result {
     // number of zeros between the most significant digit and decimal point
@@ -88,12 +92,14 @@ pub(crate) fn format(
 
     let leading_zero_threshold = EXPONENTIAL_FORMAT_LEADING_ZERO_THRESHOLD as u64;
     let trailing_zero_threshold = EXPONENTIAL_FORMAT_TRAILING_ZERO_THRESHOLD as u64;
+    let remaining_digits = remaining_digits as u64;
 
     // use exponential form if decimal point is outside
-    // the upper and lower thresholds of the decimal
+    // the upper and lower thresholds of the decimal,
+    // or if the integer would have more digits than the coefficient holds
     if leading_zero_threshold < leading_zero_count {
         format_exponential(digits, scale, sign, f, "E")
-    } else if trailing_zero_threshold < trailing_zeros {
+    } else if trailing_zero_threshold < trailing_zeros || remaining_digits < trailing_zeros {
         // non-scientific notation
         format_dotless_exponential(digits, scale, sign, f, "e")
     } else {

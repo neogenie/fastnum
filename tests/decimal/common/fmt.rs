@@ -25,6 +25,16 @@ macro_rules! test_impl {
     };
     (COMMON:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
+
+        #[rstest(::trace)]
+        #[case($dec!(50000e15), "50000000000000000000")]
+        #[case($dec!(1340780792994259709957402499820584612747936582059239337772356144372176403007354697680187429816690342769003185818648605085375388281194656994643364900608409e1), "13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006084090")]
+        #[case($dec!(1340780792994259709957402499820584612747936582059239337772356144372176403007354697680187429816690342769003185818648605085375388281194656994643364900608410e1), "1340780792994259709957402499820584612747936582059239337772356144372176403007354697680187429816690342769003185818648605085375388281194656994643364900608410e+1")]
+        fn test_fmt_parses_back_512(#[case] d: $D, #[case] expected: &str) {
+            let formated = format!("{d}");
+            assert_eq!(formated.as_str(), expected);
+            assert_round_trip(d);
+        }
     };
     (UNSIGNED:: 512, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(UNSIGNED:: 256, $dec, $D);
@@ -36,6 +46,16 @@ macro_rules! test_impl {
 
     (COMMON:: 256, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(COMMON:: 256, $dec, $D);
+
+        #[rstest(::trace)]
+        #[case($dec!(50000e15), "50000000000000000000")]
+        #[case($dec!(11579208923731619542357098500868790785326998466564056403945758400791312963993e1), "115792089237316195423570985008687907853269984665640564039457584007913129639930")]
+        #[case($dec!(11579208923731619542357098500868790785326998466564056403945758400791312963994e1), "11579208923731619542357098500868790785326998466564056403945758400791312963994e+1")]
+        fn test_fmt_parses_back_256(#[case] d: $D, #[case] expected: &str) {
+            let formated = format!("{d}");
+            assert_eq!(formated.as_str(), expected);
+            assert_round_trip(d);
+        }
     };
     (COMMON:: 256, $dec: ident, $D: ident) => {
         super::test_impl!(COMMON:: 128, $dec, $D);
@@ -57,6 +77,16 @@ macro_rules! test_impl {
         super::test_impl!(COMMON:: 128, $dec, $D);
 
         #[rstest(::trace)]
+        #[case($dec!(50000e15), "50000000000000000000")]
+        #[case($dec!(34028236692093846346337460743176821145e1), "340282366920938463463374607431768211450")]
+        #[case($dec!(34028236692093846346337460743176821146e1), "34028236692093846346337460743176821146e+1")]
+        fn test_fmt_parses_back_128(#[case] d: $D, #[case] expected: &str) {
+            let formated = format!("{d}");
+            assert_eq!(formated.as_str(), expected);
+            assert_round_trip(d);
+        }
+
+        #[rstest(::trace)]
         #[case($D::INFINITY, concat!(stringify!($D), r#"(digits=[340282366920938463463374607431768211455], exp=[32768], flags=[INF], signals=[], ctx=[R=HalfUp, S=!DBZ, !INV, !OFW], extra=[0.0000000])"#))]
         fn test_fmt_debug_128(#[case] d: $D, #[case] expected: &str) {
             let formated = format!("{d:?}");
@@ -64,6 +94,8 @@ macro_rules! test_impl {
         }
     };
     (COMMON:: 128, $dec: ident, $D: ident) => {
+        super::test_impl!(COMMON:: 64, $dec, $D);
+
         #[rstest(::trace)]
         #[case($D::NAN, "NaN")]
         #[case($D::INFINITY, "Inf")]
@@ -552,6 +584,7 @@ macro_rules! test_impl {
         super::test_impl!(UNSIGNED:: 128, $dec, $D);
     };
     (UNSIGNED:: 128, $dec: ident, $D: ident) => {
+        super::test_impl!(UNSIGNED:: 64, $dec, $D);
     };
     (SIGNED:: 128, $dec: ident, $D: ident, THIS) => {
         super::test_impl!(SIGNED:: 128, $dec, $D);
@@ -564,6 +597,8 @@ macro_rules! test_impl {
         }
     };
     (SIGNED:: 128, $dec: ident, $D: ident) => {
+        super::test_impl!(SIGNED:: 64, $dec, $D);
+
         #[rstest(::trace)]
         #[case($D::NEG_INFINITY, "-Inf")]
         #[case($dec!(-0), "-0")]
@@ -667,6 +702,62 @@ macro_rules! test_impl {
         #[case($dec!(-413e9997), "-4.13e9999")]
         fn test_fmt_engineering_notation_signed(#[case] d: $D, #[case] expected: &str) {
             assert_eq!(d.to_engineering_notation(), expected);
+        }
+    };
+    (COMMON:: 64, $dec: ident, $D: ident, THIS) => {
+        super::test_impl!(COMMON:: 64, $dec, $D);
+
+        #[rstest(::trace)]
+        #[case($dec!(50000e15), "50000e+15")]
+        #[case($dec!(5e19), "5e+19")]
+        #[case($dec!(1844674407370955161e1), "18446744073709551610")]
+        #[case($dec!(1844674407370955162e1), "1844674407370955162e+1")]
+        fn test_fmt_parses_back_64(#[case] d: $D, #[case] expected: &str) {
+            let formated = format!("{d}");
+            assert_eq!(formated.as_str(), expected);
+            assert_round_trip(d);
+        }
+    };
+    (COMMON:: 64, $dec: ident, $D: ident) => {
+        /// `Display` writes text that `FromStr` reads back as the same value.
+        fn assert_round_trip(d: $D) {
+            let s = d.to_string();
+            let round_trip = $D::from_str(&s, Context::default()).unwrap_or_else(|e| panic!("{s}: {e}"));
+
+            assert_eq!(round_trip, d, "{s}");
+        }
+
+        #[rstest(::trace)]
+        fn test_fmt_parses_back() {
+            let max = $D::MAX.digits().to_string();
+
+            for len in 1..=max.len() {
+                for zeros in 0..=3 {
+                    for exp in -25..=40 {
+                        let src = format!("{}{}e{exp}", &max[..len], &"000"[..zeros]);
+
+                        if let Ok(d) = src.parse::<$D>() {
+                            assert_round_trip(d);
+                        }
+                    }
+                }
+            }
+        }
+    };
+    (UNSIGNED:: 64, $dec: ident, $D: ident, THIS) => {
+        super::test_impl!(UNSIGNED:: 64, $dec, $D);
+    };
+    (UNSIGNED:: 64, $dec: ident, $D: ident) => {
+    };
+    (SIGNED:: 64, $dec: ident, $D: ident, THIS) => {
+        super::test_impl!(SIGNED:: 64, $dec, $D);
+    };
+    (SIGNED:: 64, $dec: ident, $D: ident) => {
+        #[rstest(::trace)]
+        #[case($dec!(-50000e15))]
+        #[case($dec!(-1844674407370955162e1))]
+        fn test_fmt_parses_back_signed(#[case] d: $D) {
+            assert_round_trip(d);
         }
     };
 }
