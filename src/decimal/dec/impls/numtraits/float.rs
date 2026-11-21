@@ -96,7 +96,7 @@ impl<const N: usize> Float for Decimal<N> {
 
     #[inline]
     fn fract(self) -> Self {
-        self - self.trunc()
+        Self::fract(self)
     }
 
     #[inline]
@@ -301,10 +301,6 @@ impl<const N: usize> Float for Decimal<N> {
 
     #[inline]
     fn copysign(self, sign: Self) -> Self {
-        if self.is_negative() == sign.is_negative() {
-            self
-        } else {
-            self.neg()
-        }
+        Self::copysign(self, sign)
     }
 }

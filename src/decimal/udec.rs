@@ -502,6 +502,65 @@ impl<const N: usize> UnsignedDecimal<N> {
         Self::new(self.0.reduce())
     }
 
+    /// Returns the least number greater than `self`.
+    ///
+    /// See [`Decimal::next_up`]: `NaN` is returned quietly, zero steps to
+    /// [`MIN_POSITIVE`](Self::MIN_POSITIVE), and [`MAX`](Self::MAX) to
+    /// [`INFINITY`](Self::INFINITY).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::*;
+    ///
+    /// assert_eq!(udec64!(1).next_up(), udec64!(1.0000000000000000001));
+    /// assert_eq!(UD64::ZERO.next_up(), UD64::MIN_POSITIVE);
+    /// assert_eq!(UD64::MAX.next_up(), UD64::INFINITY);
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[inline]
+    pub const fn next_up(self) -> Self {
+        Self::new(self.0.next_up())
+    }
+
+    /// Returns the greatest number less than `self`.
+    ///
+    /// See [`Decimal::next_down`]: `NaN` is returned quietly,
+    /// [`MIN_POSITIVE`](Self::MIN_POSITIVE) steps to zero, and
+    /// [`INFINITY`](Self::INFINITY) to [`MAX`](Self::MAX).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::*;
+    ///
+    /// assert_eq!(udec64!(1).next_down(), udec64!(0.9999999999999999999));
+    /// assert!(UD64::MIN_POSITIVE.next_down().is_zero());
+    /// assert_eq!(UD64::INFINITY.next_down(), UD64::MAX);
+    /// ```
+    ///
+    /// # Panics
+    ///
+    /// Zero has no unsigned number below it: its `next_down` is an
+    /// [invalid operation](crate#signaling-flags-and-trap-enablers), which
+    /// panics in the default context:
+    ///
+    /// ```should_panic
+    /// use fastnum::*;
+    ///
+    /// let _ = UD64::ZERO.next_down();
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline]
+    pub const fn next_down(self) -> Self {
+        if self.0.is_zero() {
+            Self::new(self.0.signaling_nan().check())
+        } else {
+            Self::new(self.0.next_down())
+        }
+    }
+
     /// Invert sign of the given unsigned decimal.
     ///
     /// # Examples
@@ -1239,6 +1298,25 @@ impl<const N: usize> UnsignedDecimal<N> {
     #[inline(always)]
     pub const fn trunc_with_scale(self, scale: i16) -> Self {
         Self::new(self.0.trunc_with_scale(scale))
+    }
+
+    /// Returns the fractional part of `self`: `self - self.trunc()`.
+    ///
+    /// See [`Decimal::fract`].
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::*;
+    ///
+    /// assert_eq!(udec256!(3.6).fract(), udec256!(0.6));
+    /// assert_eq!(udec256!(3).fract(), udec256!(0));
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline(always)]
+    pub const fn fract(self) -> Self {
+        Self::new(self.0.fract())
     }
 
     /// Returns:

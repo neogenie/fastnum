@@ -1,7 +1,9 @@
 mod abs;
 mod add;
+mod copysign;
 mod div;
 mod exp;
+mod fract;
 mod ln;
 mod mul;
 mod pow;
