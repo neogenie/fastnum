@@ -132,8 +132,20 @@ impl<const N: usize> DivGeneralCaseImpl<N> {
         )
     }
 
+    /// Appends the high digits of `quotient` to `self.digits`, keeping its low
+    /// `add_power` digits aside.
+    ///
+    /// Returns the digits kept aside and their count. That count is
+    /// `add_power`, or one more when the appended digits overflow
+    /// `self.digits`: the last appended digit then moves in front of the
+    /// digits kept aside.
     #[inline(always)]
-    const fn mul_add(&mut self, mut quotient: u64, mul_power: ExpType, add_power: ExpType) -> u64 {
+    const fn mul_add(
+        &mut self,
+        mut quotient: u64,
+        mul_power: ExpType,
+        add_power: ExpType,
+    ) -> (u64, ExpType) {
         let multiplicator = DIGIT_POWERS_10[mul_power as usize];
 
         // SAFETY: `self.digits` can always be multiplied by 10^mul_power
@@ -147,16 +159,18 @@ impl<const N: usize> DivGeneralCaseImpl<N> {
 
         let qd = DIGIT_POWERS_10[add_power as usize];
 
-        let mut extra;
+        let extra;
         (quotient, extra) = _div_rem_64(quotient, qd);
 
         match self.digits.overflowing_add_digit(quotient) {
             (digits, false) => {
                 self.digits = digits;
+                (extra, add_power)
             }
             (_, true) => {
                 self.digits = self.digits.div_digit(10);
-                (quotient, extra) = _div_rem_64(quotient, 10);
+                let dropped;
+                (quotient, dropped) = _div_rem_64(quotient, 10);
 
                 // SAFETY: `self.digits` is already scaled down by 10 and the quotient is less
                 // than 10.
@@ -166,10 +180,12 @@ impl<const N: usize> DivGeneralCaseImpl<N> {
                 }
 
                 self.exp += 1;
+
+                // The dropped digit followed by the digits kept aside is the original
+                // `quotient` modulo 10^(add_power + 1), so it fits.
+                (dropped * qd + extra, add_power + 1)
             }
         }
-
-        extra
     }
 
     #[inline(always)]
@@ -187,13 +203,13 @@ impl<const N: usize> DivGeneralCaseImpl<N> {
                 if remaining_decimal_digits != 0 {
                     if remaining_decimal_digits <= power {
                         let p = power - remaining_decimal_digits;
-                        extra = self.mul_add(extra, remaining_decimal_digits, p);
-                        return self.extra_precision(extra, p);
+                        let (tail, tail_power) = self.mul_add(extra, remaining_decimal_digits, p);
+                        return self.extra_precision(tail, tail_power);
                     } else
                     // if remaining_decimal_digits > power
                     {
-                        extra = self.mul_add(extra, power, 0);
-                        carry = false;
+                        (extra, power) = self.mul_add(extra, power, 0);
+                        carry = power != 0;
                         continue;
                     }
                 }
@@ -259,11 +275,8 @@ impl<const N: usize> DivGeneralCaseImpl<N> {
 
             power = power - q_power + leading_zeros;
 
-            extra = self.mul_add(quotient, q_power, power);
-
-            if power != 0 {
-                carry = true;
-            }
+            (extra, power) = self.mul_add(quotient, q_power, power);
+            carry = power != 0;
         }
     }
 
