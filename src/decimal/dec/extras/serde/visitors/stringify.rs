@@ -1,3 +1,4 @@
+use alloc::string::ToString;
 use core::fmt;
 use serde::de;
 
@@ -31,7 +32,7 @@ impl<const N: usize> de::Visitor<'_> for Visitor<N> {
     where
         E: de::Error,
     {
-        D::<N>::try_from(value).map_err(|err| E::custom(format!("{err}")))
+        D::<N>::try_from(value).map_err(|err| E::custom(err))
     }
 
     fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
@@ -45,29 +46,27 @@ impl<const N: usize> de::Visitor<'_> for Visitor<N> {
     where
         E: de::Error,
     {
-        D::<N>::try_from(value).map_err(|err| E::custom(format!("{err}")))
+        D::<N>::try_from(value).map_err(|err| E::custom(err))
     }
 
     fn visit_f32<E>(self, value: f32) -> Result<Self::Value, E>
     where
         E: de::Error,
     {
-        D::<N>::from_str(&value.to_string(), Context::default())
-            .map_err(|err| E::custom(format!("{err}")))
+        D::<N>::from_str(&value.to_string(), Context::default()).map_err(|err| E::custom(err))
     }
 
     fn visit_f64<E>(self, value: f64) -> Result<Self::Value, E>
     where
         E: de::Error,
     {
-        D::<N>::from_str(&value.to_string(), Context::default())
-            .map_err(|err| E::custom(format!("{err}")))
+        D::<N>::from_str(&value.to_string(), Context::default()).map_err(|err| E::custom(err))
     }
 
     fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
     where
         E: de::Error,
     {
-        D::<N>::from_str(value, Context::default()).map_err(|err| E::custom(format!("{err}")))
+        D::<N>::from_str(value, Context::default()).map_err(|err| E::custom(err))
     }
 }
