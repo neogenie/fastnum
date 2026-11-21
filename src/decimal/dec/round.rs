@@ -9,9 +9,10 @@ type D<const N: usize> = Decimal<N>;
 #[inline(always)]
 pub(crate) const fn round<const N: usize>(d: &mut D<N>) {
     if !matches!(d.cb.get_rounding_mode(), No) {
-        let digit = d.cb.take_round_reminder();
+        let (digit, sticky) = d.cb.take_round_reminder();
+        let above_half = digit > 5 || (digit == 5 && sticky);
 
-        if digit != 0
+        if (digit != 0 || sticky)
             && match d.cb.get_rounding_mode() {
                 No => unreachable!(),
                 Up => true,
@@ -19,9 +20,9 @@ pub(crate) const fn round<const N: usize>(d: &mut D<N>) {
                 Ceiling => !d.cb.is_negative(),
                 Floor => d.cb.is_negative(),
                 HalfUp => digit >= 5,
-                HalfDown => digit > 5,
+                HalfDown => above_half,
                 HalfEven => {
-                    if digit > 5 {
+                    if above_half {
                         true
                     } else if digit == 5 {
                         let last_digit = d.digits.digits()[0];

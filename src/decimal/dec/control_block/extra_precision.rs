@@ -43,17 +43,21 @@ impl ControlBlock {
         }
     }
 
+    /// Takes the extra digits, and returns the first one and whether any
+    /// later one is non-zero.
     #[inline(always)]
-    pub const fn take_round_reminder(&mut self) -> u8 {
+    pub const fn take_round_reminder(&mut self) -> (u8, bool) {
         let extra_digits = self.take_extra_precision();
-        let mut extra_digit = 0;
 
-        if !extra_digits.is_zero() {
-            self.raise_signals(Signals::OP_ROUNDED.combine(Signals::OP_INEXACT));
-            extra_digit = extra_digits.get_round_reminder();
+        if extra_digits.is_zero() {
+            return (0, false);
         }
 
-        extra_digit
+        self.raise_signals(Signals::OP_ROUNDED.combine(Signals::OP_INEXACT));
+        (
+            extra_digits.get_round_reminder(),
+            extra_digits.has_nonzero_tail(),
+        )
     }
 
     #[inline]
