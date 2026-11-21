@@ -61,6 +61,13 @@ impl ExtraPrecision {
         (self.digits / Self::EXTRA_PRECISION_SCALE) as u8
     }
 
+    /// Whether a digit after the first is non-zero, that is, whether the
+    /// discarded part is more than its first digit followed by zeros.
+    #[inline(always)]
+    pub const fn has_nonzero_tail(&self) -> bool {
+        !self.digits.is_multiple_of(Self::EXTRA_PRECISION_SCALE)
+    }
+
     #[inline]
     pub const fn from_digits(digits: u64, count: ExpType) -> Self {
         let (digits, count) = normalize_digits(digits, count);
