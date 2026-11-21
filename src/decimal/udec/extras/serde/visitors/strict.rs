@@ -24,6 +24,6 @@ impl<const N: usize> de::Visitor<'_> for Visitor<N> {
     where
         E: de::Error,
     {
-        UD::<N>::from_str(value, Context::default()).map_err(|err| E::custom(format!("{err}")))
+        UD::<N>::from_str(value, Context::default()).map_err(|err| E::custom(err))
     }
 }

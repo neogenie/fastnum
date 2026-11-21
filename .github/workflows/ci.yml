@@ -94,6 +94,8 @@ jobs:
         run: cargo +${{ matrix.rust-version }} build --features std
       - name: Build (numtraits feature)
         run: cargo +${{ matrix.rust-version }} build --features numtraits
+      - name: Build (serde feature without std)
+        run: cargo +${{ matrix.rust-version }} build --no-default-features --features serde
       - name: Build (all features)
         run: cargo +${{ matrix.rust-version }} build --all-features
       - name: Test (no features)

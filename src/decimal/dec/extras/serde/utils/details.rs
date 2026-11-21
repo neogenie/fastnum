@@ -25,7 +25,7 @@ impl<'de, const N: usize> de::Visitor<'de> for Visitor<N> {
     where
         E: de::Error,
     {
-        D::<N>::try_from(value).map_err(|err| E::custom(format!("{err}")))
+        D::<N>::try_from(value).map_err(|err| E::custom(err))
     }
 
     fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
@@ -39,7 +39,7 @@ impl<'de, const N: usize> de::Visitor<'de> for Visitor<N> {
     where
         E: de::Error,
     {
-        D::<N>::try_from(value).map_err(|err| E::custom(format!("{err}")))
+        D::<N>::try_from(value).map_err(|err| E::custom(err))
     }
 
     fn visit_f32<E>(self, value: f32) -> Result<Self::Value, E>
@@ -60,7 +60,7 @@ impl<'de, const N: usize> de::Visitor<'de> for Visitor<N> {
     where
         E: de::Error,
     {
-        D::<N>::from_str(value, Context::default()).map_err(|err| E::custom(format!("{err}")))
+        D::<N>::from_str(value, Context::default()).map_err(|err| E::custom(err))
     }
 
     fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
