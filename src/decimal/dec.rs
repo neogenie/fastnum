@@ -9,6 +9,7 @@ mod extra_precision;
 mod format;
 mod impls;
 mod intrinsics;
+mod next;
 mod parse;
 mod resize;
 mod round;
@@ -754,6 +755,120 @@ impl<const N: usize> Decimal<N> {
         }
     }
 
+    /// Returns a number composed of the magnitude of `self` and the sign of
+    /// `sign`.
+    ///
+    /// Equal to `self` if the sign of `self` and `sign` are the same, otherwise
+    /// equal to `-self`. Like [`neg`](Self::neg) and [`abs`](Self::abs), this
+    /// only changes the sign: it is exact, keeps the coefficient and the
+    /// exponent, and applies to [`NaN`](crate#special-values) too, without
+    /// signaling.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::{dec256, D256};
+    ///
+    /// assert_eq!(dec256!(3.5).copysign(dec256!(-0.42)), dec256!(-3.5));
+    /// assert_eq!(dec256!(-3.5).copysign(dec256!(0.42)), dec256!(3.5));
+    /// assert_eq!(dec256!(3.5).copysign(dec256!(-0)), dec256!(-3.5));
+    ///
+    /// assert!(D256::NAN.copysign(dec256!(-1)).is_sign_negative());
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[inline(always)]
+    pub const fn copysign(mut self, sign: Self) -> Self {
+        self.cb.set_sign(sign.cb.get_sign());
+        self
+    }
+
+    /// Returns the least number greater than `self`.
+    ///
+    /// Let `TINY` be the smallest representable positive value
+    /// ([`MIN_POSITIVE`](Self::MIN_POSITIVE)). Then,
+    /// - if `self.is_nan()`, this returns `self`;
+    /// - if `self` is [`NEG_INFINITY`](Self::NEG_INFINITY), this returns
+    ///   [`MIN`](Self::MIN);
+    /// - if `self` is `-TINY`, this returns `-0.0`;
+    /// - if `self` is `-0.0` or `+0.0`, this returns `TINY`;
+    /// - if `self` is [`MAX`](Self::MAX) or [`INFINITY`](Self::INFINITY), this
+    ///   returns [`INFINITY`](Self::INFINITY);
+    /// - otherwise the unique least value greater than `self` is returned.
+    ///
+    /// This is the IEEE 754 `nextUp` operation, as the primitive floats'
+    /// `next_up`. For a decimal, the least value greater than `self` is one
+    /// unit in the last place of its coefficient widened to as many digits as
+    /// the type holds, down to the smallest exponent. The result is exact and
+    /// signals nothing: `NaN` is returned quietly, and `MAX` steps to
+    /// `INFINITY` without overflow.
+    ///
+    /// The identity `x.next_up() == -(-x).next_down()` holds for all non-NaN
+    /// `x`. When `x` is finite, `x == x.next_up().next_down()` also holds.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::{dec64, D64};
+    ///
+    /// assert_eq!(dec64!(1).next_up(), dec64!(1) + D64::EPSILON);
+    /// assert_eq!(dec64!(1).next_up(), dec64!(1.0000000000000000001));
+    /// assert_eq!(dec64!(0).next_up(), D64::MIN_POSITIVE);
+    /// assert!((-D64::MIN_POSITIVE).next_up().is_sign_negative());
+    /// assert_eq!(D64::MAX.next_up(), D64::INFINITY);
+    /// assert_eq!(D64::NEG_INFINITY.next_up(), D64::MIN);
+    ///
+    /// // The largest coefficient one place finer steps up to the coefficient
+    /// // `MAX / 10 + 1`.
+    /// assert_eq!(dec64!(1844674407370955161.5).next_up(), dec64!(1844674407370955162));
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[inline]
+    pub const fn next_up(self) -> Self {
+        next::next_up(self)
+    }
+
+    /// Returns the greatest number less than `self`.
+    ///
+    /// Let `TINY` be the smallest representable positive value
+    /// ([`MIN_POSITIVE`](Self::MIN_POSITIVE)). Then,
+    /// - if `self.is_nan()`, this returns `self`;
+    /// - if `self` is [`INFINITY`](Self::INFINITY), this returns
+    ///   [`MAX`](Self::MAX);
+    /// - if `self` is `TINY`, this returns `0.0`;
+    /// - if `self` is `-0.0` or `+0.0`, this returns `-TINY`;
+    /// - if `self` is [`MIN`](Self::MIN) or
+    ///   [`NEG_INFINITY`](Self::NEG_INFINITY), this returns
+    ///   [`NEG_INFINITY`](Self::NEG_INFINITY);
+    /// - otherwise the unique greatest value less than `self` is returned.
+    ///
+    /// This is the IEEE 754 `nextDown` operation, as the primitive floats'
+    /// `next_down`. The result is exact and signals nothing.
+    ///
+    /// The identity `x.next_down() == -(-x).next_up()` holds for all non-NaN
+    /// `x`. When `x` is finite, `x == x.next_down().next_up()` also holds.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::{dec64, D64};
+    ///
+    /// assert_eq!(dec64!(1).next_down(), dec64!(1) - D64::EPSILON);
+    /// assert_eq!(dec64!(10).next_down(), dec64!(9.999999999999999999));
+    /// assert_eq!(dec64!(0).next_down(), -D64::MIN_POSITIVE);
+    /// assert!(D64::MIN_POSITIVE.next_down().is_zero());
+    /// assert_eq!(D64::INFINITY.next_down(), D64::MAX);
+    /// assert_eq!(D64::MIN.next_down(), D64::NEG_INFINITY);
+    ///
+    /// // `MAX`'s coefficient one place finer lies between `1844674407370955162`
+    /// // and `1844674407370955161`.
+    /// assert_eq!(dec64!(1844674407370955162).next_down(), dec64!(1844674407370955161.5));
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[inline]
+    pub const fn next_down(self) -> Self {
+        next::next_down(self)
+    }
+
     /// Reduces a decimal number to its shortest (coefficient)
     /// form shifting all significant trailing zeros into the exponent.
     ///
@@ -1496,6 +1611,35 @@ impl<const N: usize> Decimal<N> {
     #[inline(always)]
     pub const fn trunc_with_scale(self, scale: i16) -> Self {
         truncate::truncate(self, scale).check()
+    }
+
+    /// Returns the fractional part of `self`: `self - self.trunc()`.
+    ///
+    /// The result is exact and keeps the sign of `self`, unless `self` is
+    /// integral, where it is `+0`, as for the primitive floats.
+    ///
+    /// The fractional part of an infinity or a `NaN` is a `NaN` and signals an
+    /// [invalid operation](crate#signaling-flags-and-trap-enablers), as
+    /// [`trunc`](Self::trunc) and subtraction do for them.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use fastnum::{dec256, decimal::Context, D256};
+    ///
+    /// assert_eq!(dec256!(3.6).fract(), dec256!(0.6));
+    /// assert_eq!(dec256!(-3.6).fract(), dec256!(-0.6));
+    /// assert_eq!(dec256!(-3).fract(), dec256!(0));
+    /// assert_eq!(dec256!(1.5E+3).fract(), dec256!(0));
+    ///
+    /// let ctx = Context::default().without_traps();
+    /// assert!(D256::INFINITY.with_ctx(ctx).fract().is_nan());
+    /// ```
+    #[must_use = doc::must_use_op!()]
+    #[track_caller]
+    #[inline(always)]
+    pub const fn fract(self) -> Self {
+        truncate::fract(self).check()
     }
 
     /// Returns the largest integer less than or equal to a number.

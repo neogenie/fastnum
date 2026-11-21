@@ -1,7 +1,9 @@
 pub(crate) mod abs;
 pub(crate) mod add;
+pub(crate) mod copysign;
 pub(crate) mod div;
 pub(crate) mod exp;
+pub(crate) mod fract;
 pub(crate) mod ln;
 pub(crate) mod mul;
 pub(crate) mod pow;

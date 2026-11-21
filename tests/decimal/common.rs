@@ -5,6 +5,7 @@ pub(crate) mod fmt;
 pub(crate) mod from;
 pub(crate) mod hash;
 pub(crate) mod math;
+pub(crate) mod next;
 pub(crate) mod parse;
 pub(crate) mod quantize;
 pub(crate) mod quantum;

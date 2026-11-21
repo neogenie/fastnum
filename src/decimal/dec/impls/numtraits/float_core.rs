@@ -96,7 +96,7 @@ impl<const N: usize> FloatCore for Decimal<N> {
 
     #[inline]
     fn fract(self) -> Self {
-        self - self.trunc()
+        Self::fract(self)
     }
 
     #[inline]

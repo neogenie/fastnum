@@ -12,6 +12,7 @@ mod from;
 mod hash;
 mod intrinsics;
 mod math;
+mod next;
 mod parse;
 mod quantize;
 mod quantum;
